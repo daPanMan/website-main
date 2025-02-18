@@ -1,0 +1,16 @@
+{
+"companyName": "JOHN PAN CO.",
+"productName": "Dodge Blocks",
+"productVersion": "0.1",
+"dataUrl": "Dodge Blocks.data.unityweb",
+"wasmCodeUrl": "Dodge Blocks.wasm.code.unityweb",
+"wasmFrameworkUrl": "Dodge Blocks.wasm.framework.unityweb",
+"graphicsAPI": ["WebGL 2.0","WebGL 1.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Light",
+"backgroundColor": "#80C2F0",
+"cacheControl": {"default": "must-revalidate"},
+"developmentBuild": false,
+"multithreading": false,
+"unityVersion": "2019.3.2f1"
+}
