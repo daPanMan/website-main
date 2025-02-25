@@ -27,12 +27,12 @@ camera.position.z = 3;
 // Track mouse movement
 let mouseX = 0, mouseY = 0;
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; // Smooth movement
-controls.dampingFactor = 0.05;
-controls.enableZoom = true; // Allow zooming
-controls.enableRotate = true; // Allow rotation
-controls.enablePan = false; // Disable panning
+// const controls = new OrbitControls(camera, renderer.domElement);
+// controls.enableDamping = true; // Smooth movement
+// controls.dampingFactor = 0.05;
+// controls.enableZoom = true; // Allow zooming
+// controls.enableRotate = true; // Allow rotation
+// controls.enablePan = false; // Disable panning
 
 // Listen for mouse movement
 document.addEventListener('mousemove', (event) => {
