@@ -53,8 +53,9 @@ function animate() {
     requestAnimationFrame(animate);
 
     // Make Cube Rotate Based on Mouse/Touch Movement
-    cube.rotation.y = mouseX * Math.PI;
-    cube.rotation.x = mouseY * Math.PI;
+    cube.position.x = mouseX * 2;
+    cube.position.y = mouseY * 2;
+
 
     controls.update();
     renderer.render(scene, camera);
