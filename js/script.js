@@ -24,20 +24,37 @@ scene.add(light);
 camera.position.z = 3;
 
 // Enable OrbitControls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; // Smooth movement
-controls.dampingFactor = 0.05;
-controls.enableZoom = true; // Allow zooming
-controls.enableRotate = true; // Allow rotation
-controls.enablePan = false; // Disable panning
+// Track mouse movement
+let mouseX = 0, mouseY = 0;
+
+// Listen for mouse movement
+document.addEventListener('mousemove', (event) => {
+    const x = (event.clientX / window.innerWidth) * 4 - 2; // Convert to world coordinates
+    const y = -(event.clientY / window.innerHeight) * 4 + 2;
+    gsap.to(cube.position, { x: x, y: y, duration: 0.5, ease: "power2.out" });
+});
+
+document.addEventListener('touchmove', (event) => {
+    let touch = event.touches[0];
+    const x = (touch.clientX / window.innerWidth) * 4 - 2;
+    const y = -(touch.clientY / window.innerHeight) * 4 + 2;
+    gsap.to(cube.position, { x: x, y: y, duration: 0.5, ease: "power2.out" });
+});
+
 
 // Animation Loop
 function animate() {
     requestAnimationFrame(animate);
-    controls.update(); // Update controls
+
+    // Rotate cube based on mouse position
+    cube.rotation.y = mouseX * Math.PI;
+    cube.rotation.x = mouseY * Math.PI;
+
     renderer.render(scene, camera);
 }
 animate();
+
+
 
 // Handle Resize
 window.addEventListener('resize', () => {
