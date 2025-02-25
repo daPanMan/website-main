@@ -16,7 +16,7 @@ controls.enablePan = false;
 
 // Load Texture
 const textureLoader = new THREE.TextureLoader();
-const cubeTexture = textureLoader.load('textures/box.jpg'); // Make sure this path is correct
+const cubeTexture = textureLoader.load('textures/CB.png'); // Make sure this path is correct
 
 // Create a 3D Cube with Texture
 const geometry = new THREE.BoxGeometry();
