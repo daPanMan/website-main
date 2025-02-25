@@ -1,5 +1,6 @@
-import gsap from 'https://cdn.skypack.dev/gsap';
+// Import Three.js and OrbitControls
 import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+import { OrbitControls } from 'https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls.js';
 
 // Create Scene
 const scene = new THREE.Scene();
@@ -19,14 +20,21 @@ scene.add(cube);
 const light = new THREE.AmbientLight(0xffffff, 1);
 scene.add(light);
 
-// Camera Position
-camera.position.z = 2;
+// Set Camera Position
+camera.position.z = 3;
+
+// Enable OrbitControls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; // Smooth movement
+controls.dampingFactor = 0.05;
+controls.enableZoom = true; // Allow zooming
+controls.enableRotate = true; // Allow rotation
+controls.enablePan = false; // Disable panning
 
 // Animation Loop
 function animate() {
     requestAnimationFrame(animate);
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
+    controls.update(); // Update controls
     renderer.render(scene, camera);
 }
 animate();
@@ -38,15 +46,3 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
 });
 
-
-// Animate Cube on Scroll
-gsap.to(cube.rotation, {
-    x: 2 * Math.PI,
-    y: 2 * Math.PI,
-    scrollTrigger: {
-        trigger: 'body',
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true
-    }
-});
