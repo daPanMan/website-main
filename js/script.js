@@ -1,4 +1,4 @@
-// Setup Scene, Camera, and Renderer
+/// Setup Scene, Camera, and Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -14,9 +14,13 @@ controls.enableZoom = true;
 controls.enableRotate = true;
 controls.enablePan = false;
 
-// Create a 3D Cube
+// Load Texture
+const textureLoader = new THREE.TextureLoader();
+const cubeTexture = textureLoader.load('textures/box.jpg'); // Make sure this path is correct
+
+// Create a 3D Cube with Texture
 const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshStandardMaterial({ color: 0x0077ff });
+const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
 const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
@@ -48,14 +52,23 @@ document.addEventListener('touchmove', (event) => {
     mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
 });
 
+// Gyroscope Movement Effect (for smartphones)
+window.addEventListener("deviceorientation", (event) => {
+    let beta = event.beta ? event.beta : 0; // Tilt front/back (-180 to 180)
+    let gamma = event.gamma ? event.gamma : 0; // Tilt left/right (-90 to 90)
+
+    // Convert gyroscope values to match Three.js rotation
+    cube.rotation.x = THREE.MathUtils.degToRad(beta) * 0.5;
+    cube.rotation.y = THREE.MathUtils.degToRad(gamma) * 0.5;
+});
+
 // Animation Loop
 function animate() {
     requestAnimationFrame(animate);
 
     // Make Cube Rotate Based on Mouse/Touch Movement
-    cube.position.x = mouseX * 2;
-    cube.position.y = mouseY * 2;
-
+    cube.rotation.y += (mouseX * 0.05 - cube.rotation.y) * 0.1;
+    cube.rotation.x += (mouseY * 0.05 - cube.rotation.x) * 0.1;
 
     controls.update();
     renderer.render(scene, camera);
