@@ -27,6 +27,7 @@ function createCube(x, y, z, index) {
     const geometry = new THREE.BoxGeometry();
     const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
     const cube = new THREE.Mesh(geometry, material);
+    cube.frustumCulled = false; // Ensures it remains clickable
 
     // Set Cube Position
     cube.position.set(x, y, z);
