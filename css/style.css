@@ -1,5 +1,34 @@
 body {
     margin: 0;
     overflow: hidden;
-    background: #0d0d0d;
+    font-family: Arial, sans-serif;
+    background: #111;
+}
+
+/* Popup for Cube Content */
+#popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    padding: 20px;
+    background: white;
+    color: black;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.5);
+    display: none;
+}
+
+#close-popup {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.hidden {
+    display: none;
 }
