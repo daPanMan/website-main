@@ -32,3 +32,8 @@ body {
 .hidden {
     display: none;
 }
+.cube-info {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+}
