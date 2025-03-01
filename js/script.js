@@ -11,35 +11,42 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.enableZoom = true;
-controls.enableRotate = true;
+controls.enableRotate = false; // Disable rotate for a fixed view
 controls.enablePan = false;
 
 // Load Texture
 const textureLoader = new THREE.TextureLoader();
-const cubeTexture = textureLoader.load('textures/CB.png'); // Update the image path
+const cubeTexture = textureLoader.load('textures/box.jpg'); // Update the image path
 
-// Create an Array to Store Cubes
+// Create an Array to Store Cubes and Their Original Positions
 const cubes = [];
+const originalPositions = [];
+const circleRadius = 6; // Distance of cubes from the center
+const totalCubes = 10; // Number of cubes
+let activeCube = null; // Stores the currently centered cube
 
 // Function to Create a Cube
-function createCube(x, y, z, index) {
-    const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5); // Bigger cubes
+function createCube(index) {
+    const angle = (index / totalCubes) * Math.PI * 2; // Evenly space cubes in a circle
+    const x = Math.cos(angle) * circleRadius;
+    const y = Math.sin(angle) * circleRadius;
+    const z = 0; // Keep cubes in a flat circular plane
+
+    const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
     const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
     const cube = new THREE.Mesh(geometry, material);
 
     cube.position.set(x, y, z);
-    cube.frustumCulled = false; // Ensure it's always clickable
+    cube.frustumCulled = false;
 
     scene.add(cube);
     cubes.push(cube);
+    originalPositions.push({ x, y, z }); // Store original position
 }
 
-// Generate Multiple Cubes with Random Positions
-for (let i = 0; i < 10; i++) {
-    let x = (Math.random() - 0.5) * 10; // Random X between -5 and 5
-    let y = (Math.random() - 0.5) * 10; // Random Y between -5 and 5
-    let z = (Math.random() - 0.5) * 10; // Random Z between -5 and 5
-    createCube(x, y, z, i);
+// Generate Cubes in a Circular Pattern
+for (let i = 0; i < totalCubes; i++) {
+    createCube(i);
 }
 
 // Add Lighting
@@ -47,7 +54,7 @@ const light = new THREE.AmbientLight(0xffffff, 1);
 scene.add(light);
 
 // Position the Camera
-camera.position.set(0, 0, 10);
+camera.position.set(0, 0, 12); // Move the camera back to see all cubes
 camera.lookAt(0, 0, 0);
 
 // Handle Window Resize
@@ -80,27 +87,57 @@ function onCubeClick(event) {
     mouse.y = y;
 
     raycaster.setFromCamera(mouse, camera);
-    renderer.render(scene, camera); // Ensure renderer updates before checking
+    renderer.render(scene, camera);
 
     const intersects = raycaster.intersectObjects(cubes, true);
     if (intersects.length > 0) {
         const clickedCube = intersects[0].object;
-        const index = cubes.indexOf(clickedCube);
+        moveCubeToCenter(clickedCube);
+    }
+}
+
+// Move the Clicked Cube to the Center
+function moveCubeToCenter(cube) {
+    if (activeCube === cube) return; // If already in the center, do nothing
+
+    // Restore Previous Cube to Original Position
+    if (activeCube) {
+        const index = cubes.indexOf(activeCube);
         if (index !== -1) {
-            alert(`You clicked Cube ${index + 1}!`);
+            gsap.to(activeCube.position, {
+                x: originalPositions[index].x,
+                y: originalPositions[index].y,
+                z: originalPositions[index].z,
+                duration: 1,
+                ease: "power2.out"
+            });
         }
     }
+
+    // Move the New Clicked Cube to the Center
+    gsap.to(cube.position, {
+        x: 0,
+        y: 0,
+        z: 0,
+        duration: 1,
+        ease: "power2.out"
+    });
+
+    activeCube = cube; // Update the active cube
 }
 
 // Animation Loop
 function animate() {
     requestAnimationFrame(animate);
 
-    // Rotate Each Cube Smoothly
-    cubes.forEach(cube => {
-        cube.rotation.x += 0.005; // Slow and smooth rotation
-        cube.rotation.y += 0.005;
-    });
+    // Rotate Cubes Around the Center When Not Focused
+    if (!activeCube) {
+        cubes.forEach((cube, i) => {
+            const angle = (i / totalCubes) * Math.PI * 2 + performance.now() * 0.0005; // Slow circular motion
+            cube.position.x = Math.cos(angle) * circleRadius;
+            cube.position.y = Math.sin(angle) * circleRadius;
+        });
+    }
 
     controls.update();
     renderer.render(scene, camera);
