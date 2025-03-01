@@ -1,4 +1,4 @@
-/// Setup Scene, Camera, and Renderer
+// Setup Scene, Camera, and Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -16,25 +16,42 @@ controls.enablePan = false;
 
 // Load Texture
 const textureLoader = new THREE.TextureLoader();
-const cubeTexture = textureLoader.load('textures/CB.png'); // Make sure this path is correct
+const cubeTexture = textureLoader.load('textures/CB.png'); // Update the image path
 
-// Create a 3D Cube with Texture
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+// Create an Array to Store Cubes
+const cubes = [];
 
-cube.position.set(0, 0, 0); // Center the cube
+// Function to Create a Cube
+function createCube(x, y, z) {
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
+    const cube = new THREE.Mesh(geometry, material);
 
+    // Set Cube Position
+    cube.position.set(x, y, z);
+
+    // Add Cube to Scene
+    scene.add(cube);
+
+    // Store Cube in Array
+    cubes.push(cube);
+}
+
+// Generate Multiple Cubes with Random Positions
+for (let i = 0; i < 10; i++) {
+    let x = (Math.random() - 0.5) * 10; // Random X between -5 and 5
+    let y = (Math.random() - 0.5) * 10; // Random Y between -5 and 5
+    let z = (Math.random() - 0.5) * 10; // Random Z between -5 and 5
+    createCube(x, y, z);
+}
 
 // Add Lighting
 const light = new THREE.AmbientLight(0xffffff, 1);
 scene.add(light);
 
-// Set Initial Camera Position
-camera.position.set(0, 0, 3); // Keep camera at a distance
-camera.lookAt(0, 0, 0); // Always look at the cube
-
+// Position the Camera
+camera.position.set(0, 0, 10);
+camera.lookAt(0, 0, 0);
 
 // Handle Window Resize
 window.addEventListener('resize', () => {
@@ -43,38 +60,15 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
 });
 
-
-// Mouse Movement Effect
-let mouseX = 0, mouseY = 0;
-document.addEventListener('mousemove', (event) => {
-    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-    mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-});
-
-// Touch Movement Effect
-document.addEventListener('touchmove', (event) => {
-    let touch = event.touches[0];
-    mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
-    mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
-});
-
-// Gyroscope Movement Effect (for smartphones)
-window.addEventListener("deviceorientation", (event) => {
-    let beta = event.beta ? event.beta : 0; // Tilt front/back (-180 to 180)
-    let gamma = event.gamma ? event.gamma : 0; // Tilt left/right (-90 to 90)
-
-    // Convert gyroscope values to match Three.js rotation
-    cube.rotation.x = THREE.MathUtils.degToRad(beta) * 0.5;
-    cube.rotation.y = THREE.MathUtils.degToRad(gamma) * 0.5;
-});
-
 // Animation Loop
 function animate() {
     requestAnimationFrame(animate);
 
-    // Make Cube Rotate Based on Mouse/Touch Movement
-    cube.rotation.y += (mouseX * 0.05 - cube.rotation.y) * 0.1;
-    cube.rotation.x += (mouseY * 0.05 - cube.rotation.x) * 0.1;
+    // Rotate Each Cube
+    cubes.forEach(cube => {
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+    });
 
     controls.update();
     renderer.render(scene, camera);
