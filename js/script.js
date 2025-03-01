@@ -20,34 +20,18 @@ const cubeTexture = textureLoader.load('textures/CB.png'); // Update the image p
 
 // Create an Array to Store Cubes
 const cubes = [];
-const cubeDivs = []; // Array to store cube div elements
 
 // Function to Create a Cube
 function createCube(x, y, z, index) {
-    const geometry = new THREE.BoxGeometry();
+    const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5); // Bigger cubes
     const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
     const cube = new THREE.Mesh(geometry, material);
-    cube.frustumCulled = false; // Ensures it remains clickable
 
-    // Set Cube Position
     cube.position.set(x, y, z);
+    cube.frustumCulled = false; // Ensure it's always clickable
 
-    // Add Cube to Scene
     scene.add(cube);
     cubes.push(cube);
-
-    // Create a Corresponding HTML Div for the Cube
-    const cubeDiv = document.createElement("div");
-    cubeDiv.classList.add("cube-info");
-    cubeDiv.innerHTML = `Cube ${index + 1}`;
-    cubeDiv.style.position = "absolute";
-    cubeDiv.style.color = "#fff";
-    cubeDiv.style.background = "rgba(0, 0, 0, 0.7)";
-    cubeDiv.style.padding = "5px 10px";
-    cubeDiv.style.borderRadius = "5px";
-    cubeDiv.style.display = "none"; // Hide initially
-    document.body.appendChild(cubeDiv);
-    cubeDivs.push(cubeDiv);
 }
 
 // Generate Multiple Cubes with Random Positions
@@ -73,48 +57,49 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
 });
 
-// ** Raycaster to Detect Clicks on Cubes **
+// ** Raycaster for Click Detection **
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-window.addEventListener("click", (event) => {
-    // Convert Mouse Click Position to Normalized Device Coordinates (-1 to +1)
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+// Handle Click & Touch Events
+window.addEventListener("click", onCubeClick);
+window.addEventListener("touchstart", onCubeClick, { passive: true });
 
-    // Update the Raycaster
+function onCubeClick(event) {
+    let x, y;
+    
+    if (event.touches) { // Mobile touch
+        x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+        y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
+    } else { // Mouse click
+        x = (event.clientX / window.innerWidth) * 2 - 1;
+        y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
+
+    mouse.x = x;
+    mouse.y = y;
+
     raycaster.setFromCamera(mouse, camera);
+    renderer.render(scene, camera); // Ensure renderer updates before checking
 
-    // Detect Intersection with Cubes
-    const intersects = raycaster.intersectObjects(cubes);
-
+    const intersects = raycaster.intersectObjects(cubes, true);
     if (intersects.length > 0) {
-        const clickedCube = intersects[0].object; // Get the first intersected cube
-        const index = cubes.indexOf(clickedCube); // Find the index of the clicked cube
+        const clickedCube = intersects[0].object;
+        const index = cubes.indexOf(clickedCube);
         if (index !== -1) {
             alert(`You clicked Cube ${index + 1}!`);
-            
-            // Show Cube Info Div
-            cubeDivs[index].style.display = "block";
-            cubeDivs[index].style.left = event.clientX + "px";
-            cubeDivs[index].style.top = event.clientY + "px";
-
-            // Hide after 2 seconds
-            setTimeout(() => {
-                cubeDivs[index].style.display = "none";
-            }, 2000);
         }
     }
-});
+}
 
 // Animation Loop
 function animate() {
     requestAnimationFrame(animate);
 
-    // Rotate Each Cube
+    // Rotate Each Cube Smoothly
     cubes.forEach(cube => {
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
+        cube.rotation.x += 0.005; // Slow and smooth rotation
+        cube.rotation.y += 0.005;
     });
 
     controls.update();
