@@ -24,12 +24,17 @@ const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
 const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
+cube.position.set(0, 0, 0); // Center the cube
+
+
 // Add Lighting
 const light = new THREE.AmbientLight(0xffffff, 1);
 scene.add(light);
 
 // Set Initial Camera Position
-camera.position.z = 3;
+camera.position.set(0, 0, 3); // Keep camera at a distance
+camera.lookAt(0, 0, 0); // Always look at the cube
+
 
 // Handle Window Resize
 window.addEventListener('resize', () => {
@@ -37,6 +42,7 @@ window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 });
+
 
 // Mouse Movement Effect
 let mouseX = 0, mouseY = 0;
