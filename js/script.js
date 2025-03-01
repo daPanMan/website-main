@@ -16,7 +16,7 @@ controls.enablePan = false;
 
 // Load Texture
 const textureLoader = new THREE.TextureLoader();
-const cubeTexture = textureLoader.load('textures/box.jpg'); // Update the image path
+const cubeTexture = textureLoader.load('textures/CB.png'); // Update the image path
 
 // Create an Array to Store Cubes
 const cubes = [];
