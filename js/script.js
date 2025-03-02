@@ -78,25 +78,11 @@ volumeSlider.addEventListener("mouseup", () => {
 });
 
 
-
-const iframeContainer = document.getElementById("iframe-container");
-const embeddedPage = document.getElementById("embedded-page");
-
-// ✅ Load HTML Content as a Texture for the 3D Plane
-const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-const planeGeometry = new THREE.PlaneGeometry(5, 3); // Adjust size as needed
-const iframePlane = new THREE.Mesh(planeGeometry, planeMaterial);
-
-// ✅ Position the Plane Right in Front of the Center Cube
-iframePlane.position.set(0, 0, 2); // Move slightly forward in front of the center cube
-iframePlane.visible = false; // Initially hidden
-scene.add(iframePlane);
-
-// ✅ Load Textures (For Cubes)
+// ✅ Load Textures for Cubes
 const textureLoader = new THREE.TextureLoader();
 const cubeTexture = textureLoader.load('textures/CB.png');
 
-// ✅ Create an Array to Store Cubes and Their Original Positions
+// ✅ Create Cubes & Store Positions
 const cubes = [];
 const originalPositions = [];
 const circleRadius = 6;
@@ -104,7 +90,7 @@ const totalCubes = 10;
 let activeCube = null;
 
 // ✅ Add Lighting
-const light = new THREE.AmbientLight(0xffffff, 1);
+scene.add(new THREE.AmbientLight(0xffffff, 1));
 
 // ✅ Create a CSS3D Renderer for HTML Content in 3D
 const cssRenderer = new THREE.CSS3DRenderer();
@@ -116,13 +102,13 @@ document.body.appendChild(cssRenderer.domElement);
 // ✅ Create a 3D `iframe` Element
 const iframeElement = document.createElement("iframe");
 iframeElement.src = "about.html"; // Your embedded page
-iframeElement.style.width = "800px"; // Adjust size
+iframeElement.style.width = "800px";
 iframeElement.style.height = "600px";
 iframeElement.style.border = "none";
 
 // ✅ Wrap the `iframe` in a 3D Object
 const cssObject = new THREE.CSS3DObject(iframeElement);
-cssObject.position.set(0, 0, 2); // Move it in front of the cube
+cssObject.position.set(0, 0, 2); // Position in front of center cube
 cssObject.visible = false;
 scene.add(cssObject);
 
