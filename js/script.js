@@ -2,8 +2,6 @@
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-const iframeContainer = document.getElementById("iframe-container");
-const embeddedPage = document.getElementById("embedded-page");
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -189,23 +187,12 @@ function zoomCubeIn(cube) {
     }
 
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "power2.out" });
-    gsap.to(cube.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 }); // Shrink the cube
+    gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
 
-    setTimeout(() => {
-        iframeContainer.style.display = "block"; // Show the embedded page
-    }, 1000); // Wait until the cube shrinks
+    
 
     activeCube = cube;
 }
-
-
-document.addEventListener("click", (event) => {
-    if (iframeContainer.style.display === "block" && !event.target.closest("#embedded-page")) {
-        iframeContainer.style.display = "none";
-        returnCubeToFormation(activeCube);
-    }
-});
-
 
 // ✅ Return Cube to Original Circular Formation
 function returnCubeToFormation(cube) {
