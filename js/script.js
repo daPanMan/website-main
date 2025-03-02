@@ -14,36 +14,36 @@ controls.enableZoom = true;
 controls.enableRotate = false;
 controls.enablePan = false;
 
-const bgm = document.getElementById("bgm");
-const volumeSlider = document.getElementById("volume-slider");
+// B.pnconst bgm = document.getElementById("bgm");
+// const volumeSlider = document.getElementById("volume-slider");
 
-// Ensure autoplay works by playing muted first
-function startBGM() {
-    bgm.play().then(() => {
-        console.log("BGM is playing automatically.");
-    }).catch(error => {
-        console.warn("Autoplay blocked, waiting for user interaction...");
-    });
-}
+// // Ensure autoplay works by playing muted first
+// function startBGM() {
+//     bgm.play().then(() => {
+//         console.log("BGM is playing automatically.");
+//     }).catch(error => {
+//         console.warn("Autoplay blocked, waiting for user interaction...");
+//     });
+// }
 
-// Try autoplay on load (muted)
-window.addEventListener("load", () => {
-    bgm.muted = true; // Start muted to allow autoplay
-    startBGM();
-});
+// // Try autoplay on load (muted)
+// window.addEventListener("load", () => {
+//     bgm.muted = true; // Start muted to allow autoplay
+//     startBGM();
+// });
 
-// Unmute and control volume when the user interacts
-volumeSlider.addEventListener("input", () => {
-    if (bgm.muted) {
-        bgm.muted = false; // Unmute when user interacts
-    }
-    bgm.volume = volumeSlider.value;
-});
+// // Unmute and control volume when the user interacts
+// volumeSlider.addEventListener("input", () => {
+//     if (bgm.muted) {
+//         bgm.muted = false; // Unmute when user interacts
+//     }
+//     bgm.volume = volumeSlider.value;
+// });
 
-// Smooth fade-in effect after unmuting
-volumeSlider.addEventListener("change", () => {
-    gsap.to(bgm, { volume: bgm.volume, duration: 2 });
-});
+// // Smooth fade-in effect after unmuting
+// volumeSlider.addEventListener("change", () => {
+//     gsap.to(bgm, { volume: bgm.volume, duration: 2 });
+// });
 
 
 
