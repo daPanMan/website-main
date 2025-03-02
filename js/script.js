@@ -244,7 +244,7 @@ function returnCubeToFormation(cube) {
 }
 
 window.addEventListener("click", (event) => {
-    if (cssObject.visible) {
+    if (cssObject.visible && activeCube) {
         // ✅ Check if click is outside the iframe
         playSound(zoomOutSound);
         returnCubeToFormation(activeCube); // ✅ Use activeCube instead of cube
