@@ -79,11 +79,12 @@ window.addEventListener("touchstart", (event) => {
 
 function onCubeClick(event) {
     let x, y;
-    const rect = renderer.domElement.getBoundingClientRect(); 
-    if (event.touches) { // Mobile touch event
+    
+    const rect = renderer.domElement.getBoundingClientRect();
+    if (event.touches) { 
         x = ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
         y = -((event.touches[0].clientY - rect.top) / rect.height) * 2 + 1;
-    } else { // Mouse click event
+    } else { 
         x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     }
@@ -97,7 +98,12 @@ function onCubeClick(event) {
     const intersects = raycaster.intersectObjects(cubes, true);
     if (intersects.length > 0) {
         const clickedCube = intersects[0].object;
-        zoomCubeIn(clickedCube);
+        
+        if (clickedCube === activeCube) {
+            returnCubeToFormation(clickedCube); // If already in center, return it
+        } else {
+            zoomCubeIn(clickedCube);
+        }
     }
 }
 
@@ -107,18 +113,7 @@ function zoomCubeIn(cube) {
 
     // Restore Previous Cube to Original Position and Scale
     if (activeCube) {
-        const index = cubes.indexOf(activeCube);
-        if (index !== -1) {
-            gsap.to(activeCube.position, {
-                x: originalPositions[index].x,
-                y: originalPositions[index].y,
-                z: originalPositions[index].z,
-                duration: 1,
-                ease: "power2.out"
-            });
-
-            gsap.to(activeCube.scale, { x: 1, y: 1, z: 1, duration: 1 }); // Reset scale
-        }
+        returnCubeToFormation(activeCube);
     }
 
     // Move the New Clicked Cube to the Center and Zoom It In
@@ -133,6 +128,23 @@ function zoomCubeIn(cube) {
     gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 }); // Zoom in
 
     activeCube = cube;
+}
+
+// Return Cube to Original Circular Formation
+function returnCubeToFormation(cube) {
+    const index = cubes.indexOf(cube);
+    if (index !== -1) {
+        gsap.to(cube.position, {
+            x: originalPositions[index].x,
+            y: originalPositions[index].y,
+            z: originalPositions[index].z,
+            duration: 1,
+            ease: "power2.out"
+        });
+
+        gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1 }); // Reset size
+    }
+    activeCube = null; // No cube is now in center
 }
 
 // Animation Loop
