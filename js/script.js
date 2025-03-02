@@ -16,7 +16,7 @@ controls.enablePan = false;
 
 // Load Texture
 const textureLoader = new THREE.TextureLoader();
-const cubeTexture = textureLoader.load('textures/CB.png'); // Update the image path
+const cubeTexture = textureLoader.load('textures/box.jpg'); // Update the image path
 
 // Create an Array to Store Cubes and Their Original Positions
 const cubes = [];
@@ -130,14 +130,11 @@ function moveCubeToCenter(cube) {
 function animate() {
     requestAnimationFrame(animate);
 
-    // Rotate Cubes Around the Center When Not Focused
-    if (!activeCube) {
-        cubes.forEach((cube, i) => {
-            const angle = (i / totalCubes) * Math.PI * 2 + performance.now() * 0.0005; // Slow circular motion
-            cube.position.x = Math.cos(angle) * circleRadius;
-            cube.position.y = Math.sin(angle) * circleRadius;
-        });
-    }
+    // Rotate Each Cube Individually
+    cubes.forEach((cube) => {
+        cube.rotation.x += 0.01; // Self-rotation
+        cube.rotation.y += 0.01;
+    });
 
     controls.update();
     renderer.render(scene, camera);
