@@ -5,7 +5,8 @@ const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-
+const zoomInSound = new Audio("audio/zoom-in.wav");
+const zoomOutSound = new Audio("audio/zoom-out.wav");
 // ✅ Add OrbitControls
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -13,6 +14,12 @@ controls.dampingFactor = 0.05;
 controls.enableZoom = true;
 controls.enableRotate = false;
 controls.enablePan = false;
+
+// ✅ Function to Play a Sound
+function playSound(sound) {
+    sound.currentTime = 0; // Restart sound if already playing
+    sound.play();
+}
 
 // ✅ Background Music Controls
 const bgm = document.getElementById("bgm");
@@ -174,6 +181,8 @@ function zoomCubeIn(cube) {
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "power2.out" });
     gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
 
+    playSound(zoomInSound);
+
     activeCube = cube;
 }
 
@@ -183,6 +192,8 @@ function returnCubeToFormation(cube) {
     if (index !== -1) {
         gsap.to(cube.position, { x: originalPositions[index].x, y: originalPositions[index].y, z: originalPositions[index].z, duration: 1, ease: "power2.out" });
         gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1 });
+
+        playSound(zoomOutSound);
     }
     activeCube = null;
 }
