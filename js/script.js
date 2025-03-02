@@ -77,6 +77,21 @@ volumeSlider.addEventListener("mouseup", () => {
     isInterrupted = false;
 });
 
+
+
+const iframeContainer = document.getElementById("iframe-container");
+const embeddedPage = document.getElementById("embedded-page");
+
+// ✅ Load HTML Content as a Texture for the 3D Plane
+const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+const planeGeometry = new THREE.PlaneGeometry(5, 3); // Adjust size as needed
+const iframePlane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+// ✅ Position the Plane Right in Front of the Center Cube
+iframePlane.position.set(0, 0, 2); // Move slightly forward in front of the center cube
+iframePlane.visible = false; // Initially hidden
+scene.add(iframePlane);
+
 // ✅ Load Textures (For Cubes)
 const textureLoader = new THREE.TextureLoader();
 const cubeTexture = textureLoader.load('textures/CB.png');
@@ -87,6 +102,46 @@ const originalPositions = [];
 const circleRadius = 6;
 const totalCubes = 10;
 let activeCube = null;
+
+// ✅ Add Lighting
+const light = new THREE.AmbientLight(0xffffff, 1);
+
+// ✅ Create a CSS3D Renderer for HTML Content in 3D
+const cssRenderer = new THREE.CSS3DRenderer();
+cssRenderer.setSize(window.innerWidth, window.innerHeight);
+cssRenderer.domElement.style.position = "absolute";
+cssRenderer.domElement.style.top = 0;
+document.body.appendChild(cssRenderer.domElement);
+
+// ✅ Create a 3D `iframe` Element
+const iframeElement = document.createElement("iframe");
+iframeElement.src = "about.html"; // Your embedded page
+iframeElement.style.width = "800px"; // Adjust size
+iframeElement.style.height = "600px";
+iframeElement.style.border = "none";
+
+// ✅ Wrap the `iframe` in a 3D Object
+const cssObject = new THREE.CSS3DObject(iframeElement);
+cssObject.position.set(0, 0, 2); // Move it in front of the cube
+cssObject.visible = false;
+scene.add(cssObject);
+
+// ✅ Function to Show the 3D Embedded Page
+function showIframeOnCube(cube) {
+    if (activeCube === cube) return;
+
+    if (activeCube) {
+        returnCubeToFormation(activeCube);
+    }
+
+    // ✅ Shrink the Cube and Show the Plane
+    gsap.to(cube.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 });
+    setTimeout(() => {
+        cssObject.visible = true;
+    }, 1000);
+
+    activeCube = cube;
+}
 
 // ✅ Function to Create a Cube
 function createCube(index) {
@@ -113,8 +168,6 @@ for (let i = 0; i < totalCubes; i++) {
     createCube(i);
 }
 
-// ✅ Add Lighting
-const light = new THREE.AmbientLight(0xffffff, 1);
 scene.add(light);
 
 // ✅ Position the Camera
@@ -141,8 +194,7 @@ window.addEventListener("touchstart", (event) => {
 }, { passive: false });
 
 
-const iframeContainer = document.getElementById("iframe-container");
-const embeddedPage = document.getElementById("embedded-page");
+
 
 
 function onCubeClick(event) {
@@ -207,7 +259,7 @@ function returnCubeToFormation(cube) {
 
         
     }
-    iframeContainer.style.display = "none";
+    cssObject.visible = false;
     activeCube = null;
 }
 
@@ -318,5 +370,9 @@ function animate() {
 
     controls.update();
     renderer.render(scene, camera);
+    function animate() {
+    
+    cssRenderer.render(scene, camera);
+}
 }
 animate();
