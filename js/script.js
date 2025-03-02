@@ -258,6 +258,7 @@ window.addEventListener("click", (event) => {
 
     if (intersects.length === 0) {
         // ✅ Clicked outside cubes → Close the iframe
+        playSound(zoomOutSound);
         returnCubeToFormation(activeCube);
     }
 }, { passive: false });
