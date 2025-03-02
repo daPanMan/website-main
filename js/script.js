@@ -141,6 +141,8 @@ window.addEventListener("touchstart", (event) => {
 }, { passive: false });
 
 
+const iframeContainer = document.getElementById("iframe-container");
+const embeddedPage = document.getElementById("embedded-page");
 
 
 function onCubeClick(event) {
@@ -189,7 +191,9 @@ function zoomCubeIn(cube) {
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "power2.out" });
     gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
 
-    
+    setTimeout(() => {
+        iframeContainer.style.display = "block"; // Show the embedded page
+    }, 1000); // Wait until the cube shrinks 
 
     activeCube = cube;
 }
@@ -203,6 +207,7 @@ function returnCubeToFormation(cube) {
 
         
     }
+    iframeContainer.style.display = "none";
     activeCube = null;
 }
 
