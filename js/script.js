@@ -100,13 +100,15 @@ cssRenderer.domElement.style.position = "absolute";
 cssRenderer.domElement.style.top = 0;
 document.body.appendChild(cssRenderer.domElement);
 
-// ✅ Create a 3D `iframe` Element
+// ✅ Create the `iframe` Element
 const iframeElement = document.createElement("iframe");
-iframeElement.src = "about.html"; // Change this to your actual page
-iframeElement.style.width = "1024px";  // Set proper width
-iframeElement.style.height = "768px";  // Set proper height
+iframeElement.src = "about.html"; // Replace with your actual embedded page
+iframeElement.style.width = "1024px";
+iframeElement.style.height = "768px";
 iframeElement.style.border = "none";
-iframeElement.style.opacity = "0"; // ✅ Initially hidden to prevent flashing
+iframeElement.style.opacity = "0"; // ✅ Initially hidden
+iframeElement.style.background = "transparent"; // ✅ Prevent white background
+iframeElement.allowTransparency = "true"; // ✅ Support transparency (if possible)
 
 // ✅ Detect When the `iframe` Has Fully Loaded
 iframeElement.onload = () => {
@@ -224,7 +226,13 @@ function zoomCubeIn(cube) {
 
     setTimeout(() => {
         cssObject.visible = true;
-    }, 1000);
+        iframeElement.style.opacity = "0"; // ✅ Keep hidden until loaded
+
+        // ✅ Ensure the `iframe` fades in after loading
+        iframeElement.onload = () => {
+            gsap.to(iframeElement, { opacity: 1, duration: 0.5 });
+        };
+    }, 1000); // ✅ Wait for the cube to shrink first
 
     activeCube = cube;
 }
