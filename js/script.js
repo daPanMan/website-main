@@ -40,6 +40,7 @@ function updateVolume() {
         bgm.muted = false;
     }
     bgm.volume = volumeSlider.value;
+    isAdjustingVolume = false;
 }
 
 // ✅ Add Click & Touch Support for Volume Control
@@ -62,9 +63,6 @@ volumeSlider.addEventListener("change", () => {
     gsap.to(bgm, { volume: bgm.volume, duration: 2 });
 });
 
-volumeSlider.addEventListener("touchend", () => {
-    isAdjustingVolume = false;
-});
 
 // ✅ Load Textures (For Cubes)
 const textureLoader = new THREE.TextureLoader();
