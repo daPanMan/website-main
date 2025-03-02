@@ -106,9 +106,7 @@ iframeElement.src = "about.html"; // Replace with your actual page
 iframeElement.style.width = "1024px";
 iframeElement.style.height = "768px";
 iframeElement.style.border = "none";
-iframeElement.style.opacity = "0"; // ✅ Initially hidden
-iframeElement.style.background = "transparent"; // ✅ Remove white background
-iframeElement.allowTransparency = "true"; // ✅ Support transparency
+
 
 // ✅ Wrap the `iframe` in a CSS3DObject but HIDE IT INITIALLY
 const cssObject = new THREE.CSS3DObject(iframeElement);
@@ -220,15 +218,7 @@ function zoomCubeIn(cube) {
     gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
 
     setTimeout(() => {
-        cssObject.visible = false; // ✅ Keep hidden
-        iframeElement.style.opacity = "0"; // ✅ Prevent instant flashing
-
-        // ✅ Only Show `CSS3DObject` After `iframe` is Fully Loaded
-        iframeElement.onload = () => {
-            cssObject.visible = true; // ✅ Now the iframe is ready
-            gsap.to(cssObject.scale, { x: 1, y: 1, z: 1, duration: 1 });
-            iframeElement.style.opacity = "1"; // ✅ Smooth fade-in
-        };
+        cssObject.visible = true;
     }, 1000); // ✅ Wait for the cube animation to finish
 
     activeCube = cube;
