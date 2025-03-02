@@ -175,9 +175,6 @@ window.addEventListener("touchstart", (event) => {
 }, { passive: false });
 
 
-
-
-
 function onCubeClick(event) {
     isInterrupted = true;
     let x, y;
@@ -246,6 +243,11 @@ function returnCubeToFormation(cube) {
     activeCube = null;
 }
 
+window.addEventListener("click", (event) => {
+    if(cssObject.visible){
+        returnCubeToFormation(cube);
+    }
+}, { passive: false });
 
 // ✅ Add 3D Universe Background
 const spaceTexture = textureLoader.load("textures/stars.jpg");
