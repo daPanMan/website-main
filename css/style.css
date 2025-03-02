@@ -52,3 +52,33 @@ canvas {
     width: 100vw;
     height: 100vh;
 }
+
+#volume-slider {
+    -webkit-appearance: none; /* Remove default iOS/Android styling */
+    appearance: none; /* Standard property */
+    background: transparent; /* Remove the black box */
+    border: none; /* Ensure no border is added */
+    outline: none; /* Remove focus outline */
+    width: 100px; /* Adjust width */
+    height: 6px; /* Adjust height for visibility */
+    cursor: pointer;
+}
+
+/* ✅ Style the slider thumb (handle) for mobile */
+#volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    background: white; /* Change color for visibility */
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* ✅ Style the track (bar) */
+#volume-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    background: white;
+    border-radius: 3px;
+}
