@@ -11,12 +11,12 @@
     <source src="audio/website.wav" type="audio/wav">
 </audio>
 <div id="volume-control" style="position: fixed; top: 20px; left: 20px; z-index: 100; cursor: pointer;">
-    <span id="music-icon" style="font-size: 24px; color: white; user-select: none;">🎵</span>
+    <span id="music-icon" style="font-size: 24px; color: white; user-select: none; display: inline-block;">🎵</span>
     <div id="volume-slider-container" style="
         display: none; 
         position: absolute; 
-        top: 30px; /* Push slider below the icon */
-        left: 50%; 
+        top: 100%; /* Position directly below the icon */
+        left: 50%;
         transform: translateX(-50%);
         background: rgba(0, 0, 0, 0.8); 
         padding: 5px; 
@@ -26,6 +26,7 @@
             style="writing-mode: bt-lr; transform: rotate(270deg); width: 100px;">
     </div>
 </div>
+
 
 
 <body>
