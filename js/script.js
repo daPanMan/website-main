@@ -51,13 +51,12 @@ musicIcon.addEventListener("touchstart", (event) => {
     toggleVolumeSlider();
 }, { passive: true });
 
-// ✅ Unmute and control volume when the user interacts
-volumeSlider.addEventListener("input", () => {
-    if (bgm.muted) {
-        bgm.muted = false; // Unmute when user interacts
-    }
-    bgm.volume = volumeSlider.value;
-});
+// ✅ Listen for volume changes on both desktop and mobile
+volumeSlider.addEventListener("input", updateVolume);
+volumeSlider.addEventListener("touchmove", (event) => {
+    event.preventDefault(); // Prevent unintended scrolling
+    updateVolume();
+}, { passive: false });
 
 // ✅ Smooth fade-in effect after unmuting
 volumeSlider.addEventListener("change", () => {
