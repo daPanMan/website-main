@@ -102,37 +102,24 @@ document.body.appendChild(cssRenderer.domElement);
 
 // ✅ Create a 3D `iframe` Element
 const iframeElement = document.createElement("iframe");
-iframeElement.src = "about.html"; // Your embedded page
-iframeElement.style.width = "800px";
-iframeElement.style.height = "600px";
+iframeElement.src = "about.html"; // Change this to your actual page
+iframeElement.style.width = "1024px";  // Set proper width
+iframeElement.style.height = "768px";  // Set proper height
 iframeElement.style.border = "none";
 
-// ✅ Wrap the `iframe` in a 3D Object
+// ✅ Wrap the `iframe` in a CSS3DObject
 const cssObject = new THREE.CSS3DObject(iframeElement);
-cssObject.position.set(0, 0, 2); // Position in front of center cube
-cssObject.visible = false;
+cssObject.scale.set(0.01, 0.01, 0.01); // Start tiny, to simulate cube transformation
+cssObject.position.set(0, 0, 3); // Position it in front of the cube
+cssObject.visible = false; // Hide initially
 scene.add(cssObject);
+
 
 
 // ✅ Add Lighting
 // const light = new THREE.AmbientLight(0xffffff, 1);
 
-// ✅ Function to Show the 3D Embedded Page
-function showIframeOnCube(cube) {
-    if (activeCube === cube) return;
 
-    if (activeCube) {
-        returnCubeToFormation(activeCube);
-    }
-
-    // ✅ Shrink the Cube and Show the Plane
-    gsap.to(cube.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 });
-    setTimeout(() => {
-        cssObject.visible = true;
-    }, 1000);
-
-    activeCube = cube;
-}
 
 // ✅ Function to Create a Cube
 function createCube(index) {
@@ -231,28 +218,31 @@ function zoomCubeIn(cube) {
         returnCubeToFormation(activeCube);
     }
 
-    gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "power2.out" });
-    gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
+    // ✅ Shrink the Cube and Show the `iframe`
+    gsap.to(cube.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 });
 
-    // setTimeout(() => {
-    //     cssObject.visible = true; // Show the embedded page
-    // }, 1000); // Wait until the cube shrinks 
+    setTimeout(() => {
+        cssObject.visible = true;
+        gsap.to(cssObject.scale, { x: 1, y: 1, z: 1, duration: 1 });
+    }, 1000);
 
     activeCube = cube;
 }
 
-// ✅ Return Cube to Original Circular Formation
+
 function returnCubeToFormation(cube) {
     const index = cubes.indexOf(cube);
     if (index !== -1) {
         gsap.to(cube.position, { x: originalPositions[index].x, y: originalPositions[index].y, z: originalPositions[index].z, duration: 1, ease: "power2.out" });
         gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1 });
 
-        
+        gsap.to(cssObject.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 0.5, onComplete: () => {
+            cssObject.visible = false;
+        }});
     }
-cssObject.visible = false;
     activeCube = null;
 }
+
 
 // ✅ Add 3D Universe Background
 const spaceTexture = textureLoader.load("textures/stars.jpg");
