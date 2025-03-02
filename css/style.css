@@ -53,3 +53,12 @@ canvas {
     height: 100vh;
 }
 
+iframe {
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+}
+
+iframe {
+    backface-visibility: hidden;
+    will-change: transform;
+}
