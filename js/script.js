@@ -246,9 +246,9 @@ function returnCubeToFormation(cube) {
 window.addEventListener("click", (event) => {
     if (cssObject.visible) {
         // ✅ Check if click is outside the iframe
-        if (!event.target.closest("iframe")) {
+        
             returnCubeToFormation(activeCube); // ✅ Use activeCube instead of cube
-        }
+       
     }
 }, { passive: false });
 
