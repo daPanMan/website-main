@@ -13,7 +13,7 @@ body {
     transform: translate(-50%, -50%);
     width: 300px;
     padding: 20px;
-    background: white;
+    background: transparent;
     color: black;
     text-align: center;
     opacity: 3;
