@@ -102,23 +102,18 @@ document.body.appendChild(cssRenderer.domElement);
 
 // ✅ Create the `iframe` Element
 const iframeElement = document.createElement("iframe");
-iframeElement.src = "about.html"; // Replace with your actual embedded page
-iframeElement.style.width = "102px";
-iframeElement.style.height = "76px";
+iframeElement.src = "about.html"; // Replace with your actual page
+iframeElement.style.width = "1024px";
+iframeElement.style.height = "768px";
 iframeElement.style.border = "none";
 iframeElement.style.opacity = "0"; // ✅ Initially hidden
 iframeElement.style.background = "transparent"; // ✅ Remove white background
 iframeElement.allowTransparency = "true"; // ✅ Support transparency
 
-// ✅ Prevent the White Flash by Waiting for Full Load
-iframeElement.onload = () => {
-    gsap.to(iframeElement, { opacity: 1, duration: 0.5 }); // ✅ Fade in smoothly
-};
-
-// ✅ Wrap the `iframe` in a CSS3DObject
+// ✅ Wrap the `iframe` in a CSS3DObject but HIDE IT INITIALLY
 const cssObject = new THREE.CSS3DObject(iframeElement);
-cssObject.scale.set(0.01, 0.01, 0.01); // Start tiny, to simulate cube transformation
-cssObject.position.set(0, 0, 3); // Position it in front of the cube
+cssObject.scale.set(0.01, 0.01, 0.01); // Start tiny, simulating transformation
+cssObject.position.set(0, 0, 3); // Position in front of the cube
 cssObject.visible = false; // Hide initially
 scene.add(cssObject);
 
