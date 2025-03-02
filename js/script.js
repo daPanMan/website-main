@@ -119,7 +119,22 @@ scene.add(cssObject);
 // ✅ Add Lighting
 // const light = new THREE.AmbientLight(0xffffff, 1);
 
+// // ✅ Function to Show the 3D Embedded Page
+// function showIframeOnCube(cube) {
+//     if (activeCube === cube) return;
 
+//     if (activeCube) {
+//         returnCubeToFormation(activeCube);
+//     }
+
+//     // ✅ Shrink the Cube and Show the Plane
+//     gsap.to(cube.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 });
+//     setTimeout(() => {
+//         cssObject.visible = true;
+//     }, 1000);
+
+//     activeCube = cube;
+// }
 
 // ✅ Function to Create a Cube
 function createCube(index) {
@@ -219,11 +234,10 @@ function zoomCubeIn(cube) {
     }
 
     // ✅ Shrink the Cube and Show the `iframe`
-    gsap.to(cube.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 });
+    gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
 
     setTimeout(() => {
         cssObject.visible = true;
-        gsap.to(cssObject.scale, { x: 1, y: 1, z: 1, duration: 1 });
     }, 1000);
 
     activeCube = cube;
