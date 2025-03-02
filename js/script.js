@@ -79,13 +79,13 @@ window.addEventListener("touchstart", (event) => {
 
 function onCubeClick(event) {
     let x, y;
-    
-    if (event.touches) { 
-        x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
-        y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
-    } else { 
-        x = (event.clientX / window.innerWidth) * 2 - 1;
-        y = -(event.clientY / window.innerHeight) * 2 + 1;
+    const rect = renderer.domElement.getBoundingClientRect(); 
+    if (event.touches) { // Mobile touch event
+        x = ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
+        y = -((event.touches[0].clientY - rect.top) / rect.height) * 2 + 1;
+    } else { // Mouse click event
+        x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     }
 
     mouse.x = x;
