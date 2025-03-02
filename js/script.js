@@ -34,6 +34,8 @@ function toggleVolumeSlider() {
 
 // ✅ Update Volume
 function updateVolume() {
+    isAdjustingVolume = true;
+    event.stopPropagation();
     if (bgm.muted) {
         bgm.muted = false;
     }
@@ -43,8 +45,6 @@ function updateVolume() {
 // ✅ Add Click & Touch Support for Volume Control
 musicIcon.addEventListener("click", toggleVolumeSlider);
 musicIcon.addEventListener("touchstart", (event) => {
-    isAdjustingVolume = true;
-    event.stopPropagation();
     event.preventDefault();
     toggleVolumeSlider();
 }, { passive: true });
@@ -54,8 +54,6 @@ musicIcon.addEventListener("touchstart", (event) => {
 
 volumeSlider.addEventListener("input", updateVolume);
 volumeSlider.addEventListener("touchmove", (event) => {
-    isAdjustingVolume = true;
-    event.stopPropagation();
     event.preventDefault();
     updateVolume();
 }, { passive: false });
