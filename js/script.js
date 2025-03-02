@@ -17,19 +17,18 @@ controls.enablePan = false;
 const bgm = document.getElementById("bgm");
 const volumeSlider = document.getElementById("volume-slider");
 
-// Ensure autoplay works by playing muted first
-function startBGM() {
-    bgm.play().then(() => {
-        console.log("BGM is playing automatically.");
-    }).catch(error => {
-        console.warn("Autoplay blocked, waiting for user interaction...");
-    });
-}
+// // Ensure autoplay works by playing muted first
+// function startBGM() {
+//     bgm.play().then(() => {
+//         console.log("BGM is playing automatically.");
+//     }).catch(error => {
+//         console.warn("Autoplay blocked, waiting for user interaction...");
+//     });
+// }
 
 // Try autoplay on load (muted)
 window.addEventListener("load", () => {
-    bgm.muted = true; // Start muted to allow autoplay
-    startBGM();
+    bgm.play();
 });
 
 // Unmute and control volume when the user interacts
