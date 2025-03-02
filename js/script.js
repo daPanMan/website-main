@@ -30,6 +30,11 @@ const musicIcon = document.getElementById("music-icon");
 // Try autoplay on load (muted)
 musicIcon.addEventListener("click", () => {
     bgm.play();
+    if (volumeSlider.style.display === "none") {
+        volumeSlider.style.display = "block";
+    } else {
+        volumeSlider.style.display = "none";
+    }
 });
 
 // Unmute and control volume when the user interacts
