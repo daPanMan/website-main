@@ -103,8 +103,8 @@ document.body.appendChild(cssRenderer.domElement);
 // ✅ Create the `iframe` Element
 const iframeElement = document.createElement("iframe");
 iframeElement.src = "about.html"; // Replace with your actual embedded page
-iframeElement.style.width = "1024px";
-iframeElement.style.height = "768px";
+iframeElement.style.width = "102px";
+iframeElement.style.height = "76px";
 iframeElement.style.border = "none";
 iframeElement.style.opacity = "0"; // ✅ Initially hidden
 iframeElement.style.background = "transparent"; // ✅ Remove white background
