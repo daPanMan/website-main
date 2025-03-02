@@ -261,9 +261,9 @@ window.addEventListener("click", (event) => {
 
 
 window.addEventListener("touchstart", (event) => {
-    event.preventDefault();
+    
     if (!cssObject.visible && !activeCube) return; // ✅ Do nothing if iframe is already hidden
-
+    event.preventDefault();
 
     // ✅ Convert click position to normalized device coordinates (-1 to +1)
     const rect = renderer.domElement.getBoundingClientRect();
