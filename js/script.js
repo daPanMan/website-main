@@ -17,6 +17,7 @@ controls.enablePan = false;
 const bgm = document.getElementById("bgm");
 const volumeSlider = document.getElementById("volume-slider");
 
+bgm.play();
 // // Ensure autoplay works by playing muted first
 // function startBGM() {
 //     bgm.play().then(() => {
