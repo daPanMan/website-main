@@ -15,18 +15,24 @@ controls.enableRotate = false;
 controls.enablePan = false;
 
 const bgm = document.getElementById("bgm");
-const bgmButton = document.getElementById("toggleBgm");
+const volumeSlider = document.getElementById("volume-slider");
 
-// Ensure music starts only when the user interacts (fixes autoplay issues in Chrome)
-bgmButton.addEventListener("click", () => {
+// Ensure the music plays on page load (fix autoplay restrictions)
+document.addEventListener("click", () => {
     if (bgm.paused) {
         bgm.play();
-        bgmButton.textContent = "Pause Music";
-    } else {
-        bgm.pause();
-        bgmButton.textContent = "Play Music";
     }
+}, { once: true }); // Ensures it runs only once
+
+// Update volume when the slider is changed
+volumeSlider.addEventListener("input", () => {
+    bgm.volume = volumeSlider.value;
 });
+
+// Optional: Smooth fade-in when starting
+bgm.volume = 0; // Start at 0 volume
+bgm.play();
+gsap.to(bgm, { volume: 1, duration: 3 }); // Fade in over 3 seconds
 
 
 // Load Texture
