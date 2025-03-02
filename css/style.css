@@ -59,8 +59,7 @@ canvas {
     background: transparent; /* Remove the black box */
     border: none; /* Ensure no border is added */
     outline: none; /* Remove focus outline */
-    width: 100px; /* Adjust width */
-    height: 6px; /* Adjust height for visibility */
+    
     cursor: pointer;
 }
 
