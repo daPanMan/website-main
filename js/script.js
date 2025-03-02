@@ -246,8 +246,6 @@ function returnCubeToFormation(cube) {
 window.addEventListener("click", (event) => {
     if (!cssObject.visible && !activeCube) return; // ✅ Do nothing if iframe is already hidden
 
-    const mouse = new THREE.Vector2();
-    const raycaster = new THREE.Raycaster();
 
     // ✅ Convert click position to normalized device coordinates (-1 to +1)
     const rect = renderer.domElement.getBoundingClientRect();
