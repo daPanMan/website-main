@@ -140,9 +140,14 @@ window.addEventListener("touchstart", (event) => {
     onCubeClick(event);
 }, { passive: false });
 
+
+
+
 function onCubeClick(event) {
+    isInterrupted = true;
     let x, y;
     const rect = renderer.domElement.getBoundingClientRect();
+    
     
     if (event.touches) { 
         x = ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
@@ -170,6 +175,7 @@ function onCubeClick(event) {
             zoomCubeIn(clickedCube);
         }
     }
+    isInterrupted = false;
 }
 
 // ✅ Zoom-in Effect When Clicking a Cube
