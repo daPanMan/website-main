@@ -163,8 +163,10 @@ function onCubeClick(event) {
         const clickedCube = intersects[0].object;
         
         if (clickedCube === activeCube) {
+            playSound(zoomOutSound);
             returnCubeToFormation(clickedCube);
         } else {
+            playSound(zoomInSound);
             zoomCubeIn(clickedCube);
         }
     }
@@ -181,7 +183,7 @@ function zoomCubeIn(cube) {
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "power2.out" });
     gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
 
-    playSound(zoomInSound);
+    
 
     activeCube = cube;
 }
@@ -193,7 +195,7 @@ function returnCubeToFormation(cube) {
         gsap.to(cube.position, { x: originalPositions[index].x, y: originalPositions[index].y, z: originalPositions[index].z, duration: 1, ease: "power2.out" });
         gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1 });
 
-        playSound(zoomOutSound);
+        
     }
     activeCube = null;
 }
