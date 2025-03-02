@@ -27,9 +27,9 @@ const volumeSlider = document.getElementById("volume-slider");
 // }
 
 // Try autoplay on load (muted)
-window.addEventListener("load", () => {
-    bgm.play();
-});
+// window.addEventListener("load", () => {
+//     bgm.play();
+// });
 
 // Unmute and control volume when the user interacts
 volumeSlider.addEventListener("input", () => {
