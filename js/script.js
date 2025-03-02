@@ -173,7 +173,7 @@ function returnCubeToFormation(cube) {
     activeCube = null;
 }
 
-// ✅ Add 3D Universe Background (Movable)
+// ✅ Add 3D Universe Background
 const spaceTexture = textureLoader.load("textures/stars.jpg");
 const starGeometry = new THREE.SphereGeometry(50, 64, 64);
 const starMaterial = new THREE.MeshBasicMaterial({ map: spaceTexture, side: THREE.BackSide });
@@ -181,30 +181,32 @@ const starMaterial = new THREE.MeshBasicMaterial({ map: spaceTexture, side: THRE
 const starField = new THREE.Mesh(starGeometry, starMaterial);
 scene.add(starField);
 
-// ✅ Track Mouse & Touch for Moving Background
-let targetRotationX = 0, targetRotationY = 0;
+// ✅ Function to Create Moving Stars
+const stars = [];
+function createStars() {
+    const starGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+    const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-function updateRotation(x, y) {
-    targetRotationX = x * 0.1;
-    targetRotationY = y * 0.1;
+    for (let i = 0; i < 300; i++) {
+        const star = new THREE.Mesh(starGeometry, starMaterial);
+        star.position.set((Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100);
+        stars.push(star);
+        scene.add(star);
+    }
 }
-
-window.addEventListener("mousemove", (event) => {
-    updateRotation(event.clientX / window.innerWidth - 0.5, event.clientY / window.innerHeight - 0.5);
-});
-
-window.addEventListener("touchmove", (event) => {
-    event.preventDefault();
-    updateRotation(event.touches[0].clientX / window.innerWidth - 0.5, event.touches[0].clientY / window.innerHeight - 0.5);
-}, { passive: false });
+createStars();
 
 // ✅ Animation Loop
 function animate() {
     requestAnimationFrame(animate);
 
-    // Smooth movement
-    starField.rotation.y += (targetRotationX - starField.rotation.y) * 0.05;
-    starField.rotation.x += (targetRotationY - starField.rotation.x) * 0.05;
+    starField.rotation.y += 0.0005;
+    stars.forEach(star => {
+        star.position.z += 0.05;
+        if (star.position.z > 50) {
+            star.position.z = -50;
+        }
+    });
 
     cubes.forEach(cube => {
         cube.rotation.x += 0.005;
