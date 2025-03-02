@@ -342,12 +342,7 @@ function getTouchDistance(touches) {
 }
 
 
-// ✅ Helper function to calculate pinch distance
-function getTouchDistance(touches) {
-    let dx = touches[0].clientX - touches[1].clientX;
-    let dy = touches[0].clientY - touches[1].clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-}
+
 
 window.addEventListener("wheel", (event) => {
     event.preventDefault(); // ✅ Prevents default browser zooming
