@@ -26,7 +26,7 @@ const bgm = document.getElementById("bgm");
 const volumeSlider = document.getElementById("volume-slider");
 const musicIcon = document.getElementById("music-icon");
 const volumeSliderContainer = document.getElementById("volume-slider-container");
-let isAdjustingVolume = false;
+let isInterrupted = false;
 
 // ✅ Function to Toggle Volume Slider and Play BGM
 function toggleVolumeSlider() {
@@ -41,7 +41,7 @@ function toggleVolumeSlider() {
 
 // ✅ Update Volume
 function updateVolume() {
-    isAdjustingVolume = true;
+    isInterrupted = true;
     event.stopPropagation();
     if (bgm.muted) {
         bgm.muted = false;
@@ -70,11 +70,11 @@ volumeSlider.addEventListener("change", () => {
 });
 
 volumeSlider.addEventListener("touchend", () => {
-    isAdjustingVolume = false;
+    isInterrupted = false;
 });
 
 volumeSlider.addEventListener("mouseup", () => {
-    isAdjustingVolume = false;
+    isInterrupted = false;
 });
 
 // ✅ Load Textures (For Cubes)
@@ -242,7 +242,7 @@ window.addEventListener("mouseup", () => {
 
 // ✅ Detect Mouse Move (Update Rotation)
 window.addEventListener("mousemove", (event) => {
-    if (isDragging && !isAdjustingVolume) {
+    if (isDragging && !isInterrupted) {
         let deltaX = (event.clientX - lastX) * 0.002;
         let deltaY = (event.clientY - lastY) * 0.002;
 
@@ -272,7 +272,7 @@ window.addEventListener("touchend", () => {
 
 // ✅ Detect Touch Move (For Mobile)
 window.addEventListener("touchmove", (event) => {
-    if (isDragging && !isAdjustingVolume) {
+    if (isDragging && !isInterrupted) {
         let deltaX = (event.touches[0].clientX - lastX) * 0.002;
         let deltaY = (event.touches[0].clientY - lastY) * 0.002;
 
