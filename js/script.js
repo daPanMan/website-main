@@ -1,4 +1,4 @@
-// Setup Scene, Camera, and Renderer
+// ✅ Setup Scene, Camera, and Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -6,7 +6,7 @@ const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Add OrbitControls
+// ✅ Add OrbitControls
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
@@ -14,22 +14,13 @@ controls.enableZoom = true;
 controls.enableRotate = false;
 controls.enablePan = false;
 
+// ✅ Background Music Controls
 const bgm = document.getElementById("bgm");
 const volumeSlider = document.getElementById("volume-slider");
 const musicIcon = document.getElementById("music-icon");
 const volumeSliderContainer = document.getElementById("volume-slider-container");
 
-// // Ensure autoplay works by playing muted first
-// function startBGM() {
-//     bgm.play().then(() => {
-//         console.log("BGM is playing automatically.");
-//     }).catch(error => {
-//         console.warn("Autoplay blocked, waiting for user interaction...");
-//     });
-// }
-
-// Try autoplay on load (muted)
-// ✅ Function to toggle volume slider and play BGM
+// ✅ Function to Toggle Volume Slider and Play BGM
 function toggleVolumeSlider() {
     if (bgm.paused) {
         bgm.volume = 0.45;
@@ -37,55 +28,48 @@ function toggleVolumeSlider() {
     }
     
     // Toggle slider visibility
-    if (volumeSliderContainer.style.display === "none") {
-        volumeSliderContainer.style.display = "block";
-    } else {
-        volumeSliderContainer.style.display = "none";
-    }
+    volumeSliderContainer.style.display = (volumeSliderContainer.style.display === "none") ? "block" : "none";
 }
 
+// ✅ Update Volume
 function updateVolume() {
     if (bgm.muted) {
-        bgm.muted = false; // Unmute when the user interacts
+        bgm.muted = false;
     }
     bgm.volume = volumeSlider.value;
 }
 
-// ✅ Add event listeners for both **click** and **touchstart** for better mobile support
+// ✅ Add Click & Touch Support for Volume Control
 musicIcon.addEventListener("click", toggleVolumeSlider);
 musicIcon.addEventListener("touchstart", (event) => {
-    event.preventDefault(); // Prevents unintended scrolling
+    event.preventDefault();
     toggleVolumeSlider();
 }, { passive: true });
 
-// ✅ Listen for volume changes on both desktop and mobile
 volumeSlider.addEventListener("input", updateVolume);
 volumeSlider.addEventListener("touchmove", (event) => {
-    event.preventDefault(); // Prevent unintended scrolling
+    event.preventDefault();
     updateVolume();
 }, { passive: false });
 
-// ✅ Smooth fade-in effect after unmuting
 volumeSlider.addEventListener("change", () => {
     gsap.to(bgm, { volume: bgm.volume, duration: 2 });
 });
 
-
-
-// Load Texture
+// ✅ Load Textures (For Cubes)
 const textureLoader = new THREE.TextureLoader();
-const cubeTexture = textureLoader.load('textures/CB.png'); // Updated texture file name
+const cubeTexture = textureLoader.load('textures/CB.png');
 
-// Create an Array to Store Cubes and Their Original Positions
+// ✅ Create an Array to Store Cubes and Their Original Positions
 const cubes = [];
 const originalPositions = [];
-const circleRadius = 6; 
-const totalCubes = 10; 
-let activeCube = null; 
+const circleRadius = 6;
+const totalCubes = 10;
+let activeCube = null;
 
-// Function to Create a Cube
+// ✅ Function to Create a Cube
 function createCube(index) {
-    const angle = (index / totalCubes) * Math.PI * 2; 
+    const angle = (index / totalCubes) * Math.PI * 2;
     const x = Math.cos(angle) * circleRadius;
     const y = Math.sin(angle) * circleRadius;
     const z = 0;
@@ -100,45 +84,45 @@ function createCube(index) {
 
     scene.add(cube);
     cubes.push(cube);
-    originalPositions.push({ x, y, z }); 
+    originalPositions.push({ x, y, z });
 }
 
-// Generate Cubes in a Circular Pattern
+// ✅ Generate Cubes in a Circular Pattern
 for (let i = 0; i < totalCubes; i++) {
     createCube(i);
 }
 
-// Add Lighting
+// ✅ Add Lighting
 const light = new THREE.AmbientLight(0xffffff, 1);
 scene.add(light);
 
-// Position the Camera
+// ✅ Position the Camera
 camera.position.set(0, 0, 14);
 camera.lookAt(0, 0, 0);
-camera.updateProjectionMatrix(); 
+camera.updateProjectionMatrix();
 
-// Handle Window Resize
+// ✅ Handle Window Resize
 window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 });
 
-// ** Raycaster for Click Detection **
+// ✅ Raycaster for Click Detection
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-// Handle Click & Touch Events
+// ✅ Handle Click & Touch Events for Cubes
 window.addEventListener("click", onCubeClick);
 window.addEventListener("touchstart", (event) => {
-    event.preventDefault(); 
+    event.preventDefault();
     onCubeClick(event);
 }, { passive: false });
 
 function onCubeClick(event) {
     let x, y;
-    
     const rect = renderer.domElement.getBoundingClientRect();
+    
     if (event.touches) { 
         x = ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
         y = -((event.touches[0].clientY - rect.top) / rect.height) * 2 + 1;
@@ -150,7 +134,7 @@ function onCubeClick(event) {
     mouse.x = x;
     mouse.y = y;
 
-    renderer.render(scene, camera); 
+    renderer.render(scene, camera);
     raycaster.setFromCamera(mouse, camera);
 
     const intersects = raycaster.intersectObjects(cubes, true);
@@ -158,59 +142,73 @@ function onCubeClick(event) {
         const clickedCube = intersects[0].object;
         
         if (clickedCube === activeCube) {
-            returnCubeToFormation(clickedCube); // If already in center, return it
+            returnCubeToFormation(clickedCube);
         } else {
             zoomCubeIn(clickedCube);
         }
     }
 }
 
-// Zoom-in effect when clicking a cube
+// ✅ Zoom-in Effect When Clicking a Cube
 function zoomCubeIn(cube) {
     if (activeCube === cube) return;
 
-    // Restore Previous Cube to Original Position and Scale
     if (activeCube) {
         returnCubeToFormation(activeCube);
     }
 
-    // Move the New Clicked Cube to the Center and Zoom It In
-    gsap.to(cube.position, {
-        x: 0,
-        y: 0,
-        z: 0,
-        duration: 1,
-        ease: "power2.out"
-    });
-
-    gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 }); // Zoom in
+    gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "power2.out" });
+    gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
 
     activeCube = cube;
 }
 
-// Return Cube to Original Circular Formation
+// ✅ Return Cube to Original Circular Formation
 function returnCubeToFormation(cube) {
     const index = cubes.indexOf(cube);
     if (index !== -1) {
-        gsap.to(cube.position, {
-            x: originalPositions[index].x,
-            y: originalPositions[index].y,
-            z: originalPositions[index].z,
-            duration: 1,
-            ease: "power2.out"
-        });
-
-        gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1 }); // Reset size
+        gsap.to(cube.position, { x: originalPositions[index].x, y: originalPositions[index].y, z: originalPositions[index].z, duration: 1, ease: "power2.out" });
+        gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1 });
     }
-    activeCube = null; // No cube is now in center
+    activeCube = null;
 }
 
-// Animation Loop
+// ✅ Add 3D Universe Background
+const spaceTexture = textureLoader.load("textures/stars.jpg");
+const starGeometry = new THREE.SphereGeometry(50, 64, 64);
+const starMaterial = new THREE.MeshBasicMaterial({ map: spaceTexture, side: THREE.BackSide });
+
+const starField = new THREE.Mesh(starGeometry, starMaterial);
+scene.add(starField);
+
+// ✅ Function to Create Moving Stars
+const stars = [];
+function createStars() {
+    const starGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+    const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+    for (let i = 0; i < 300; i++) {
+        const star = new THREE.Mesh(starGeometry, starMaterial);
+        star.position.set((Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100);
+        stars.push(star);
+        scene.add(star);
+    }
+}
+createStars();
+
+// ✅ Animation Loop
 function animate() {
     requestAnimationFrame(animate);
 
-    // Rotate Each Cube Individually
-    cubes.forEach((cube) => {
+    starField.rotation.y += 0.0005;
+    stars.forEach(star => {
+        star.position.z += 0.05;
+        if (star.position.z > 50) {
+            star.position.z = -50;
+        }
+    });
+
+    cubes.forEach(cube => {
         cube.rotation.x += 0.005;
         cube.rotation.y += 0.005;
     });
