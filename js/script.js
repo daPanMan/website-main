@@ -17,22 +17,21 @@ controls.enablePan = false;
 const bgm = document.getElementById("bgm");
 const volumeSlider = document.getElementById("volume-slider");
 
-// Ensure the music plays on page load (fix autoplay restrictions)
-document.addEventListener("click", () => {
-    if (bgm.paused) {
-        bgm.play();
-    }
-}, { once: true }); // Ensures it runs only once
+// Ensure BGM starts playing on page load (Muted at first)
+window.addEventListener("load", () => {
+    bgm.play().catch(error => console.warn("Autoplay failed:", error));
+});
 
 // Update volume when the slider is changed
 volumeSlider.addEventListener("input", () => {
+    if (bgm.muted) {
+        bgm.muted = false; // Unmute when user interacts
+    }
     bgm.volume = volumeSlider.value;
 });
 
-// Optional: Smooth fade-in when starting
-bgm.volume = 0; // Start at 0 volume
-bgm.play();
-gsap.to(bgm, { volume: 1, duration: 3 }); // Fade in over 3 seconds
+// Smooth fade-in after load
+gsap.to(bgm, { volume: 1, duration: 3 });
 
 
 // Load Texture
