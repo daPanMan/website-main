@@ -224,6 +224,10 @@ window.addEventListener("mousemove", (event) => {
 
         lastX = event.clientX;
         lastY = event.clientY;
+
+        starField.rotation.y += (targetRotationX - starField.rotation.y) * 0.05;
+    starField.rotation.x += (targetRotationY - starField.rotation.x) * 0.05;
+
     }
 });
 
@@ -250,6 +254,10 @@ window.addEventListener("touchmove", (event) => {
 
         lastX = event.touches[0].clientX;
         lastY = event.touches[0].clientY;
+
+        starField.rotation.y += (targetRotationX - starField.rotation.y) * 0.05;
+    starField.rotation.x += (targetRotationY - starField.rotation.x) * 0.05;
+
     }
 }, { passive: false });
 
