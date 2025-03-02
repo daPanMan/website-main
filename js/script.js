@@ -233,7 +233,8 @@ function zoomCubeIn(cube) {
         returnCubeToFormation(activeCube);
     }
 
-    // ✅ Shrink the Cube and Show the `iframe`
+    // ✅ Zoom the Cube in and Show the `iframe`
+    gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "power2.out" });
     gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
 
     setTimeout(() => {
