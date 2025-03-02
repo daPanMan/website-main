@@ -17,26 +17,33 @@ controls.enablePan = false;
 const bgm = document.getElementById("bgm");
 const volumeSlider = document.getElementById("volume-slider");
 
-// Try to autoplay music when the page loads
-window.addEventListener("load", () => {
-    bgm.muted = true; // Start muted to allow autoplay
+// Ensure autoplay works by playing muted first
+function startBGM() {
     bgm.play().then(() => {
         console.log("BGM is playing automatically.");
     }).catch(error => {
-        console.warn("Autoplay failed:", error);
+        console.warn("Autoplay blocked, waiting for user interaction...");
     });
+}
+
+// Try autoplay on load (muted)
+window.addEventListener("load", () => {
+    bgm.muted = true; // Start muted to allow autoplay
+    startBGM();
 });
 
-// Allow user to adjust volume and unmute
+// Unmute and control volume when the user interacts
 volumeSlider.addEventListener("input", () => {
     if (bgm.muted) {
-        bgm.muted = false; // Unmute when the user interacts
+        bgm.muted = false; // Unmute when user interacts
     }
     bgm.volume = volumeSlider.value;
 });
 
-// Smooth fade-in effect
-gsap.to(bgm, { volume: 1, duration: 3 });
+// Smooth fade-in effect after unmuting
+volumeSlider.addEventListener("change", () => {
+    gsap.to(bgm, { volume: bgm.volume, duration: 2 });
+});
 
 
 
