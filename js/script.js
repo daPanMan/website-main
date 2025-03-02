@@ -44,6 +44,13 @@ function toggleVolumeSlider() {
     }
 }
 
+function updateVolume() {
+    if (bgm.muted) {
+        bgm.muted = false; // Unmute when the user interacts
+    }
+    bgm.volume = volumeSlider.value;
+}
+
 // ✅ Add event listeners for both **click** and **touchstart** for better mobile support
 musicIcon.addEventListener("click", toggleVolumeSlider);
 musicIcon.addEventListener("touchstart", (event) => {
