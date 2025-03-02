@@ -244,11 +244,23 @@ function returnCubeToFormation(cube) {
 }
 
 window.addEventListener("click", (event) => {
-    if (cssObject.visible && activeCube) {
-        // ✅ Check if click is outside the iframe
-        playSound(zoomOutSound);
-        returnCubeToFormation(activeCube); // ✅ Use activeCube instead of cube
-       
+    if (!cssObject.visible && !activeCube) return; // ✅ Do nothing if iframe is already hidden
+
+    const mouse = new THREE.Vector2();
+    const raycaster = new THREE.Raycaster();
+
+    // ✅ Convert click position to normalized device coordinates (-1 to +1)
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    // ✅ Check if the click intersects any cubes
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(cubes, true);
+
+    if (intersects.length === 0) {
+        // ✅ Clicked outside cubes → Close the iframe
+        returnCubeToFormation(activeCube);
     }
 }, { passive: false });
 
