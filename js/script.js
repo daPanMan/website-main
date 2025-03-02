@@ -226,7 +226,13 @@ function zoomCubeIn(cube) {
 
     setTimeout(() => {
         cssObject.visible = true;
-    }, 1000);
+        iframeElement.style.opacity = "0"; // ✅ Keep hidden until fully loaded
+
+        // ✅ Ensure the `iframe` fades in after loading
+        iframeElement.onload = () => {
+            gsap.to(iframeElement, { opacity: 1, duration: 0.5 });
+        };
+    }, 1000); // ✅ Wait for the cube to shrink first
 
     activeCube = cube;
 }
