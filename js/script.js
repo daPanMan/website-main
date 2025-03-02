@@ -234,9 +234,9 @@ function zoomCubeIn(cube) {
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "power2.out" });
     gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
 
-    setTimeout(() => {
-        cssObject.visible = true; // Show the embedded page
-    }, 1000); // Wait until the cube shrinks 
+    // setTimeout(() => {
+    //     cssObject.visible = true; // Show the embedded page
+    // }, 1000); // Wait until the cube shrinks 
 
     activeCube = cube;
 }
