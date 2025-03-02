@@ -17,6 +17,7 @@ controls.enablePan = false;
 const bgm = document.getElementById("bgm");
 const volumeSlider = document.getElementById("volume-slider");
 const musicIcon = document.getElementById("music-icon");
+const volumeSliderContainer = document.getElementById("volume-slider-container");
 
 // // Ensure autoplay works by playing muted first
 // function startBGM() {
@@ -30,10 +31,10 @@ const musicIcon = document.getElementById("music-icon");
 // Try autoplay on load (muted)
 musicIcon.addEventListener("click", () => {
     bgm.play();
-    if (volumeSlider.style.display === "none") {
-        volumeSlider.style.display = "block";
+    if (volumeSliderContainer.style.display === "none") {
+        volumeSliderContainer.style.display = "block";
     } else {
-        volumeSlider.style.display = "none";
+        volumeSliderContainer.style.display = "none";
     }
 });
 
