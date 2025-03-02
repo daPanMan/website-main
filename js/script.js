@@ -14,6 +14,21 @@ controls.enableZoom = true;
 controls.enableRotate = false;
 controls.enablePan = false;
 
+const bgm = document.getElementById("bgm");
+const bgmButton = document.getElementById("toggleBgm");
+
+// Ensure music starts only when the user interacts (fixes autoplay issues in Chrome)
+bgmButton.addEventListener("click", () => {
+    if (bgm.paused) {
+        bgm.play();
+        bgmButton.textContent = "Pause Music";
+    } else {
+        bgm.pause();
+        bgmButton.textContent = "Play Music";
+    }
+});
+
+
 // Load Texture
 const textureLoader = new THREE.TextureLoader();
 const cubeTexture = textureLoader.load('textures/CB.png'); // Updated texture file name
