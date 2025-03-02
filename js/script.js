@@ -196,6 +196,63 @@ function createStars() {
 }
 createStars();
 
+// ✅ Track Mouse & Touch for Moving Background
+let isDragging = false;
+let lastX = 0, lastY = 0;
+let targetRotationX = 0, targetRotationY = 0;
+
+// ✅ Detect Mouse Down (Start Dragging)
+window.addEventListener("mousedown", (event) => {
+    isDragging = true;
+    lastX = event.clientX;
+    lastY = event.clientY;
+});
+
+// ✅ Detect Mouse Up (Stop Dragging)
+window.addEventListener("mouseup", () => {
+    isDragging = false;
+});
+
+// ✅ Detect Mouse Move (Update Rotation)
+window.addEventListener("mousemove", (event) => {
+    if (isDragging) {
+        let deltaX = (event.clientX - lastX) * 0.002;
+        let deltaY = (event.clientY - lastY) * 0.002;
+
+        targetRotationX += deltaX;
+        targetRotationY += deltaY;
+
+        lastX = event.clientX;
+        lastY = event.clientY;
+    }
+});
+
+// ✅ Detect Touch Start (For Mobile)
+window.addEventListener("touchstart", (event) => {
+    isDragging = true;
+    lastX = event.touches[0].clientX;
+    lastY = event.touches[0].clientY;
+}, { passive: false });
+
+// ✅ Detect Touch End (For Mobile)
+window.addEventListener("touchend", () => {
+    isDragging = false;
+});
+
+// ✅ Detect Touch Move (For Mobile)
+window.addEventListener("touchmove", (event) => {
+    if (isDragging) {
+        let deltaX = (event.touches[0].clientX - lastX) * 0.002;
+        let deltaY = (event.touches[0].clientY - lastY) * 0.002;
+
+        targetRotationX += deltaX;
+        targetRotationY += deltaY;
+
+        lastX = event.touches[0].clientX;
+        lastY = event.touches[0].clientY;
+    }
+}, { passive: false });
+
 // ✅ Animation Loop
 function animate() {
     requestAnimationFrame(animate);
