@@ -30,7 +30,10 @@ const volumeSliderContainer = document.getElementById("volume-slider-container")
 
 // Try autoplay on load (muted)
 musicIcon.addEventListener("click", () => {
-    bgm.play();
+    if(bgm.paused){
+        bgm.volume = 0.45;
+        bgm.play();
+    }
     if (volumeSliderContainer.style.display === "none") {
         volumeSliderContainer.style.display = "block";
     } else {
