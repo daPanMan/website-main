@@ -370,9 +370,7 @@ function animate() {
 
     controls.update();
     renderer.render(scene, camera);
-    function animate() {
     
     cssRenderer.render(scene, camera);
-}
 }
 animate();
