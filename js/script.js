@@ -29,19 +29,29 @@ const volumeSliderContainer = document.getElementById("volume-slider-container")
 // }
 
 // Try autoplay on load (muted)
-musicIcon.addEventListener("click", () => {
-    if(bgm.paused){
+// ✅ Function to toggle volume slider and play BGM
+function toggleVolumeSlider() {
+    if (bgm.paused) {
         bgm.volume = 0.45;
         bgm.play();
     }
+    
+    // Toggle slider visibility
     if (volumeSliderContainer.style.display === "none") {
         volumeSliderContainer.style.display = "block";
     } else {
         volumeSliderContainer.style.display = "none";
     }
-});
+}
 
-// Unmute and control volume when the user interacts
+// ✅ Add event listeners for both **click** and **touchstart** for better mobile support
+musicIcon.addEventListener("click", toggleVolumeSlider);
+musicIcon.addEventListener("touchstart", (event) => {
+    event.preventDefault(); // Prevents unintended scrolling
+    toggleVolumeSlider();
+}, { passive: true });
+
+// ✅ Unmute and control volume when the user interacts
 volumeSlider.addEventListener("input", () => {
     if (bgm.muted) {
         bgm.muted = false; // Unmute when user interacts
@@ -49,7 +59,7 @@ volumeSlider.addEventListener("input", () => {
     bgm.volume = volumeSlider.value;
 });
 
-// Smooth fade-in effect after unmuting
+// ✅ Smooth fade-in effect after unmuting
 volumeSlider.addEventListener("change", () => {
     gsap.to(bgm, { volume: bgm.volume, duration: 2 });
 });
