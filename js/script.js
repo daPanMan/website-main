@@ -235,7 +235,7 @@ function zoomCubeIn(cube) {
     gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
 
     setTimeout(() => {
-        iframeContainer.style.display = "block"; // Show the embedded page
+        cssObject.visible = true; // Show the embedded page
     }, 1000); // Wait until the cube shrinks 
 
     activeCube = cube;
