@@ -220,14 +220,16 @@ function zoomCubeIn(cube) {
     gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
 
     setTimeout(() => {
-        cssObject.visible = true;
-        iframeElement.style.opacity = "0"; // ✅ Keep hidden until fully loaded
+        cssObject.visible = false; // ✅ Keep hidden
+        iframeElement.style.opacity = "0"; // ✅ Prevent instant flashing
 
-        // ✅ Ensure the `iframe` fades in after loading
+        // ✅ Only Show `CSS3DObject` After `iframe` is Fully Loaded
         iframeElement.onload = () => {
-            gsap.to(iframeElement, { opacity: 1, duration: 0.5 });
+            cssObject.visible = true; // ✅ Now the iframe is ready
+            gsap.to(cssObject.scale, { x: 1, y: 1, z: 1, duration: 1 });
+            iframeElement.style.opacity = "1"; // ✅ Smooth fade-in
         };
-    }, 1000); // ✅ Wait for the cube to shrink first
+    }, 1000); // ✅ Wait for the cube animation to finish
 
     activeCube = cube;
 }
