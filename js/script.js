@@ -106,6 +106,12 @@ iframeElement.src = "about.html"; // Change this to your actual page
 iframeElement.style.width = "1024px";  // Set proper width
 iframeElement.style.height = "768px";  // Set proper height
 iframeElement.style.border = "none";
+iframeElement.style.opacity = "0"; // ✅ Initially hidden to prevent flashing
+
+// ✅ Detect When the `iframe` Has Fully Loaded
+iframeElement.onload = () => {
+    gsap.to(iframeElement, { opacity: 1, duration: 0.5 }); // ✅ Fade in smoothly
+};
 
 // ✅ Wrap the `iframe` in a CSS3DObject
 const cssObject = new THREE.CSS3DObject(iframeElement);
@@ -116,25 +122,7 @@ scene.add(cssObject);
 
 
 
-// ✅ Add Lighting
-// const light = new THREE.AmbientLight(0xffffff, 1);
 
-// // ✅ Function to Show the 3D Embedded Page
-// function showIframeOnCube(cube) {
-//     if (activeCube === cube) return;
-
-//     if (activeCube) {
-//         returnCubeToFormation(activeCube);
-//     }
-
-//     // ✅ Shrink the Cube and Show the Plane
-//     gsap.to(cube.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 });
-//     setTimeout(() => {
-//         cssObject.visible = true;
-//     }, 1000);
-
-//     activeCube = cube;
-// }
 
 // ✅ Function to Create a Cube
 function createCube(index) {
