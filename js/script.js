@@ -78,6 +78,7 @@ volumeSlider.addEventListener("mouseup", () => {
 });
 
 
+
 // ✅ Load Textures for Cubes
 const textureLoader = new THREE.TextureLoader();
 const cubeTexture = textureLoader.load('textures/CB.png');
@@ -111,6 +112,10 @@ const cssObject = new THREE.CSS3DObject(iframeElement);
 cssObject.position.set(0, 0, 2); // Position in front of center cube
 cssObject.visible = false;
 scene.add(cssObject);
+
+
+// ✅ Add Lighting
+const light = new THREE.AmbientLight(0xffffff, 1);
 
 // ✅ Function to Show the 3D Embedded Page
 function showIframeOnCube(cube) {
