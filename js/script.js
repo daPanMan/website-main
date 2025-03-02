@@ -19,6 +19,7 @@ const bgm = document.getElementById("bgm");
 const volumeSlider = document.getElementById("volume-slider");
 const musicIcon = document.getElementById("music-icon");
 const volumeSliderContainer = document.getElementById("volume-slider-container");
+let isAdjustingVolume = false;
 
 // ✅ Function to Toggle Volume Slider and Play BGM
 function toggleVolumeSlider() {
@@ -42,18 +43,29 @@ function updateVolume() {
 // ✅ Add Click & Touch Support for Volume Control
 musicIcon.addEventListener("click", toggleVolumeSlider);
 musicIcon.addEventListener("touchstart", (event) => {
+    isAdjustingVolume = true;
+    event.stopPropagation();
     event.preventDefault();
     toggleVolumeSlider();
 }, { passive: true });
 
+// ✅ Track if the user is interacting with the volume slider
+
+
 volumeSlider.addEventListener("input", updateVolume);
 volumeSlider.addEventListener("touchmove", (event) => {
+    isAdjustingVolume = true;
+    event.stopPropagation();
     event.preventDefault();
     updateVolume();
 }, { passive: false });
 
 volumeSlider.addEventListener("change", () => {
     gsap.to(bgm, { volume: bgm.volume, duration: 2 });
+});
+
+volumeSlider.addEventListener("touchend", () => {
+    isAdjustingVolume = false;
 });
 
 // ✅ Load Textures (For Cubes)
@@ -215,7 +227,7 @@ window.addEventListener("mouseup", () => {
 
 // ✅ Detect Mouse Move (Update Rotation)
 window.addEventListener("mousemove", (event) => {
-    if (isDragging) {
+    if (isDragging && !isAdjustingVolume) {
         let deltaX = (event.clientX - lastX) * 0.002;
         let deltaY = (event.clientY - lastY) * 0.002;
 
@@ -245,7 +257,7 @@ window.addEventListener("touchend", () => {
 
 // ✅ Detect Touch Move (For Mobile)
 window.addEventListener("touchmove", (event) => {
-    if (isDragging) {
+    if (isDragging && !isAdjustingVolume) {
         let deltaX = (event.touches[0].clientX - lastX) * 0.002;
         let deltaY = (event.touches[0].clientY - lastY) * 0.002;
 
