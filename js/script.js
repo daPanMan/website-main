@@ -12,6 +12,7 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.enableZoom = true;
+controls.zoomSpeed = 1.2; // Adjust zoom speed if needed
 controls.enableRotate = false;
 controls.enablePan = false;
 
@@ -280,6 +281,44 @@ window.addEventListener("touchstart", (event) => {
         returnCubeToFormation(activeCube);
     }
 }, { passive: false });
+
+
+let touchDistance = 0; // Stores the initial pinch distance
+
+// ✅ Detects touch start (fingers placed)
+window.addEventListener("touchstart", (event) => {
+    if (event.touches.length === 2) {
+        touchDistance = getTouchDistance(event.touches);
+    }
+}, { passive: false });
+
+// ✅ Detects touch move (fingers moving apart or closer)
+window.addEventListener("touchmove", (event) => {
+    if (event.touches.length === 2) {
+        event.preventDefault(); // ✅ Prevent scrolling the page while pinching
+        let newDistance = getTouchDistance(event.touches);
+        let zoomFactor = (newDistance - touchDistance) * 0.01; // Adjust sensitivity
+
+        camera.position.z -= zoomFactor * 5; // Move camera forward/backward
+        touchDistance = newDistance;
+    }
+}, { passive: false });
+
+// ✅ Helper function to calculate pinch distance
+function getTouchDistance(touches) {
+    let dx = touches[0].clientX - touches[1].clientX;
+    let dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+window.addEventListener("wheel", (event) => {
+    event.preventDefault(); // ✅ Prevents default browser zooming
+
+    let zoomAmount = event.deltaY * 0.01; // Adjust sensitivity
+    camera.position.z += zoomAmount * 5; // Move the camera closer/further
+}, { passive: false });
+
+
 
 // ✅ Add 3D Universe Background
 const spaceTexture = textureLoader.load("textures/stars.jpg");
