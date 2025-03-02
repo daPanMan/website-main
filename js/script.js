@@ -15,34 +15,65 @@ controls.enableRotate = false;
 controls.enablePan = false;
 
 const bgm = document.getElementById("bgm");
+const volumeControl = document.getElementById("volume-control");
 const volumeSlider = document.getElementById("volume-slider");
+const volumeSliderContainer = document.getElementById("volume-slider-container");
+const musicIcon = document.getElementById("music-icon");
 
-bgm.play();
-// // Ensure autoplay works by playing muted first
-// function startBGM() {
-//     bgm.play().then(() => {
-//         console.log("BGM is playing automatically.");
-//     }).catch(error => {
-//         console.warn("Autoplay blocked, waiting for user interaction...");
-//     });
-// }
+// ✅ 1️⃣ Try autoplay immediately (muted)
+function startBGM() {
+    bgm.play().then(() => {
+        console.log("BGM is playing automatically.");
+        
+        // ✅ 2️⃣ After 2 seconds, try unmuting (works on some browsers)
+        setTimeout(() => {
+            bgm.muted = false;
+            bgm.volume = 0.5; // Default volume
+            volumeSlider.value = 0.5;
+        }, 2000);
+        
+    }).catch(error => {
+        console.warn("Autoplay blocked, waiting for user interaction...");
+    });
+}
 
-// Try autoplay on load (muted)
-window.addEventListener("click", () => {
-    bgm.play();
+// ✅ 3️⃣ If autoplay fails, unmute on first user interaction
+function unmuteOnInteraction() {
+    bgm.muted = false;
+    bgm.volume = 0.5; // Set volume to normal
+    volumeSlider.value = 0.5;
+    
+    console.log("User interacted, unmuting BGM.");
+    
+    // Remove event listener after first interaction
+    window.removeEventListener("click", unmuteOnInteraction);
+    window.removeEventListener("mousemove", unmuteOnInteraction);
+    window.removeEventListener("touchstart", unmuteOnInteraction);
+}
+
+// ✅ 4️⃣ Start BGM when the page loads
+window.addEventListener("load", () => {
+    startBGM();
 });
 
-// Unmute and control volume when the user interacts
+// ✅ 5️⃣ Allow user to control volume
 volumeSlider.addEventListener("input", () => {
-    if (bgm.muted) {
-        bgm.muted = false; // Unmute when user interacts
-    }
     bgm.volume = volumeSlider.value;
+    bgm.muted = false; // Unmute if volume changes
 });
 
-// Smooth fade-in effect after unmuting
-volumeSlider.addEventListener("change", () => {
-    gsap.to(bgm, { volume: bgm.volume, duration: 2 });
+// ✅ 6️⃣ Add event listeners to detect first user interaction
+window.addEventListener("click", unmuteOnInteraction);
+window.addEventListener("mousemove", unmuteOnInteraction);
+window.addEventListener("touchstart", unmuteOnInteraction);
+
+// ✅ 7️⃣ Toggle the volume slider when the music icon is clicked
+volumeControl.addEventListener("click", () => {
+    if (volumeSliderContainer.style.display === "none") {
+        volumeSliderContainer.style.display = "block";
+    } else {
+        volumeSliderContainer.style.display = "none";
+    }
 });
 
 
