@@ -115,7 +115,7 @@ scene.add(cssObject);
 
 
 // ✅ Add Lighting
-const light = new THREE.AmbientLight(0xffffff, 1);
+// const light = new THREE.AmbientLight(0xffffff, 1);
 
 // ✅ Function to Show the 3D Embedded Page
 function showIframeOnCube(cube) {
@@ -159,7 +159,7 @@ for (let i = 0; i < totalCubes; i++) {
     createCube(i);
 }
 
-scene.add(light);
+// scene.add(light);
 
 // ✅ Position the Camera
 camera.position.set(0, 0, 14);
@@ -250,7 +250,7 @@ function returnCubeToFormation(cube) {
 
         
     }
-    cssObject.visible = false;
+cssObject.visible = false;
     activeCube = null;
 }
 
