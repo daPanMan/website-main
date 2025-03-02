@@ -1,6 +1,6 @@
 // Setup Scene, Camera, and Renderer
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -11,37 +11,38 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.enableZoom = true;
-controls.enableRotate = false; // Disable rotate for a fixed view
+controls.enableRotate = false;
 controls.enablePan = false;
 
 // Load Texture
 const textureLoader = new THREE.TextureLoader();
-const cubeTexture = textureLoader.load('textures/CB.png'); // Update the image path
+const cubeTexture = textureLoader.load('textures/CB.png'); // Updated texture file name
 
 // Create an Array to Store Cubes and Their Original Positions
 const cubes = [];
 const originalPositions = [];
-const circleRadius = 6; // Distance of cubes from the center
-const totalCubes = 10; // Number of cubes
-let activeCube = null; // Stores the currently centered cube
+const circleRadius = 6; 
+const totalCubes = 10; 
+let activeCube = null; 
 
 // Function to Create a Cube
 function createCube(index) {
-    const angle = (index / totalCubes) * Math.PI * 2; // Evenly space cubes in a circle
+    const angle = (index / totalCubes) * Math.PI * 2; 
     const x = Math.cos(angle) * circleRadius;
     const y = Math.sin(angle) * circleRadius;
-    const z = 0; // Keep cubes in a flat circular plane
+    const z = 0;
 
     const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
     const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
     const cube = new THREE.Mesh(geometry, material);
 
     cube.position.set(x, y, z);
+    cube.geometry.computeBoundingBox();
     cube.frustumCulled = false;
 
     scene.add(cube);
     cubes.push(cube);
-    originalPositions.push({ x, y, z }); // Store original position
+    originalPositions.push({ x, y, z }); 
 }
 
 // Generate Cubes in a Circular Pattern
@@ -54,8 +55,9 @@ const light = new THREE.AmbientLight(0xffffff, 1);
 scene.add(light);
 
 // Position the Camera
-camera.position.set(0, 0, 12); // Move the camera back to see all cubes
+camera.position.set(0, 0, 14);
 camera.lookAt(0, 0, 0);
+camera.updateProjectionMatrix(); 
 
 // Handle Window Resize
 window.addEventListener('resize', () => {
@@ -70,15 +72,18 @@ const mouse = new THREE.Vector2();
 
 // Handle Click & Touch Events
 window.addEventListener("click", onCubeClick);
-window.addEventListener("touchstart", onCubeClick, { passive: true });
+window.addEventListener("touchstart", (event) => {
+    event.preventDefault(); 
+    onCubeClick(event);
+}, { passive: false });
 
 function onCubeClick(event) {
     let x, y;
     
-    if (event.touches) { // Mobile touch
+    if (event.touches) { 
         x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
         y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
-    } else { // Mouse click
+    } else { 
         x = (event.clientX / window.innerWidth) * 2 - 1;
         y = -(event.clientY / window.innerHeight) * 2 + 1;
     }
@@ -86,21 +91,21 @@ function onCubeClick(event) {
     mouse.x = x;
     mouse.y = y;
 
+    renderer.render(scene, camera); 
     raycaster.setFromCamera(mouse, camera);
-    renderer.render(scene, camera);
 
     const intersects = raycaster.intersectObjects(cubes, true);
     if (intersects.length > 0) {
         const clickedCube = intersects[0].object;
-        moveCubeToCenter(clickedCube);
+        zoomCubeIn(clickedCube);
     }
 }
 
-// Move the Clicked Cube to the Center
-function moveCubeToCenter(cube) {
-    if (activeCube === cube) return; // If already in the center, do nothing
+// Zoom-in effect when clicking a cube
+function zoomCubeIn(cube) {
+    if (activeCube === cube) return;
 
-    // Restore Previous Cube to Original Position
+    // Restore Previous Cube to Original Position and Scale
     if (activeCube) {
         const index = cubes.indexOf(activeCube);
         if (index !== -1) {
@@ -111,10 +116,12 @@ function moveCubeToCenter(cube) {
                 duration: 1,
                 ease: "power2.out"
             });
+
+            gsap.to(activeCube.scale, { x: 1, y: 1, z: 1, duration: 1 }); // Reset scale
         }
     }
 
-    // Move the New Clicked Cube to the Center
+    // Move the New Clicked Cube to the Center and Zoom It In
     gsap.to(cube.position, {
         x: 0,
         y: 0,
@@ -123,7 +130,9 @@ function moveCubeToCenter(cube) {
         ease: "power2.out"
     });
 
-    activeCube = cube; // Update the active cube
+    gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 }); // Zoom in
+
+    activeCube = cube;
 }
 
 // Animation Loop
@@ -132,8 +141,8 @@ function animate() {
 
     // Rotate Each Cube Individually
     cubes.forEach((cube) => {
-        cube.rotation.x += 0.01; // Self-rotation
-        cube.rotation.y += 0.01;
+        cube.rotation.x += 0.005;
+        cube.rotation.y += 0.005;
     });
 
     controls.update();
