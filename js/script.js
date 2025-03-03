@@ -113,6 +113,35 @@ function addBigTitle(text) {
     return bigTitleObject;
 }
 
+// ✅ Function to Reset the Iframe and Cube Scale
+function resetScale() {
+    // ✅ Reset the iframe size
+    gsap.to(iframeElement, { 
+        opacity: 0, 
+        duration: 0.5, 
+        ease: "power2.in", 
+        onComplete: () => {
+            cssObject.visible = false; // Hide the iframe
+        } 
+    });
+
+    // ✅ Reset any zoomed-in cube
+    if (activeCube) {
+        returnCubeToFormation(activeCube);
+    }
+
+    // ✅ Hide the reset button
+    document.getElementById("reset-scale-button").style.display = "none";
+}
+
+// ✅ Show the Reset Button When Iframe is Visible
+function showResetButton() {
+    document.getElementById("reset-scale-button").style.display = "block";
+}
+
+// ✅ Attach Click Event to Reset Button
+document.getElementById("reset-scale-button").addEventListener("click", resetScale);
+
 
 
 /* SHAPE FEATURES */
