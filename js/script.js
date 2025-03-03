@@ -139,7 +139,7 @@ function addFloatingTitle(cube, text) {
     titleElement.className = "cube-title";
     titleElement.innerText = text;
 
-    // ✅ Apply CSS styles
+    // ✅ Apply CSS styles to prevent scaling issues
     titleElement.style.position = "absolute";
     titleElement.style.color = "white";
     titleElement.style.fontSize = "14px";
@@ -148,15 +148,24 @@ function addFloatingTitle(cube, text) {
     titleElement.style.pointerEvents = "none"; // Prevent clicking
     titleElement.style.whiteSpace = "nowrap";
 
-    // ✅ Create a CSS3DObject (Three.js HTML Renderer)
+    // ✅ Create a CSS3DObject (for rendering HTML in Three.js)
     const titleObject = new THREE.CSS3DObject(titleElement);
+    titleObject.scale.set(0.005, 0.005, 0.005); // Prevent infinite scaling
 
-    // ✅ Position the title slightly above the cube
-    titleObject.position.set(0, 1.5, 0); // Adjust height as needed
+    // ✅ Position the title above the cube
+    titleObject.position.copy(cube.position);
+    titleObject.position.y += 2; // Adjust height
 
-    // ✅ Attach the title to the cube
-    cube.add(titleObject);
+    // ✅ Store a reference to the cube for tracking
+    titleObject.userData.cube = cube;
+
+    // ✅ Add titleObject to the scene (NOT the cube)
+    scene.add(titleObject);
+
+    // ✅ Store the title object for updating later
+    titleObjects.push(titleObject);
 }
+
 
 
 
@@ -530,6 +539,13 @@ function getTouchDistance(touches) {
 // ✅ Animation Loop
 function animate() {
     requestAnimationFrame(animate);
+
+    // ✅ Ensure titles always face the camera
+    titleObjects.forEach(title => {
+        title.position.copy(title.userData.cube.position); // Keep above the cube
+        title.position.y += 2; // Keep it floating
+        title.lookAt(camera.position); // Ensure it faces the camera
+    });
 
     starField.rotation.y += 0.0005;
     stars.forEach(star => {
