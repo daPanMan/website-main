@@ -233,11 +233,13 @@ function zoomCubeIn(cube) {
     gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
 
     setTimeout(() => {
-        cssObject.visible = true;
-    }, 1000); // ✅ Wait for the cube animation to finish
+        cssObject.visible = true; // ✅ Make iframe container visible
+        gsap.to(iframeElement, { opacity: 1, duration: 0.5 }); // ✅ Fade in iframe
+    }, 500); // ✅ Start fading in after 500ms for a smoother transition
 
     activeCube = cube;
 }
+
 
 
 function returnCubeToFormation(cube) {
