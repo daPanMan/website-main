@@ -3,7 +3,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 
-const bigTitle = addBigTitle("Welcome to My 3D World");
+const bigTitle = addBigTitle("This is\nJohn Pan");
 
 
 renderer.setSize(window.innerWidth, window.innerHeight);

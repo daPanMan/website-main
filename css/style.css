@@ -67,3 +67,9 @@ iframe {
     opacity: 0;
     transition: opacity 0.5s ease-in-out; /* Smooth fade effect */
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+.big-title {
+    font-family: 'Press Start 2P', sans-serif;
+}
