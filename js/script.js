@@ -47,6 +47,8 @@ function updateVolume() {
     if (bgm.muted) {
         bgm.muted = false;
     }
+    zoomInSound.volume = volumeSlider.value;
+    zoomOutSound.volume = volumeSlider.value;
     bgm.volume = volumeSlider.value;
 }
 
