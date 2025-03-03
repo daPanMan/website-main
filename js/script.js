@@ -135,22 +135,28 @@ scene.add(cssObject);
 
 
 
-// ✅ Function to Create a Cube with Random Offset
+// ✅ Function to Create a Cube with a Looser Circular Formation
 function createCube(index) {
     const angle = (index / totalCubes) * Math.PI * 2;
-    const baseX = Math.cos(angle) * circleRadius;
-    const baseY = Math.sin(angle) * circleRadius;
-    const baseZ = (Math.random() - 0.5) * 2; // Small random depth variation
+    
+    const spreadFactor = 1.5; // ✅ Increase this value to spread cubes further
+    const baseRadius = circleRadius * spreadFactor; // ✅ Make the radius larger
+
+    // ✅ Calculate base position in a larger circular pattern
+    const baseX = Math.cos(angle) * baseRadius;
+    const baseY = Math.sin(angle) * baseRadius;
+    const baseZ = (Math.random() - 0.5) * 2; // ✅ Random depth variation
 
     const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
     const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
     const cube = new THREE.Mesh(geometry, material);
 
-    // ✅ Add a small random offset to make formation looser
-    const randomOffsetX = (Math.random() - 0.5) * 1.5;
-    const randomOffsetY = (Math.random() - 0.5) * 1.5;
+    // ✅ Add slight random offsets to make the formation more organic
+    const randomOffsetX = (Math.random() - 0.5) * 3; // More spread out
+    const randomOffsetY = (Math.random() - 0.5) * 3;
+    const randomOffsetZ = (Math.random() - 0.5) * 1; // Small Z-axis variation
 
-    cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ);
+    cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ + randomOffsetZ);
     cube.geometry.computeBoundingBox();
     cube.frustumCulled = false;
 
@@ -158,8 +164,14 @@ function createCube(index) {
     cubes.push(cube);
     originalPositions.push({ x: baseX, y: baseY, z: baseZ });
 
-    animateCubeMovement(cube); // ✅ Make the cube wander
+    animateCubeMovement(cube); // ✅ Make the cube wander slightly
 }
+
+// ✅ Generate Cubes in a More Spread Out Circular Pattern
+for (let i = 0; i < totalCubes; i++) {
+    createCube(i);
+}
+
 
 // ✅ Function to Make Cubes Wander Randomly
 function animateCubeMovement(cube) {
