@@ -135,26 +135,26 @@ scene.add(cssObject);
 
 
 
-// ✅ Function to Create a Cube with a Looser Circular Formation
+// ✅ Function to Create a Cube with a Floating Title
 function createCube(index) {
     const angle = (index / totalCubes) * Math.PI * 2;
-    
-    const spreadFactor = 1.5; // ✅ Increase this value to spread cubes further
-    const baseRadius = circleRadius * spreadFactor; // ✅ Make the radius larger
 
-    // ✅ Calculate base position in a larger circular pattern
+    const spreadFactor = 1.5; // Adjust this to make cubes more spread out
+    const baseRadius = circleRadius * spreadFactor;
+
+    // ✅ Position cubes in a circular pattern
     const baseX = Math.cos(angle) * baseRadius;
     const baseY = Math.sin(angle) * baseRadius;
-    const baseZ = (Math.random() - 0.5) * 2; // ✅ Random depth variation
+    const baseZ = (Math.random() - 0.5) * 2;
 
     const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
     const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
     const cube = new THREE.Mesh(geometry, material);
 
-    // ✅ Add slight random offsets to make the formation more organic
-    const randomOffsetX = (Math.random() - 0.5) * 3; // More spread out
+    // ✅ Random slight offset to make formation more natural
+    const randomOffsetX = (Math.random() - 0.5) * 3;
     const randomOffsetY = (Math.random() - 0.5) * 3;
-    const randomOffsetZ = (Math.random() - 0.5) * 1; // Small Z-axis variation
+    const randomOffsetZ = (Math.random() - 0.5) * 1;
 
     cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ + randomOffsetZ);
     cube.geometry.computeBoundingBox();
@@ -163,6 +163,9 @@ function createCube(index) {
     scene.add(cube);
     cubes.push(cube);
     originalPositions.push({ x: baseX, y: baseY, z: baseZ });
+
+    // ✅ Add Floating Title Above Cube
+    addFloatingTitle(cube, `Cube ${index + 1}`);
 
     animateCubeMovement(cube); // ✅ Make the cube wander slightly
 }
