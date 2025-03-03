@@ -1,409 +1,107 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="">
-  <meta name="author" content="">
-
-  <title>This is the Pan Man</title>
-
-  <!-- Bootstrap Core CSS -->
-  <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
-
-  <!-- Fonts -->
-  <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet"
-    type="text/css">
-  <link href="css/nivo-lightbox.css" rel="stylesheet" />
-  <link href="css/nivo-lightbox-theme/default/default.css" rel="stylesheet"
-    type="text/css" />
-  <link href="css/animate.css" rel="stylesheet" />
-  <!-- Squad theme CSS -->
-  <link href="css/style.css" rel="stylesheet">
-  <link href="color/default.css" rel="stylesheet">
-  <link rel="icon" href="/favicon_io/favicon.ico" type="image/x-icon">
-
-  <style>
-    .intro {
-      background-attachment: fixed;
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      position: relative;
-    }
-
-    .intro .slogan {
-      text-align: center;
-      color: white;
-    }
-
-    .service-box .avatar img {
-      width: 100%;
-      height: auto;
-    }
-
-    .iframe-container {
-      position: relative;
-      width: 100%;
-      padding-bottom: 56.25%;
-      height: 0;
-      overflow: hidden;
-    }
-
-    .iframe-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    @media (max-width: 767px) {
-      .intro .slogan {
-        font-size: 14px;
-      }
-
-      .service-desc h7 {
-        font-size: 16px;
-      }
-
-      .service-desc p {
-        font-size: 14px;
-      }
-    }
-
-    @media (min-width: 768px) {
-      .intro .slogan {
-        font-size: 24px;
-      }
-
-      .service-desc h7 {
-        font-size: 18px;
-      }
-
-      .service-desc p {
-        font-size: 16px;
-      }
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    .fade-in {
-      opacity: 0;
-      transition: opacity 1s ease-out;
-    }
-
-    .fade-in.visible {
-      opacity: 1;
-    }
-  </style>
-  <script type="text/javascript"
-    src="https://cdn.emailjs.com/dist/email.min.js"></script>
-  <script type="text/javascript">
-    (function () {
-      emailjs.init("PeD_SpSOcKdDZPzHu");
-    })();
-  </script>
-</head>
-
-<body data-spy="scroll" class="scroll">
-
-  <div class="container">
-    <ul id="gn-menu" class="gn-menu-main">
-      <li class="gn-trigger">
-        <a class="gn-icon gn-icon-menu"><span>Menu</span></a>
-        <nav class="gn-menu-wrapper">
-          <div class="gn-scroller">
-            <ul class="gn-menu">
-              <li class="gn-search-item">
-                <input placeholder="Search" type="search" class="gn-search">
-                <a class="gn-icon gn-icon-search"><span>Search</span></a>
-              </li>
-              <li>
-                <a href="#about" class="gn-icon gn-icon-download">About Me</a>
-              </li>
-              <li><a href="#service" class="gn-icon gn-icon-cog">Service</a>
-              </li>
-              <li><a href="#works" class="gn-icon gn-icon-help">Works</a></li>
-              <li>
-                <a href="#contact" class="gn-icon gn-icon-archive">Contact</a>
-              </li>
-            </ul>
-          </div>
-          <!-- /gn-scroller -->
-        </nav>
-      </li>
-      <li><a href="index.html">John Pan</a></li>
-      <li class="hidden-xs">
-        <ul class="company-social">
-          <li class="social-facebook"><a href="https://www.facebook.com/johnathan.pan.9/" target="_blank"><i
-                class="fa fa-facebook"></i></a></li>
-          <li class="social-instagram"><a href="https://www.instagram.com/zegroopepe/" target="_blank"><i
-                class="fa fa-instagram"></i></a></li>
-          <li class="social-linkedin"><a href="https://www.linkedin.com/in/dong-pan-763362221/"
-              target="_blank"><i class="fa fa-linkedin"></i></a></li>
-        </ul>
-      </li>
-    </ul>
-  </div>
-
-  <!-- Section: intro -->
-  <section id="intro" class="intro">
-    <div class="slogan fade-in">
-      <h1>
-        <font face="courier new" color="7FFFD4">This is John's page</font>
-      </h1>
-      <!-- <p>knowing more about me</p>
-      <a href="#about" class="btn btn-skin scroll">
-        <h2>random stuffs</h2>
-      </a> -->
-    </div>
-  </section>
-  <!-- /Section: intro -->
-
-  <!-- Section: services -->
-  <section id="service" class="home-section text-center fade-in">
-    <div class="heading-about marginbot-50">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-8 col-lg-offset-2">
-            <div class="section-heading">
-              <h2>Who I am</h2>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-6 col-md-3">
-          <div class="service-box">
-            <a href="http://unity.jpswag.com">
-              <div class="avatar"><img src="img/tech.png" alt=""
-                  class="img-responsive" />
-              </div>
-            </a>
-            <div class="service-desc">
-              <h7>A tech nerd</h7>
-              <p>Loves diving in computer science, collecting tech gadgets, and
-                do some interesting things based on technology</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-          <div class="service-box">
-            <a href="http://snake.jpswag.com">
-              <div class="avatar"><img src="img/gaming_pad.png" alt=""
-                  class="img-responsive" />
-            </a>
-          </div>
-          <div class="service-desc">
-            <h7>A video gamer</h7>
-            <p>Likes to play 3A and FPS games, prefers console than PC</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-6 col-md-3">
-        <div class="service-box">
-          <div class="avatar"><img src="img/theatre.png" alt=""
-              class="img-responsive" />
-          </div>
-          <div class="service-desc">
-            <h7>A performance lover</h7>
-            <p>Loves to act, has been involved in several plays and musicals</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-6 col-md-3">
-        <div class="service-box">
-          <a href="http://pong.jpswag.com">
-            <div class="avatar"><img src="img/tennis.png" alt=""
-                class="img-responsive" />
-            </div>
-          </a>
-          <div class="service-desc">
-            <h7>Likes to play tennis</h7>
-            <p>Not a skillful player, but still plays tennis, practice makes
-              perminance</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!-- /Section: services -->
-
-  <!-- Section: works -->
-  <section id="works" class="home-section text-center bg-gray fade-in">
-    <div class="heading-works marginbot-50">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-8 col-lg-offset-2">
-            <div class="section-heading">
-              <h2>My Music</h2>
-              <p>Yup, I produce sometimes</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-12 col-md-12 col-lg-12">
-          <div class="iframe-container">
-            <iframe style="border-radius:12px"
-              src="https://open.spotify.com/embed/artist/5d0ZqFAnUPeYPsBe0H4ziW?utm_source=generator"
-              frameBorder="10" allowfullscreen=""
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"></iframe>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!-- /Section: works -->
-
-  <!-- Section: contact -->
-  <section id="contact" class="home-section text-center fade-in">
-    <div class="heading-contact marginbot-50">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-8 col-lg-offset-2">
-            <div class="section-heading">
-              <h2>know about me</h2>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-8 col-md-offset-2">
-          <div class="boxed-grey">
-            <div id="sendmessage">Your message has been sent. Thank you!</div>
-            <div id="errormessage"></div>
-            <form id="contact-form" method="post" role="form"
-              class="contactForm">
-              <div class="form-group">
-                <input type="name" name="from_name" class="form-control"
-                  id="name" placeholder="Your Name" required />
-                <div class="validation"></div>
-              </div>
-              <div class="form-group">
-                <input type="email" name="from_email" class="form-control"
-                  id="email" placeholder="Your Email" required />
-                <div class="validation"></div>
-              </div>
-              <div class="form-group">
-                <input type="subject" name="from_subject" class="form-control"
-                  id="subject" placeholder="Message Subject" />
-                <div class="validation"></div>
-              </div>
-              <div class="form-group">
-                <textarea class="form-control" name="message" rows="5"
-                  placeholder="Message" required></textarea>
-                <div class="validation"></div>
-              </div>
-              <div class="text-center"><button type="submit"
-                  class="btn btn-skin">Send Message</button></div>
-            </form>
-          </div>
-          <div class="widget-contact row">
-            <div class="col-lg-6">
-              <address>
-                <strong>JPSwag Ltd.</strong><br>
-                603 E. Huron St<br>
-                Ann Arbor, MI 48104<br>
-                <abbr title="Phone">P:</abbr> (628)-243-2363
-              </address>
-            </div>
-            <div class="col-lg-6">
-              <address>
-                <strong>Email</strong><br>
-                <a href="mailto:#">galvatronus2001@gmail.com</a>
-              </address>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!-- /Section: contact -->
-
-  <footer>
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12 col-lg-12">
-          <p>John Pan's Swag &copy; <span id="currentYear"></span></p>
-          <div class="credits">
-            <a href="https://bootstrapmade.com/">My biography</a> by <a
-              href="https://bootstrapmade.com/">BootstrapMade</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Core JavaScript Files -->
-  <script src="js/jquery.min.js"></script>
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/jquery.easing.min.js"></script>
-  <script src="js/classie.js"></script>
-  <script src="js/gnmenu.js"></script>
-  <script src="js/jquery.scrollTo.js"></script>
-  <script src="js/nivo-lightbox.min.js"></script>
-  <script src="js/stellar.js"></script>
-  <!-- Custom Theme JavaScript -->
-  <script src="js/custom.js"></script>
-  <script src="contactform/contactform.js"></script>
-
-  <script>
-    // Set current year in footer
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
-
-    document.addEventListener('DOMContentLoaded', function () {
-      const elements = document.querySelectorAll('.fade-in');
-
-      const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Long Scrollable Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth; /* Enables smooth scrolling */
         }
-      });
-    }, { threshold: 0.1 });
 
-    elements.forEach(element => {
-      observer.observe(element);
-    });
+        /* Navigation Bar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #333;
+            padding: 15px;
+            text-align: center;
+            z-index: 1000;
+        }
 
-    document.getElementById('contact-form').addEventListener('submit', function (event) {
-      event.preventDefault();
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: inline-block;
+        }
 
-      emailjs.sendForm('service_1q5yozh', 'template_jjjrk8l', this)
-        .then(function () {
-          document.getElementById('sendmessage').style.display = 'block';
-          document.getElementById('errormessage').style.display = 'none';
-        }, function (error) {
-          document.getElementById('sendmessage').style.display = 'none';
-          document.getElementById('errormessage').style.display = 'block';
-          console.log('FAILED...', error);
-        });
-    });
-    });
-  </script>
+        .navbar a:hover {
+            background: #555;
+        }
+
+        /* Section Styling */
+        .section {
+            height: 100vh; /* Full-screen height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            text-align: center;
+        }
+
+        #section1 { background: #ff6b6b; }
+        #section2 { background: #6b8eff; }
+        #section3 { background: #6bff95; }
+        #section4 { background: #ffb86b; }
+        #section5 { background: #d16bff; }
+
+        /* Back to Top Button */
+        .top-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .top-btn:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="#section1">Section 1</a>
+        <a href="#section2">Section 2</a>
+        <a href="#section3">Section 3</a>
+        <a href="#section4">Section 4</a>
+        <a href="#section5">Section 5</a>
+    </div>
+
+    <!-- Long Scrollable Content -->
+    <div id="section1" class="section">Welcome to Section 1</div>
+    <div id="section2" class="section">Welcome to Section 2</div>
+    <div id="section3" class="section">Welcome to Section 3</div>
+    <div id="section4" class="section">Welcome to Section 4</div>
+    <div id="section5" class="section">Welcome to Section 5</div>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="top-btn" id="topButton">⬆ Back to Top</a>
+
+    <script>
+        // Show/Hide Back to Top Button on Scroll
+        window.onscroll = function() {
+            let topButton = document.getElementById("topButton");
+            if (document.documentElement.scrollTop > 300) {
+                topButton.style.display = "block";
+            } else {
+                topButton.style.display = "none";
+            }
+        };
+    </script>
+
 </body>
-
 </html>
