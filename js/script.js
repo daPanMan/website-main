@@ -104,6 +104,11 @@ cssRenderer.domElement.style.position = "absolute";
 cssRenderer.domElement.style.top = 0;
 document.body.appendChild(cssRenderer.domElement);
 
+
+// ✅ Store all title objects in an array for updates
+const titleObjects = [];
+
+
 // ✅ Create the `iframe` Element
 const iframeElement = document.createElement("iframe");
 iframeElement.src = "about.html"; // Replace with your actual page
