@@ -297,24 +297,39 @@ window.addEventListener("touchstart", (event) => {
 
 
 
-// // ✅ Detects touch start (fingers placed)
-// window.addEventListener("touchstart", (event) => {
-//     if (event.touches.length === 2) {
-//         touchDistance = getTouchDistance(event.touches);
-//     }
-// }, { passive: false });
+let touchDistance = 0;
+let lastPinchZoom = 0; // Helps smooth out zoom changes
 
-// // ✅ Detects touch move (fingers moving apart or closer)
-// window.addEventListener("touchmove", (event) => {
-//     if (event.touches.length === 2) {
-//         event.preventDefault(); // ✅ Prevent scrolling the page while pinching
-//         let newDistance = getTouchDistance(event.touches);
-//         let zoomFactor = (newDistance - touchDistance) * 0.01; // Adjust sensitivity
+// ✅ Detects touch start (fingers placed)
+window.addEventListener("touchstart", (event) => {
+    if (event.touches.length === 2) {
+        event.preventDefault(); // ✅ Prevents browser zoom interference
+        touchDistance = getTouchDistance(event.touches);
+        lastPinchZoom = camera.position.z; // Store last zoom level
+    }
+}, { passive: false });
 
-//         camera.position.z -= zoomFactor * 5; // Move camera forward/backward
-//         touchDistance = newDistance;
-//     }
-// }, { passive: false });
+// ✅ Detects touch move (pinching)
+window.addEventListener("touchmove", (event) => {
+    if (event.touches.length === 2) {
+        event.preventDefault(); // ✅ Prevent scrolling during pinch
+        let newDistance = getTouchDistance(event.touches);
+        let zoomFactor = (newDistance - touchDistance) * 0.02; // ✅ Adjust sensitivity
+
+        // ✅ Adjust camera zoom but keep within limits
+        camera.position.z = Math.max(5, Math.min(50, lastPinchZoom - zoomFactor * 20));
+
+        touchDistance = newDistance;
+    }
+}, { passive: false });
+
+// ✅ Helper function to calculate pinch distance
+function getTouchDistance(touches) {
+    let dx = touches[0].clientX - touches[1].clientX;
+    let dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
 
 
 
