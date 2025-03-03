@@ -105,7 +105,7 @@ function addBigTitle(text) {
     bigTitleObject.scale.set(0.01, 0.01, 0.01); // Prevent infinite scaling
 
     // ✅ Position it above the cube formation
-    bigTitleObject.position.set(0, 10, 0); // Adjust height
+    bigTitleObject.position.set(0, 13, 0); // Adjust height
 
     // ✅ Add it to the scene
     scene.add(bigTitleObject);
