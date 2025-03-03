@@ -132,6 +132,31 @@ cssObject.visible = false; // Hide initially
 scene.add(cssObject);
 
 
+// ✅ Function to Add Floating Title Above Cube
+function addFloatingTitle(cube, text) {
+    // ✅ Create a new HTML element for the title
+    const titleElement = document.createElement("div");
+    titleElement.className = "cube-title";
+    titleElement.innerText = text;
+
+    // ✅ Apply CSS styles
+    titleElement.style.position = "absolute";
+    titleElement.style.color = "white";
+    titleElement.style.fontSize = "14px";
+    titleElement.style.fontWeight = "bold";
+    titleElement.style.textShadow = "0px 0px 5px rgba(255,255,255,0.8)";
+    titleElement.style.pointerEvents = "none"; // Prevent clicking
+    titleElement.style.whiteSpace = "nowrap";
+
+    // ✅ Create a CSS3DObject (Three.js HTML Renderer)
+    const titleObject = new THREE.CSS3DObject(titleElement);
+
+    // ✅ Position the title slightly above the cube
+    titleObject.position.set(0, 1.5, 0); // Adjust height as needed
+
+    // ✅ Attach the title to the cube
+    cube.add(titleObject);
+}
 
 
 
