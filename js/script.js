@@ -260,14 +260,14 @@ function zoomCubeIn(cube) {
     }
 
     // ✅ Move camera to focus on the cube
-    gsap.to(camera.position, {
-        x: cube.position.x * 0.5, 
-        y: cube.position.y * 0.5, 
-        z: cube.position.z + 5, // Keep a small distance in front
-        duration: 1,
-        ease: "power2.out",
-        onUpdate: () => camera.lookAt(0, 0, 0) // Ensure camera faces center
-    });
+    // gsap.to(camera.position, {
+    //     x: cube.position.x * 0.5, 
+    //     y: cube.position.y * 0.5, 
+    //     z: cube.position.z + 5, // Keep a small distance in front
+    //     duration: 1,
+    //     ease: "power2.out",
+    //     onUpdate: () => camera.lookAt(0, 0, 0) // Ensure camera faces center
+    // });
 
     // ✅ Move the Cube to Center and Scale Up
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "back.out(1.7)" });
@@ -301,12 +301,12 @@ function returnCubeToFormation(cube) {
         gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "back.out(1.7)" });
 
         // ✅ Move camera back to default position
-        gsap.to(camera.position, {
-            x: 0, y: 0, z: 14, // Reset to original camera position
-            duration: 1,
-            ease: "power2.out",
-            onUpdate: () => camera.lookAt(0, 0, 0)
-        });
+        // gsap.to(camera.position, {
+        //     x: 0, y: 0, z: 14, // Reset to original camera position
+        //     duration: 1,
+        //     ease: "power2.out",
+        //     onUpdate: () => camera.lookAt(0, 0, 0)
+        // });
 
         // ✅ Fade out iframe before hiding it
         gsap.to(iframeElement, { opacity: 0, duration: 0.5, ease: "power2.in", onComplete: () => {
