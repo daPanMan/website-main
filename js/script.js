@@ -3,6 +3,9 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 
+const bigTitle = addBigTitle("Welcome to My 3D World");
+
+
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 const zoomInSound = new Audio("audio/zoom-in.wav");
@@ -79,6 +82,36 @@ volumeSlider.addEventListener("touchend", () => {
 volumeSlider.addEventListener("mouseup", () => {
     isInterrupted = false;
 });
+
+
+// ✅ Function to Create a Big Floating Title Above the Entire Cube Formation
+function addBigTitle(text) {
+    // ✅ Create a new HTML element for the big title
+    const titleElement = document.createElement("div");
+    titleElement.className = "big-title";
+    titleElement.innerText = text;
+
+    // ✅ Apply CSS styles
+    titleElement.style.position = "absolute";
+    titleElement.style.color = "white";
+    titleElement.style.fontSize = "32px";
+    titleElement.style.fontWeight = "bold";
+    titleElement.style.textShadow = "0px 0px 10px rgba(255,255,255,0.8)";
+    titleElement.style.pointerEvents = "none";
+    titleElement.style.whiteSpace = "nowrap";
+
+    // ✅ Create a CSS3DObject for the title
+    const bigTitleObject = new THREE.CSS3DObject(titleElement);
+    bigTitleObject.scale.set(0.01, 0.01, 0.01); // Prevent infinite scaling
+
+    // ✅ Position it above the cube formation
+    bigTitleObject.position.set(0, 8, 0); // Adjust height
+
+    // ✅ Add it to the scene
+    scene.add(bigTitleObject);
+
+    return bigTitleObject;
+}
 
 
 
@@ -544,6 +577,11 @@ function getTouchDistance(touches) {
 // ✅ Animation Loop
 function animate() {
     requestAnimationFrame(animate);
+
+    // ✅ Ensure the big title always faces the camera
+    if (bigTitle) {
+        bigTitle.lookAt(camera.position);
+    }
 
     // ✅ Ensure titles always face the camera
     titleObjects.forEach(title => {
