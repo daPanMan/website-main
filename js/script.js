@@ -115,7 +115,7 @@ function addBigTitle(text) {
 
 
 
-/* CUBE FEATURES */
+/* SHAPE FEATURES */
 // ✅ Load Textures for Cubes
 const textureLoader = new THREE.TextureLoader();
 const cubeTexture = textureLoader.load('textures/CB.png');
@@ -207,23 +207,31 @@ function addFloatingTitle(cube, text) {
 
 
 
-// ✅ Function to Create a Cube with a Floating Title
+// ✅ Function to Create a Random Shape (Cube, Sphere, Pyramid, etc.)
 function createCube(index) {
     const angle = (index / totalCubes) * Math.PI * 2;
-
     const spreadFactor = 1.5; // Adjust this to make cubes more spread out
     const baseRadius = circleRadius * spreadFactor;
 
-    // ✅ Position cubes in a circular pattern
+    // ✅ Position shapes in a circular pattern
     const baseX = Math.cos(angle) * baseRadius;
     const baseY = Math.sin(angle) * baseRadius;
     const baseZ = (Math.random() - 0.5) * 2;
 
-    const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
-    const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
-    const cube = new THREE.Mesh(geometry, material);
+    // ✅ Choose a random shape for each "cube"
+    const shapes = [
+        new THREE.BoxGeometry(1.5, 1.5, 1.5), // Cube
+        new THREE.SphereGeometry(0.9, 32, 32), // Sphere
+        new THREE.ConeGeometry(1, 2, 32), // Pyramid
+        new THREE.TorusGeometry(1, 0.4, 16, 100), // Torus (donut)
+        new THREE.CylinderGeometry(1, 1, 2, 32) // Cylinder
+    ];
+    const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
 
-    // ✅ Random slight offset to make formation more natural
+    const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
+    const cube = new THREE.Mesh(randomShape, material); // ✅ "cube" variable is still used
+
+    // ✅ Add slight random offset for a more natural formation
     const randomOffsetX = (Math.random() - 0.5) * 3;
     const randomOffsetY = (Math.random() - 0.5) * 3;
     const randomOffsetZ = (Math.random() - 0.5) * 1;
@@ -232,15 +240,19 @@ function createCube(index) {
     cube.geometry.computeBoundingBox();
     cube.frustumCulled = false;
 
+    // ✅ Random rotation for variety
+    cube.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+
     scene.add(cube);
     cubes.push(cube);
     originalPositions.push({ x: baseX, y: baseY, z: baseZ });
 
-    // ✅ Add Floating Title Above Cube
-    addFloatingTitle(cube, `Cube ${index + 1}`);
+    // ✅ Add Floating Title Above Each Shape
+    addFloatingTitle(cube, `Shape ${index + 1}`);
 
-    animateCubeMovement(cube); // ✅ Make the cube wander slightly
+    animateCubeMovement(cube); // ✅ Keep wandering motion
 }
+
 
 
 
