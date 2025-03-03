@@ -275,26 +275,26 @@ window.addEventListener("click", (event) => {
 }, { passive: false });
 
 
-window.addEventListener("touchstart", (event) => {
+// window.addEventListener("touchstart", (event) => {
     
-    if (!cssObject.visible && !activeCube) return; // ✅ Do nothing if iframe is already hidden
+//     if (!cssObject.visible && !activeCube) return; // ✅ Do nothing if iframe is already hidden
   
 
-    // ✅ Convert click position to normalized device coordinates (-1 to +1)
-    const rect = renderer.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+//     // ✅ Convert click position to normalized device coordinates (-1 to +1)
+//     const rect = renderer.domElement.getBoundingClientRect();
+//     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+//     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-    // ✅ Check if the click intersects any cubes
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(cubes, true);
+//     // ✅ Check if the click intersects any cubes
+//     raycaster.setFromCamera(mouse, camera);
+//     const intersects = raycaster.intersectObjects(cubes, true);
 
-    if (intersects.length === 0) {
-        // ✅ Clicked outside cubes → Close the iframe
-        playSound(zoomOutSound);
-        returnCubeToFormation(activeCube);
-    }
-}, { passive: false });
+//     if (intersects.length === 0) {
+//         // ✅ Clicked outside cubes → Close the iframe
+//         playSound(zoomOutSound);
+//         returnCubeToFormation(activeCube);
+//     }
+// }, { passive: false });
 
 
 // // ✅ Detects touch start (fingers placed)
