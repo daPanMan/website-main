@@ -282,15 +282,29 @@ function zoomCubeIn(cube) {
 function returnCubeToFormation(cube) {
     const index = cubes.indexOf(cube);
     if (index !== -1) {
-        gsap.to(cube.position, { x: originalPositions[index].x, y: originalPositions[index].y, z: originalPositions[index].z, duration: 1, ease: "power2.out" });
-        gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1 });
+        // ✅ Animate cube back with a slight bounce effect
+        gsap.to(cube.position, { 
+            x: originalPositions[index].x, 
+            y: originalPositions[index].y, 
+            z: originalPositions[index].z, 
+            duration: 1, 
+            ease: "back.out(1.7)" 
+        });
 
-        gsap.to(cssObject.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 0.5, onComplete: () => {
-            cssObject.visible = false;
+        gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "back.out(1.7)" });
+
+        // ✅ Fade out iframe before hiding it
+        gsap.to(iframeElement, { opacity: 0, scale: 0.9, duration: 0.5, ease: "power2.in", onComplete: () => {
+            cssObject.visible = false; // ✅ Hide iframe after fade-out
         }});
+
+        // ✅ Restore cube wandering effect after zooming out
+        animateCubeMovement(cube);
     }
+
     activeCube = null;
 }
+
 
 // returns the cube back to formation if I click anywhere else
 window.addEventListener("click", (event) => {
