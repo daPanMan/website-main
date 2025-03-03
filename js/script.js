@@ -147,7 +147,7 @@ function addFloatingTitle(cube, text) {
     // ✅ Apply CSS styles to prevent scaling issues
     titleElement.style.position = "absolute";
     titleElement.style.color = "white";
-    titleElement.style.fontSize = "14px";
+    titleElement.style.fontSize = "41px";
     titleElement.style.fontWeight = "bold";
     titleElement.style.textShadow = "0px 0px 5px rgba(255,255,255,0.8)";
     titleElement.style.pointerEvents = "none"; // Prevent clicking
