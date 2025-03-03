@@ -167,10 +167,6 @@ function createCube(index) {
     animateCubeMovement(cube); // ✅ Make the cube wander slightly
 }
 
-// ✅ Generate Cubes in a More Spread Out Circular Pattern
-for (let i = 0; i < totalCubes; i++) {
-    createCube(i);
-}
 
 
 // ✅ Function to Make Cubes Wander Randomly
