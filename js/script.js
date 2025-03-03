@@ -297,42 +297,6 @@ window.addEventListener("touchstart", (event) => {
 
 
 
-let touchDistance = 0;
-let lastPinchZoom = 0; // Helps smooth out zoom changes
-
-// ✅ Detects touch start (fingers placed)
-window.addEventListener("touchstart", (event) => {
-    if (event.touches.length === 2) {
-        event.preventDefault(); // ✅ Prevents browser zoom interference
-        touchDistance = getTouchDistance(event.touches);
-        lastPinchZoom = camera.position.z; // Store last zoom level
-    }
-}, { passive: false });
-
-// ✅ Detects touch move (pinching)
-window.addEventListener("touchmove", (event) => {
-    if (event.touches.length === 2) {
-        event.preventDefault(); // ✅ Prevent scrolling during pinch
-        let newDistance = getTouchDistance(event.touches);
-        let zoomFactor = (newDistance - touchDistance) * 0.02; // ✅ Adjust sensitivity
-
-        // ✅ Adjust camera zoom but keep within limits
-        camera.position.z = Math.max(5, Math.min(50, lastPinchZoom - zoomFactor * 20));
-
-        touchDistance = newDistance;
-    }
-}, { passive: false });
-
-// ✅ Helper function to calculate pinch distance
-function getTouchDistance(touches) {
-    let dx = touches[0].clientX - touches[1].clientX;
-    let dy = touches[0].clientY - touches[1].clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
-
-
-
 window.addEventListener("wheel", (event) => {
     event.preventDefault(); // ✅ Prevents default browser zooming
 
@@ -403,35 +367,73 @@ window.addEventListener("mousemove", (event) => {
 });
 
 
-// ✅ Detect Touch Start (For Mobile)
+let touchDistance = 0;
+let lastPinchZoom = 0; // Stores last zoom position
+
+let isPinching = false; // Tracks pinch gesture
+
+// ✅ Detect Touch Start
 window.addEventListener("touchstart", (event) => {
-    isDragging = true;
-    lastX = event.touches[0].clientX;
-    lastY = event.touches[0].clientY;
-}, { passive: false });
-
-// ✅ Detect Touch End (For Mobile)
-window.addEventListener("touchend", () => {
-    isDragging = false;
-});
-
-// ✅ Detect Touch Move (For Mobile)
-window.addEventListener("touchmove", (event) => {
-    if (isDragging && !isInterrupted) {
-        let deltaX = (event.touches[0].clientX - lastX) * 0.002;
-        let deltaY = (event.touches[0].clientY - lastY) * 0.002;
-
-        targetRotationX += deltaX;
-        targetRotationY += deltaY;
-
+    if (event.touches.length === 1) {
+        // ✅ Single finger → Start dragging background
+        isDragging = true;
+        isPinching = false; // Ensure not pinching
         lastX = event.touches[0].clientX;
         lastY = event.touches[0].clientY;
-
-        starField.rotation.y += (targetRotationX - starField.rotation.y) * 0.05;
-        starField.rotation.x += (targetRotationY - starField.rotation.x) * 0.05;
-
+    } else if (event.touches.length === 2) {
+        // ✅ Two fingers → Start pinch zoom
+        event.preventDefault(); // Prevent browser zoom
+        isPinching = true;
+        touchDistance = getTouchDistance(event.touches);
+        lastPinchZoom = camera.position.z;
     }
 }, { passive: false });
+
+// ✅ Detect Touch Move
+window.addEventListener("touchmove", (event) => {
+    if (event.touches.length === 2 && isPinching) {
+        // ✅ Pinch Zoom (Two Fingers)
+        event.preventDefault();
+        let newDistance = getTouchDistance(event.touches);
+        let zoomFactor = (newDistance - touchDistance) * 0.02; // Adjust sensitivity
+
+        // ✅ Adjust camera zoom but keep within limits
+        camera.position.z = Math.max(5, Math.min(50, lastPinchZoom - zoomFactor * 20));
+
+        touchDistance = newDistance;
+    } else if (event.touches.length === 1 && isDragging) {
+        // ✅ Move Background (One Finger)
+        if (!isInterrupted) {
+            let deltaX = (event.touches[0].clientX - lastX) * 0.002;
+            let deltaY = (event.touches[0].clientY - lastY) * 0.002;
+
+            targetRotationX += deltaX;
+            targetRotationY += deltaY;
+
+            lastX = event.touches[0].clientX;
+            lastY = event.touches[0].clientY;
+
+            // ✅ Rotate background smoothly
+            starField.rotation.y += (targetRotationX - starField.rotation.y) * 0.05;
+            starField.rotation.x += (targetRotationY - starField.rotation.x) * 0.05;
+        }
+    }
+}, { passive: false });
+
+// ✅ Detect Touch End
+window.addEventListener("touchend", (event) => {
+    if (event.touches.length === 0) {
+        isDragging = false;
+        isPinching = false;
+    }
+}, { passive: true });
+
+// ✅ Helper function to calculate pinch distance
+function getTouchDistance(touches) {
+    let dx = touches[0].clientX - touches[1].clientX;
+    let dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
 
 // ✅ Animation Loop
 function animate() {
