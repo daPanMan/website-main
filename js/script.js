@@ -278,7 +278,7 @@ window.addEventListener("click", (event) => {
 window.addEventListener("touchstart", (event) => {
     
     if (!cssObject.visible && !activeCube) return; // ✅ Do nothing if iframe is already hidden
-    event.preventDefault();
+  
 
     // ✅ Convert click position to normalized device coordinates (-1 to +1)
     const rect = renderer.domElement.getBoundingClientRect();
@@ -297,24 +297,24 @@ window.addEventListener("touchstart", (event) => {
 }, { passive: false });
 
 
-// ✅ Detects touch start (fingers placed)
-window.addEventListener("touchstart", (event) => {
-    if (event.touches.length === 2) {
-        touchDistance = getTouchDistance(event.touches);
-    }
-}, { passive: false });
+// // ✅ Detects touch start (fingers placed)
+// window.addEventListener("touchstart", (event) => {
+//     if (event.touches.length === 2) {
+//         touchDistance = getTouchDistance(event.touches);
+//     }
+// }, { passive: false });
 
-// ✅ Detects touch move (fingers moving apart or closer)
-window.addEventListener("touchmove", (event) => {
-    if (event.touches.length === 2) {
-        event.preventDefault(); // ✅ Prevent scrolling the page while pinching
-        let newDistance = getTouchDistance(event.touches);
-        let zoomFactor = (newDistance - touchDistance) * 0.01; // Adjust sensitivity
+// // ✅ Detects touch move (fingers moving apart or closer)
+// window.addEventListener("touchmove", (event) => {
+//     if (event.touches.length === 2) {
+//         event.preventDefault(); // ✅ Prevent scrolling the page while pinching
+//         let newDistance = getTouchDistance(event.touches);
+//         let zoomFactor = (newDistance - touchDistance) * 0.01; // Adjust sensitivity
 
-        camera.position.z -= zoomFactor * 5; // Move camera forward/backward
-        touchDistance = newDistance;
-    }
-}, { passive: false });
+//         camera.position.z -= zoomFactor * 5; // Move camera forward/backward
+//         touchDistance = newDistance;
+//     }
+// }, { passive: false });
 
 
 
