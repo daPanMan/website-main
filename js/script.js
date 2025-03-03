@@ -135,30 +135,61 @@ scene.add(cssObject);
 
 
 
-// ✅ Function to Create a Cube
+// ✅ Function to Create a Cube with Random Offset
 function createCube(index) {
     const angle = (index / totalCubes) * Math.PI * 2;
-    const x = Math.cos(angle) * circleRadius;
-    const y = Math.sin(angle) * circleRadius;
-    const z = 0;
+    const baseX = Math.cos(angle) * circleRadius;
+    const baseY = Math.sin(angle) * circleRadius;
+    const baseZ = (Math.random() - 0.5) * 2; // Small random depth variation
 
     const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
     const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
     const cube = new THREE.Mesh(geometry, material);
 
-    cube.position.set(x, y, z);
+    // ✅ Add a small random offset to make formation looser
+    const randomOffsetX = (Math.random() - 0.5) * 1.5;
+    const randomOffsetY = (Math.random() - 0.5) * 1.5;
+
+    cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ);
     cube.geometry.computeBoundingBox();
     cube.frustumCulled = false;
 
     scene.add(cube);
     cubes.push(cube);
-    originalPositions.push({ x, y, z });
+    originalPositions.push({ x: baseX, y: baseY, z: baseZ });
+
+    animateCubeMovement(cube); // ✅ Make the cube wander
 }
 
-// ✅ Generate Cubes in a Circular Pattern
+// ✅ Function to Make Cubes Wander Randomly
+function animateCubeMovement(cube) {
+    const randomTime = 2 + Math.random() * 3; // Vary speed between 2-5 seconds
+
+    gsap.to(cube.position, {
+        x: cube.position.x + (Math.random() - 0.5) * 1.5, // Small random movement
+        y: cube.position.y + (Math.random() - 0.5) * 1.5,
+        z: cube.position.z + (Math.random() - 0.5) * 0.5,
+        duration: randomTime,
+        ease: "power1.inOut",
+        yoyo: true,
+        repeat: -1 // Loop forever
+    });
+
+    gsap.to(cube.rotation, {
+        x: Math.random() * Math.PI * 2,
+        y: Math.random() * Math.PI * 2,
+        duration: randomTime * 1.5,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1
+    });
+}
+
+// ✅ Generate Cubes in a Looser Circular Pattern
 for (let i = 0; i < totalCubes; i++) {
     createCube(i);
 }
+
 
 // scene.add(light);
 
