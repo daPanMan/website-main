@@ -80,6 +80,7 @@ volumeSlider.addEventListener("mouseup", () => {
 
 
 
+/* CUBE FEATURES */
 // ✅ Load Textures for Cubes
 const textureLoader = new THREE.TextureLoader();
 const cubeTexture = textureLoader.load('textures/CB.png');
@@ -183,21 +184,16 @@ window.addEventListener("touchstart", (event) => {
 }, { passive: false });
 
 
-let touchTriggered = false; // Prevents double trigger on mobile
-
 function onCubeClick(event) {
-    if (touchTriggered) {
-        touchTriggered = false; // Reset flag
-        return;
-    }
-
+    isInterrupted = true;
     let x, y;
     const rect = renderer.domElement.getBoundingClientRect();
-
-    if (event.touches) {
+    
+    
+    if (event.touches) { 
         x = ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
         y = -((event.touches[0].clientY - rect.top) / rect.height) * 2 + 1;
-    } else {
+    } else { 
         x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     }
@@ -220,19 +216,8 @@ function onCubeClick(event) {
             zoomCubeIn(clickedCube);
         }
     }
+    isInterrupted = false;
 }
-
-// Attach event listeners
-window.addEventListener("click", (event) => {
-    if (touchTriggered) return; // Skip click event if touch event fired
-    onCubeClick(event);
-});
-
-window.addEventListener("touchstart", (event) => {
-    touchTriggered = true;
-    setTimeout(() => touchTriggered = false, 300); // Prevent immediate click trigger
-    onCubeClick(event);
-}, { passive: false });
 
 
 // ✅ Zoom-in Effect When Clicking a Cube
@@ -312,35 +297,24 @@ window.addEventListener("touchstart", (event) => {
 }, { passive: false });
 
 
-let touchDistance = 0; // Stores the initial pinch distance
-
-
-// Detects touch start (fingers placed)
+// ✅ Detects touch start (fingers placed)
 window.addEventListener("touchstart", (event) => {
     if (event.touches.length === 2) {
         touchDistance = getTouchDistance(event.touches);
     }
 }, { passive: false });
 
-// Detects touch move (fingers moving apart or closer)
+// ✅ Detects touch move (fingers moving apart or closer)
 window.addEventListener("touchmove", (event) => {
     if (event.touches.length === 2) {
         event.preventDefault(); // ✅ Prevent scrolling the page while pinching
         let newDistance = getTouchDistance(event.touches);
-        let zoomFactor = (newDistance - touchDistance) * 0.005; // Adjust sensitivity
+        let zoomFactor = (newDistance - touchDistance) * 0.01; // Adjust sensitivity
 
-        camera.position.z -= zoomFactor * 20; // Move camera forward/backward
+        camera.position.z -= zoomFactor * 5; // Move camera forward/backward
         touchDistance = newDistance;
     }
 }, { passive: false });
-
-// ✅ Helper function to calculate pinch distance
-function getTouchDistance(touches) {
-    let dx = touches[0].clientX - touches[1].clientX;
-    let dy = touches[0].clientY - touches[1].clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
 
 
 
@@ -353,6 +327,8 @@ window.addEventListener("wheel", (event) => {
 
 
 
+
+/* BACKGROUND FEATURES */
 // ✅ Add 3D Universe Background
 const spaceTexture = textureLoader.load("textures/stars.jpg");
 const starGeometry = new THREE.SphereGeometry(50, 64, 64);
@@ -410,6 +386,7 @@ window.addEventListener("mousemove", (event) => {
 
     }
 });
+
 
 // ✅ Detect Touch Start (For Mobile)
 window.addEventListener("touchstart", (event) => {
