@@ -277,7 +277,7 @@ for (let i = 0; i < totalCubes; i++) {
 // scene.add(light);
 
 // ✅ Position the Camera
-camera.position.set(0, -2, 16);
+camera.position.set(0, 0, 16);
 camera.lookAt(0, 0, 0);
 camera.updateProjectionMatrix();
 
