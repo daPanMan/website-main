@@ -252,7 +252,6 @@ function onCubeClick(event) {
     isInterrupted = false;
 }
 
-
 // ✅ Zoom-in Effect When Clicking a Cube
 function zoomCubeIn(cube) {
     if (activeCube === cube) return;
@@ -261,17 +260,22 @@ function zoomCubeIn(cube) {
         returnCubeToFormation(activeCube);
     }
 
-    // ✅ Zoom the Cube in and Show the `iframe`
-    gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "power2.out" });
-    gsap.to(cube.scale, { x: 2, y: 2, z: 2, duration: 1 });
+    // ✅ Add a glow effect to make the selected cube stand out
+    gsap.to(cube.material, { opacity: 1, duration: 0.5 });
 
+    // ✅ Zoom the Cube in with a bounce effect
+    gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "back.out(1.7)" });
+    gsap.to(cube.scale, { x: 2.2, y: 2.2, z: 2.2, duration: 1, ease: "back.out(1.7)" });
+
+    // ✅ Wait for the cube animation to finish before showing the iframe
     setTimeout(() => {
         cssObject.visible = true; // ✅ Make iframe container visible
-        gsap.to(iframeElement, { opacity: 1, duration: 0.5 }); // ✅ Fade in iframe
-    }, 500); // ✅ Start fading in after 500ms for a smoother transition
+        gsap.to(iframeElement, { opacity: 1, scale: 1.1, duration: 0.5, ease: "power2.out" }); // ✅ Smooth fade-in with slight scale up
+    }, 500);
 
     activeCube = cube;
 }
+
 
 
 
