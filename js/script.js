@@ -252,7 +252,6 @@ function onCubeClick(event) {
     isInterrupted = false;
 }
 
-// ✅ Zoom-in Effect When Clicking a Cube
 function zoomCubeIn(cube) {
     if (activeCube === cube) return;
 
@@ -260,7 +259,17 @@ function zoomCubeIn(cube) {
         returnCubeToFormation(activeCube);
     }
 
-    // ✅ Zoom the Cube in with a smooth effect
+    // ✅ Move camera to focus on the cube
+    gsap.to(camera.position, {
+        x: cube.position.x * 0.5, 
+        y: cube.position.y * 0.5, 
+        z: cube.position.z + 5, // Keep a small distance in front
+        duration: 1,
+        ease: "power2.out",
+        onUpdate: () => camera.lookAt(0, 0, 0) // Ensure camera faces center
+    });
+
+    // ✅ Move the Cube to Center and Scale Up
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "back.out(1.7)" });
     gsap.to(cube.scale, { x: 2.2, y: 2.2, z: 2.2, duration: 1, ease: "back.out(1.7)" });
 
@@ -276,10 +285,11 @@ function zoomCubeIn(cube) {
 
 
 
+
 function returnCubeToFormation(cube) {
     const index = cubes.indexOf(cube);
     if (index !== -1) {
-        // ✅ Move cube back to formation with smooth animation
+        // ✅ Move cube back to its original position
         gsap.to(cube.position, { 
             x: originalPositions[index].x, 
             y: originalPositions[index].y, 
@@ -289,6 +299,14 @@ function returnCubeToFormation(cube) {
         });
 
         gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "back.out(1.7)" });
+
+        // ✅ Move camera back to default position
+        gsap.to(camera.position, {
+            x: 0, y: 0, z: 14, // Reset to original camera position
+            duration: 1,
+            ease: "power2.out",
+            onUpdate: () => camera.lookAt(0, 0, 0)
+        });
 
         // ✅ Fade out iframe before hiding it
         gsap.to(iframeElement, { opacity: 0, duration: 0.5, ease: "power2.in", onComplete: () => {
