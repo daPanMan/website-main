@@ -260,17 +260,14 @@ function zoomCubeIn(cube) {
         returnCubeToFormation(activeCube);
     }
 
-    // ✅ Add a glow effect to make the selected cube stand out
-    gsap.to(cube.material, { opacity: 1, duration: 0.5 });
-
-    // ✅ Zoom the Cube in with a bounce effect
+    // ✅ Zoom the Cube in with a smooth effect
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "back.out(1.7)" });
     gsap.to(cube.scale, { x: 2.2, y: 2.2, z: 2.2, duration: 1, ease: "back.out(1.7)" });
 
-    // ✅ Wait for the cube animation to finish before showing the iframe
+    // ✅ Show the iframe smoothly without scaling issues
     setTimeout(() => {
-        cssObject.visible = true; // ✅ Make iframe container visible
-        gsap.to(iframeElement, { opacity: 1, scale: 1.1, duration: 0.5, ease: "power2.out" }); // ✅ Smooth fade-in with slight scale up
+        cssObject.visible = true; // ✅ Make iframe visible
+        gsap.to(iframeElement, { opacity: 1, duration: 0.5, ease: "power2.out" }); // ✅ Fade in iframe
     }, 500);
 
     activeCube = cube;
