@@ -279,7 +279,7 @@ function zoomCubeIn(cube) {
 function returnCubeToFormation(cube) {
     const index = cubes.indexOf(cube);
     if (index !== -1) {
-        // ✅ Animate cube back with a slight bounce effect
+        // ✅ Move cube back to formation with smooth animation
         gsap.to(cube.position, { 
             x: originalPositions[index].x, 
             y: originalPositions[index].y, 
@@ -291,7 +291,7 @@ function returnCubeToFormation(cube) {
         gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "back.out(1.7)" });
 
         // ✅ Fade out iframe before hiding it
-        gsap.to(iframeElement, { opacity: 0, scale: 0.9, duration: 0.5, ease: "power2.in", onComplete: () => {
+        gsap.to(iframeElement, { opacity: 0, duration: 0.5, ease: "power2.in", onComplete: () => {
             cssObject.visible = false; // ✅ Hide iframe after fade-out
         }});
 
@@ -301,6 +301,7 @@ function returnCubeToFormation(cube) {
 
     activeCube = null;
 }
+
 
 
 // returns the cube back to formation if I click anywhere else
