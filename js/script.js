@@ -366,7 +366,7 @@ window.addEventListener("mousemove", (event) => {
     }
 });
 
-
+// the pinch to zoom is kinda jittery, but ig it works :(
 let touchDistance = 0;
 let lastPinchZoom = 0; // Stores last zoom position
 
