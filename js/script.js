@@ -493,6 +493,7 @@ function zoomCubeIn(cube) {
         // ✅ Show Reset Button when the iframe is visible
         showCloseButton();
     }, 500);
+    console.log(camera.position.z);
 
     activeCube = cube;
 }
