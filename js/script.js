@@ -139,6 +139,10 @@ function showCloseButton() {
     document.getElementById("reset-scale-button").style.display = "block";
 }
 
+function noShowCloseButton() {
+    document.getElementById("reset-scale-button").style.display = "none";
+}
+
 // ✅ Attach Click Event to Reset Button
 document.getElementById("reset-scale-button").addEventListener("click", resetScale);
 
@@ -418,6 +422,8 @@ function returnCubeToFormation(cube) {
             duration: 1, 
             ease: "back.out(1.7)" 
         });
+
+        noShowCloseButton();
 
         gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "back.out(1.7)" });
 
