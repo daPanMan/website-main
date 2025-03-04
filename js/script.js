@@ -63,7 +63,17 @@ function init(){
         bgm.volume = 0.45;
         threeCanvas.style.display = "block"; // Show Three.js canvas
         cssRenderer.domElement.style.display = "block"; // Show CSS3DRenderer
-        gsap.to(threeCanvas, { opacity: 1, duration: 10, ease: "power2.out" }); // Smooth fade-in
+        gsap.to(threeCanvas, { opacity: 1, duration: 10, ease: "power2.out" });
+
+        // ✅ Recreate the shape formation inside `init()`
+        cubes.forEach(cube => scene.remove(cube)); // Clear old cubes
+        cubes.length = 0;
+
+        for (let i = 0; i < totalCubes; i++) {
+            createCube(i);
+        }
+
+        adjustCamera(); // ✅ Adjust camera again after showing scene
     }, 500);
 }
 
