@@ -214,7 +214,7 @@ const diskTexture = textureLoader.load('textures/disk.png');
 const cubes = [];
 const originalPositions = [];
 const circleRadius = 6;
-const totalCubes = 10;
+const totalCubes = 4;
 let activeCube = null;
 
 // ✅ Add Lighting
