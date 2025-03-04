@@ -1,3 +1,4 @@
+
 // ✅ Setup Scene, Camera, and Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -82,7 +83,7 @@ function init(){
 document.getElementById("enter-button").addEventListener("click", () => {
     init();
 });
-document.getElementById("enter-button").addEventListener("touchend", (event) => {
+document.getElementById("enter-button").addEventListener("touchstart", (event) => {
     event.preventDefault(); // ✅ Prevents unintended scrolling
     init();
 }, { passive: false });
@@ -266,10 +267,6 @@ scene.add(cssObject);
 
 // ✅ Function to Add Floating Title Above Cube
 function addFloatingTitle(cube, text) {
-    // ✅ Check if a title already exists for this cube
-    const existingTitle = titleObjects.find(title => title.userData.cube === cube);
-    if (existingTitle) return; // 🚀 Prevent duplicate titles
-
     // ✅ Create a new HTML element for the title
     const titleElement = document.createElement("div");
     titleElement.className = "cube-title";
@@ -281,7 +278,7 @@ function addFloatingTitle(cube, text) {
     titleElement.style.fontSize = "60px";
     titleElement.style.fontWeight = "bold";
     titleElement.style.textShadow = "0px 0px 5px rgba(255,255,255,0.8)";
-    titleElement.style.pointerEvents = "none";
+    titleElement.style.pointerEvents = "none"; // Prevent clicking
     titleElement.style.whiteSpace = "nowrap";
 
     // ✅ Create a CSS3DObject (for rendering HTML in Three.js)
@@ -301,8 +298,6 @@ function addFloatingTitle(cube, text) {
     // ✅ Store the title object for updating later
     titleObjects.push(titleObject);
 }
-
-
 
 
 
@@ -759,11 +754,9 @@ function animate() {
 
     // ✅ Ensure titles always face the camera
     titleObjects.forEach(title => {
-        if (title.userData.cube) {
-            title.position.copy(title.userData.cube.position);
-            title.position.y += 2; // Keep it floating above
-            title.lookAt(camera.position); // Ensure it faces the camera
-        }
+        title.position.copy(title.userData.cube.position); // Keep above the cube
+        title.position.y += 2; // Keep it floating
+        title.lookAt(camera.position); // Ensure it faces the camera
     });
 
     starField.rotation.y += 0.0005;
