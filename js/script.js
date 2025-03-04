@@ -5,7 +5,17 @@ const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 
 const bigTitle = addBigTitle("This is\nJohn Pan");
 
+// ✅ Function to Adjust the Camera Based on Screen Size
+function adjustCamera() {
+    if (window.innerWidth < 768) {
+        camera.position.set(0, 0, 25); // Move camera back for mobile
+    } else {
+        camera.position.set(0, 0, 14); // Default for desktop
+    }
+    camera.lookAt(0, 0, 0); // Ensure the camera is centered
+}
 
+adjustCamera(); 
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 const zoomInSound = new Audio("audio/zoom-in.wav");
@@ -280,41 +290,51 @@ function addFloatingTitle(cube, text) {
 
 
 
-// ✅ Function to Create a Random Shape (Cube, Sphere, Pyramid, etc.)
+// ✅ Function to Create a Random Shape (Circle on Desktop, Vertical on Mobile)
 function createCube(index) {
-    const angle = (index / totalCubes) * Math.PI * 2;
-    const spreadFactor = 1.5; // Adjust this to make cubes more spread out
-    const baseRadius = circleRadius * spreadFactor;
+    const isMobile = window.innerWidth < 768; // ✅ Detect mobile devices
 
-    // ✅ Position shapes in a circular pattern
-    const baseX = Math.cos(angle) * baseRadius;
-    const baseY = Math.sin(angle) * baseRadius;
-    const baseZ = (Math.random() - 0.5) * 2;
+    let baseX, baseY, baseZ;
+
+    if (isMobile) {
+        // ✅ Vertical Line Formation for Mobile
+        baseX = 0; // Centered horizontally
+        baseY = index * 2.5 - (totalCubes / 2) * 2.5; // Spread vertically
+        baseZ = 0; // Keep it in the same depth
+    } else {
+        // ✅ Circular Formation for Desktop
+        const angle = (index / totalCubes) * Math.PI * 2;
+        const spreadFactor = 1.5;
+        const baseRadius = circleRadius * spreadFactor;
+        baseX = Math.cos(angle) * baseRadius;
+        baseY = Math.sin(angle) * baseRadius;
+        baseZ = (Math.random() - 0.5) * 2;
+    }
 
     // ✅ Choose a random shape for each "cube"
     const shapes = [
-        new THREE.BoxGeometry(1.5, 1.5, 1.5), // Cube
-        new THREE.SphereGeometry(0.9, 32, 32), // Sphere
-        new THREE.ConeGeometry(1, 2, 32), // Pyramid
-        new THREE.TorusGeometry(1, 0.4, 16, 100), // Torus (donut)
-        new THREE.CylinderGeometry(1, 1, 2, 32) // Cylinder
+        new THREE.BoxGeometry(1.5, 1.5, 1.5),
+        new THREE.SphereGeometry(0.9, 32, 32),
+        new THREE.ConeGeometry(1, 2, 32),
+        new THREE.TorusGeometry(1, 0.4, 16, 100),
+        new THREE.CylinderGeometry(1, 1, 2, 32)
     ];
     const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
 
-    const beigeColor = new THREE.Color(0xF5F5DC); // Beige color
+    const beigeColor = new THREE.Color(0xF5F5DC);
     const material = new THREE.MeshPhysicalMaterial({
         color: beigeColor,
-        roughness: 0.6, // Adjust for better shading
-        metalness: 0.1, // Slight metallic effect
-        clearcoat: 0.3, // Reflectivity for light responsiveness
-        reflectivity: 0.5 // Adjust how it responds to background light
+        roughness: 0.6,
+        metalness: 0.1,
+        clearcoat: 0.3,
+        reflectivity: 0.5
     });
 
-    const cube = new THREE.Mesh(randomShape, material); // ✅ "cube" variable is still used
+    const cube = new THREE.Mesh(randomShape, material);
 
     // ✅ Add slight random offset for a more natural formation
-    const randomOffsetX = (Math.random() - 0.5) * 3;
-    const randomOffsetY = (Math.random() - 0.5) * 3;
+    const randomOffsetX = (Math.random() - 0.5) * (isMobile ? 1 : 3);
+    const randomOffsetY = (Math.random() - 0.5) * (isMobile ? 1 : 3);
     const randomOffsetZ = (Math.random() - 0.5) * 1;
 
     cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ + randomOffsetZ);
@@ -331,8 +351,9 @@ function createCube(index) {
     // ✅ Add Floating Title Above Each Shape
     addFloatingTitle(cube, `Shape ${index + 1}`);
 
-    animateCubeMovement(cube); // ✅ Keep wandering motion
+    animateCubeMovement(cube);
 }
+
 
 
 
@@ -365,7 +386,7 @@ function animateCubeMovement(cube) {
 for (let i = 0; i < totalCubes; i++) {
     createCube(i);
 }
-
+adjustCamera();
 
 // scene.add(light);
 
@@ -375,11 +396,22 @@ camera.lookAt(0, 0, 0);
 camera.updateProjectionMatrix();
 
 // ✅ Handle Window Resize
-window.addEventListener('resize', () => {
+window.addEventListener("resize", () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+    
+    adjustCamera(); // 🔹 Update camera when resizing
+
+    // ✅ Recreate the formation when resizing
+    cubes.forEach(cube => scene.remove(cube));
+    cubes = [];
+    for (let i = 0; i < totalCubes; i++) {
+        createCube(i);
+    }
 });
+
+
 
 // ✅ Raycaster for Click Detection
 const raycaster = new THREE.Raycaster();
