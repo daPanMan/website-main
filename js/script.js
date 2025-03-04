@@ -291,7 +291,9 @@ function createCube(index) {
     ];
     const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
 
-    const material = new THREE.MeshStandardMaterial({ map: cubeTexture });
+    const beigeColor = new THREE.Color(0xF5F5DC); // Beige color
+    const material = new THREE.MeshStandardMaterial({ color: beigeColor });
+
     const cube = new THREE.Mesh(randomShape, material); // ✅ "cube" variable is still used
 
     // ✅ Add slight random offset for a more natural formation
