@@ -309,7 +309,7 @@ function createCube(index) {
     if (isMobile) {
         // ✅ Vertical Line Formation for Mobile
         baseX = 0; // Centered horizontally
-        baseY = index * 2.5 - (totalCubes / 2) * 25; // Spread vertically
+        baseY = index * 2.5 - (totalCubes / 2) * 2.5; // Spread vertically
         baseZ = 0; // Keep it in the same depth
     } else {
         // ✅ Circular Formation for Desktop
