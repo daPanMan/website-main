@@ -38,8 +38,7 @@ document.getElementById("three-canvas").style.display = "none";
 bgm.pause();
 cssRenderer.domElement.style.display = "none";
 
-// ✅ Function to Enter the Main 3D Page
-document.getElementById("enter-button").addEventListener("click", () => {
+function init(){
     const introPage = document.getElementById("intro-page");
     const threeCanvas = document.getElementById("three-canvas");
 
@@ -56,6 +55,11 @@ document.getElementById("enter-button").addEventListener("click", () => {
         cssRenderer.domElement.style.display = "block"; // Show CSS3DRenderer
         gsap.to(threeCanvas, { opacity: 1, duration: 10, ease: "power2.out" }); // Smooth fade-in
     }, 500);
+}
+
+// ✅ Function to Enter the Main 3D Page
+document.getElementById("enter-button").addEventListener("click", () => {
+    init();
 });
 
 
