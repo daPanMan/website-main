@@ -1,4 +1,3 @@
-
 // ✅ Setup Scene, Camera, and Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -9,13 +8,12 @@ const bigTitle = addBigTitle("This is\nJohn Pan");
 // ✅ Function to Adjust the Camera Based on Screen Size
 function adjustCamera() {
     if (window.innerWidth < 768) {
-        camera.position.set(0, totalCubes, 35); // ✅ Move back further for better visibility
+        camera.position.set(0, 0, 25); // Move camera back for mobile
     } else {
-        camera.position.set(0, 0, 16); // ✅ Default for desktop
+        camera.position.set(0, 0, 14); // Default for desktop
     }
     camera.lookAt(0, 0, 0); // Ensure the camera is centered
 }
-
 
 adjustCamera(); 
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -309,15 +307,14 @@ function createCube(index) {
     let baseX, baseY, baseZ;
 
     if (isMobile) {
-        // ✅ Increased Vertical Spacing for Mobile
-        const spacingFactor = 4; // Adjust this value to spread out more
-        baseX = 0; // Keep centered horizontally
-        baseY = index * spacingFactor - (totalCubes / 2) * spacingFactor; // Spread vertically
-        baseZ = 0;
+        // ✅ Vertical Line Formation for Mobile
+        baseX = 0; // Centered horizontally
+        baseY = index * 2.5 - (totalCubes / 2) * 2.5; // Spread vertically
+        baseZ = 0; // Keep it in the same depth
     } else {
         // ✅ Circular Formation for Desktop
         const angle = (index / totalCubes) * Math.PI * 2;
-        const spreadFactor = 2; // Increased spread for better spacing
+        const spreadFactor = 1.5;
         const baseRadius = circleRadius * spreadFactor;
         baseX = Math.cos(angle) * baseRadius;
         baseY = Math.sin(angle) * baseRadius;
@@ -347,7 +344,7 @@ function createCube(index) {
 
     // ✅ Add slight random offset for a more natural formation
     const randomOffsetX = (Math.random() - 0.5) * (isMobile ? 1 : 3);
-    const randomOffsetY = (Math.random() - 0.5) * (isMobile ? 1.5 : 3); // More spacing on mobile
+    const randomOffsetY = (Math.random() - 0.5) * (isMobile ? 1 : 3);
     const randomOffsetZ = (Math.random() - 0.5) * 1;
 
     cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ + randomOffsetZ);
@@ -414,23 +411,15 @@ window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     
-    adjustCamera(); // ✅ Update camera position when resizing
+    adjustCamera(); // 🔹 Update camera when resizing
 
-    // ✅ Remove old cubes
+    // ✅ Recreate the formation when resizing
     cubes.forEach(cube => scene.remove(cube));
-    cubes.length = 0;
-
-    // ✅ Remove old floating titles
-    titleObjects.forEach(title => scene.remove(title));
-    titleObjects.length = 0; // Clear titleObjects array
-
-    // ✅ Recreate cubes and titles
+    cubes = [];
     for (let i = 0; i < totalCubes; i++) {
         createCube(i);
     }
 });
-
-
 
 
 
