@@ -1,4 +1,4 @@
-import { createMusicNote } from '.shapes/musicNote.js';
+import { createMusicNote } from 'shapes/musicNote.js';
 
 
 
