@@ -35,6 +35,7 @@ document.body.appendChild(cssRenderer.domElement);
 
 // ✅ Initially hide the 3D canvas & CSS3DRenderer
 document.getElementById("three-canvas").style.display = "none";
+bgm.muted = true;
 cssRenderer.domElement.style.display = "none";
 
 // ✅ Function to Enter the Main 3D Page
@@ -49,7 +50,10 @@ document.getElementById("enter-button").addEventListener("click", () => {
 
     // ✅ Show the 3D world smoothly
     setTimeout(() => {
-        bgm.play();
+        if (bgm.paused) {
+            bgm.volume = 0.45;
+            bgm.play();
+        }
         threeCanvas.style.display = "block"; // Show Three.js canvas
         cssRenderer.domElement.style.display = "block"; // Show CSS3DRenderer
         gsap.to(threeCanvas, { opacity: 1, duration: 1, ease: "power2.out" }); // Smooth fade-in
@@ -67,10 +71,7 @@ function playSound(sound) {
 
 // ✅ Function to Toggle Volume Slider and Play BGM
 function toggleVolumeSlider() {
-    if (bgm.paused) {
-        bgm.volume = 0.45;
-        bgm.play();
-    }
+    
     
     // Toggle slider visibility
     volumeSliderContainer.style.display = (volumeSliderContainer.style.display === "none") ? "block" : "none";
