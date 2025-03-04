@@ -19,18 +19,44 @@ controls.zoomSpeed = 1.2; // Adjust zoom speed if needed
 controls.enableRotate = false;
 controls.enablePan = false;
 
-// ✅ Function to Play a Sound
-function playSound(sound) {
-    sound.currentTime = 0; // Restart sound if already playing
-    sound.play();
-}
-
 // ✅ Background Music Controls
 const bgm = document.getElementById("bgm");
 const volumeSlider = document.getElementById("volume-slider");
 const musicIcon = document.getElementById("music-icon");
 const volumeSliderContainer = document.getElementById("volume-slider-container");
 let isInterrupted = false;
+
+// ✅ Initially hide the 3D canvas & CSS3DRenderer
+document.getElementById("three-canvas").style.display = "none";
+cssRenderer.domElement.style.display = "none";
+
+// ✅ Function to Enter the Main 3D Page
+document.getElementById("enter-button").addEventListener("click", () => {
+    const introPage = document.getElementById("intro-page");
+    const threeCanvas = document.getElementById("three-canvas");
+    bgm.play();
+
+    // ✅ Fade out intro page
+    gsap.to(introPage, { opacity: 0, duration: 1, ease: "power2.out", onComplete: () => {
+        introPage.style.display = "none"; // Remove intro page
+    }});
+
+    // ✅ Show the 3D world smoothly
+    setTimeout(() => {
+        threeCanvas.style.display = "block"; // Show Three.js canvas
+        cssRenderer.domElement.style.display = "block"; // Show CSS3DRenderer
+        gsap.to(threeCanvas, { opacity: 1, duration: 1, ease: "power2.out" }); // Smooth fade-in
+    }, 500);
+});
+
+
+// ✅ Function to Play a Sound
+function playSound(sound) {
+    sound.currentTime = 0; // Restart sound if already playing
+    sound.play();
+}
+
+
 
 // ✅ Function to Toggle Volume Slider and Play BGM
 function toggleVolumeSlider() {
