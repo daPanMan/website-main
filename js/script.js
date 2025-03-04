@@ -294,7 +294,7 @@ function addFloatingTitle(cube, text) {
 
 // ✅ Function to Create a Random Shape (Circle on Desktop, Vertical on Mobile)
 function createCube(index) {
-    const isMobile = window.innerWidth < 768; // ✅ Detect mobile devices
+    const isMobile = window.innerWidth < 568; // ✅ Detect mobile devices
 
     let baseX, baseY, baseZ;
 
