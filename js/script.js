@@ -82,7 +82,7 @@ function init(){
 document.getElementById("enter-button").addEventListener("click", () => {
     init();
 });
-document.getElementById("enter-button").addEventListener("touchstart", (event) => {
+document.getElementById("enter-button").addEventListener("touchend", (event) => {
     event.preventDefault(); // ✅ Prevents unintended scrolling
     init();
 }, { passive: false });
