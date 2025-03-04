@@ -493,7 +493,7 @@ function zoomCubeIn(cube) {
         // ✅ Show Reset Button when the iframe is visible
         showCloseButton();
     }, 500);
-    console.log(camera.position.z);
+    
 
     activeCube = cube;
 }
@@ -581,9 +581,10 @@ window.addEventListener("touchstart", (event) => {
 
 window.addEventListener("wheel", (event) => {
     event.preventDefault(); // ✅ Prevents default browser zooming
-
+    
     let zoomAmount = event.deltaY * 0.01; // Adjust sensitivity
     camera.position.z += zoomAmount; // Move the camera closer/further
+    console.log(camera.position.z);
 }, { passive: false });
 
 
