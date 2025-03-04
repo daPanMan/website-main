@@ -487,7 +487,7 @@ function zoomCubeIn(cube) {
     setTimeout(() => {
         cssObject.visible = true; // ✅ Make iframe visible
         iframeElement.src = cube.userData.url;
-        bgm.volume = 0.1;
+        gsap.to(bgm, { volume: 0.1, duration: 1 });
         gsap.to(iframeElement, { opacity: 0.8, duration: 0.5, ease: "power2.out" });
 
         // ✅ Show Reset Button when the iframe is visible
@@ -521,7 +521,8 @@ function returnCubeToFormation(cube) {
         gsap.to(iframeElement, { opacity: 0, duration: 0.5, ease: "power2.in", onComplete: () => {
             cssObject.visible = false; // ✅ Hide iframe after fade-out
         }});
-        bgm.volume = 0.45;
+        gsap.to(bgm, { volume: 0.45, duration: 1 }); // Volume fades to 0.2 over 3 seconds
+
 
         // ✅ Restart the wandering animation when cube returns
         setTimeout(() => animateCubeMovement(cube), 1000); // Delay to prevent instant movement
