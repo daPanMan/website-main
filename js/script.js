@@ -26,6 +26,13 @@ const musicIcon = document.getElementById("music-icon");
 const volumeSliderContainer = document.getElementById("volume-slider-container");
 let isInterrupted = false;
 
+// ✅ Create a CSS3D Renderer for HTML Content in 3D
+const cssRenderer = new THREE.CSS3DRenderer();
+cssRenderer.setSize(window.innerWidth, window.innerHeight);
+cssRenderer.domElement.style.position = "absolute";
+cssRenderer.domElement.style.top = 0;
+document.body.appendChild(cssRenderer.domElement);
+
 // ✅ Initially hide the 3D canvas & CSS3DRenderer
 document.getElementById("three-canvas").style.display = "none";
 cssRenderer.domElement.style.display = "none";
@@ -189,12 +196,7 @@ let activeCube = null;
 // ✅ Add Lighting
 scene.add(new THREE.AmbientLight(0xffffff, 1));
 
-// ✅ Create a CSS3D Renderer for HTML Content in 3D
-const cssRenderer = new THREE.CSS3DRenderer();
-cssRenderer.setSize(window.innerWidth, window.innerHeight);
-cssRenderer.domElement.style.position = "absolute";
-cssRenderer.domElement.style.top = 0;
-document.body.appendChild(cssRenderer.domElement);
+
 
 
 // ✅ Store all title objects in an array for updates
