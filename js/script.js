@@ -1,12 +1,9 @@
-
-
 // ✅ Setup Scene, Camera, and Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 
 const bigTitle = addBigTitle("This is\nJohn Pan");
-
 
 // ✅ Function to Adjust the Camera Based on Screen Size
 function adjustCamera() {
@@ -322,7 +319,7 @@ function createCube(index) {
         new THREE.SphereGeometry(0.9, 32, 32),
         new THREE.ConeGeometry(1, 2, 32),
         new THREE.TorusGeometry(1, 0.4, 16, 100),
-        new THREE.CylinderGeometry(1, 1, 2, 32),
+        new THREE.CylinderGeometry(1, 1, 2, 32)
     ];
     const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
 
