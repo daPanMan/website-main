@@ -1,5 +1,3 @@
-import { createMusicNote } from './shapes/musicNotes.js';
-
 
 
 // ✅ Setup Scene, Camera, and Renderer
@@ -325,7 +323,6 @@ function createCube(index) {
         new THREE.ConeGeometry(1, 2, 32),
         new THREE.TorusGeometry(1, 0.4, 16, 100),
         new THREE.CylinderGeometry(1, 1, 2, 32),
-        createMusicNote()
     ];
     const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
 
@@ -346,10 +343,7 @@ function createCube(index) {
     const randomOffsetZ = (Math.random() - 0.5) * 1;
 
     cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ + randomOffsetZ);
-    if (cube.geometry) {
-        cube.geometry.computeBoundingBox();
-    }
-    
+    cube.geometry.computeBoundingBox();
     cube.frustumCulled = false;
 
     // ✅ Random rotation for variety
