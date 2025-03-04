@@ -41,7 +41,6 @@ cssRenderer.domElement.style.display = "none";
 document.getElementById("enter-button").addEventListener("click", () => {
     const introPage = document.getElementById("intro-page");
     const threeCanvas = document.getElementById("three-canvas");
-    bgm.play();
 
     // ✅ Fade out intro page
     gsap.to(introPage, { opacity: 0, duration: 1, ease: "power2.out", onComplete: () => {
@@ -50,6 +49,7 @@ document.getElementById("enter-button").addEventListener("click", () => {
 
     // ✅ Show the 3D world smoothly
     setTimeout(() => {
+        bgm.play();
         threeCanvas.style.display = "block"; // Show Three.js canvas
         cssRenderer.domElement.style.display = "block"; // Show CSS3DRenderer
         gsap.to(threeCanvas, { opacity: 1, duration: 1, ease: "power2.out" }); // Smooth fade-in
