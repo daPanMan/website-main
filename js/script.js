@@ -292,7 +292,13 @@ function createCube(index) {
     const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
 
     const beigeColor = new THREE.Color(0xF5F5DC); // Beige color
-    const material = new THREE.MeshStandardMaterial({ color: beigeColor });
+    const material = new THREE.MeshPhysicalMaterial({
+        color: beigeColor,
+        roughness: 0.6, // Adjust for better shading
+        metalness: 0.1, // Slight metallic effect
+        clearcoat: 0.3, // Reflectivity for light responsiveness
+        reflectivity: 0.5 // Adjust how it responds to background light
+    });
 
     const cube = new THREE.Mesh(randomShape, material); // ✅ "cube" variable is still used
 
@@ -656,6 +662,24 @@ function getTouchDistance(touches) {
     return Math.sqrt(dx * dx + dy * dy);
 }
 
+
+
+
+/** FINAL ADD-ONS */
+// ✅ Ambient Light (Soft Global Light)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); 
+scene.add(ambientLight);
+
+// ✅ Directional Light (Creates Shadows & Depth)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 10, 7);
+scene.add(directionalLight);
+
+// ✅ Point Light (Responsive Light in Scene)
+const pointLight = new THREE.PointLight(0xfff0e5, 1, 50); // Warm light color
+pointLight.position.set(0, 5, 5);
+scene.add(pointLight);
+
 // ✅ Animation Loop
 function animate() {
     requestAnimationFrame(animate);
@@ -684,6 +708,11 @@ function animate() {
         cube.rotation.x += 0.005;
         cube.rotation.y += 0.005;
     });
+
+    // Move the point light in a circular motion for dynamic shading
+    const time = Date.now() * 0.001;
+    pointLight.position.x = Math.sin(time) * 10;
+    pointLight.position.z = Math.cos(time) * 10;
 
     controls.update();
     renderer.render(scene, camera);
