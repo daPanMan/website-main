@@ -343,8 +343,8 @@ function createCube(index) {
     const cube = new THREE.Mesh(randomShape, material);
 
     // ✅ Add slight random offset for a more natural formation
-    const randomOffsetX = (Math.random() - 0.5) * (isMobile ? 10 : 3);
-    const randomOffsetY = (Math.random() - 0.5) * (isMobile ? 10 : 3);
+    const randomOffsetX = (Math.random() - 0.5) * (isMobile ? 1 : 3);
+    const randomOffsetY = (Math.random() - 0.5) * (isMobile ? 1 : 3) + (isMobile ? 10 : 0);
     const randomOffsetZ = (Math.random() - 0.5) * 1;
 
     cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ + randomOffsetZ);
