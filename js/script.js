@@ -415,14 +415,20 @@ window.addEventListener("resize", () => {
     
     adjustCamera(); // ✅ Update camera position when resizing
 
-    // ✅ Remove and Recreate the Shapes with New Layout
+    // ✅ Remove old cubes
     cubes.forEach(cube => scene.remove(cube));
     cubes.length = 0;
 
+    // ✅ Remove old floating titles
+    titleObjects.forEach(title => scene.remove(title));
+    titleObjects.length = 0; // Clear titleObjects array
+
+    // ✅ Recreate cubes and titles
     for (let i = 0; i < totalCubes; i++) {
         createCube(i);
     }
 });
+
 
 
 
