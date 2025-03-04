@@ -582,7 +582,7 @@ window.addEventListener("wheel", (event) => {
     event.preventDefault(); // ✅ Prevents default browser zooming
 
     let zoomAmount = event.deltaY * 0.01; // Adjust sensitivity
-    camera.position.z += zoomAmount * 5; // Move the camera closer/further
+    camera.position.z += zoomAmount; // Move the camera closer/further
 }, { passive: false });
 
 
