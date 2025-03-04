@@ -266,37 +266,6 @@ scene.add(cssObject);
 
 // ✅ Function to Add Floating Title Above Cube
 function addFloatingTitle(cube, text) {
-    // ✅ Create a new HTML element for the title
-    const titleElement = document.createElement("div");
-    titleElement.className = "cube-title";
-    titleElement.innerText = text;
-
-    // ✅ Apply CSS styles to prevent scaling issues
-    titleElement.style.position = "absolute";
-    titleElement.style.color = "white";
-    titleElement.style.fontSize = "60px";
-    titleElement.style.fontWeight = "bold";
-    titleElement.style.textShadow = "0px 0px 5px rgba(255,255,255,0.8)";
-    titleElement.style.pointerEvents = "none"; // Prevent clicking
-    titleElement.style.whiteSpace = "nowrap";
-
-    // ✅ Create a CSS3DObject (for rendering HTML in Three.js)
-    const titleObject = new THREE.CSS3DObject(titleElement);
-    titleObject.scale.set(0.005, 0.005, 0.005); // Prevent infinite scaling
-
-    // ✅ Position the title above the cube
-    titleObject.position.copy(cube.position);
-    titleObject.position.y += 2; // Adjust height
-
-    // ✅ Store a reference to the cube for tracking
-    titleObject.userData.cube = cube;
-
-    // ✅ Add titleObject to the scene (NOT the cube)
-    scene.add(titleObject);
-
-    // ✅ Store the title object for updating later
-    titleObjects.push(titleObject);
-}function addFloatingTitle(cube, text) {
     // ✅ Check if a title already exists for this cube
     const existingTitle = titleObjects.find(title => title.userData.cube === cube);
     if (existingTitle) return; // 🚀 Prevent duplicate titles
@@ -332,6 +301,7 @@ function addFloatingTitle(cube, text) {
     // ✅ Store the title object for updating later
     titleObjects.push(titleObject);
 }
+
 
 
 
