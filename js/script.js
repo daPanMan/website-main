@@ -65,15 +65,7 @@ function init(){
         cssRenderer.domElement.style.display = "block"; // Show CSS3DRenderer
         gsap.to(threeCanvas, { opacity: 1, duration: 10, ease: "power2.out" });
 
-        // ✅ Recreate the shape formation inside `init()`
-        cubes.forEach(cube => scene.remove(cube)); // Clear old cubes
-        cubes.length = 0;
-
-        for (let i = 0; i < totalCubes; i++) {
-            createCube(i);
-        }
-
-        adjustCamera(); // ✅ Adjust camera again after showing scene
+        
     }, 500);
 }
 
@@ -406,19 +398,11 @@ camera.lookAt(0, 0, 0);
 camera.updateProjectionMatrix();
 
 // ✅ Handle Window Resize
-window.addEventListener("resize", () => {
+// ✅ Handle Window Resize
+window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    
-    adjustCamera(); // 🔹 Update camera when resizing
-
-    // ✅ Recreate the formation when resizing
-    cubes.forEach(cube => scene.remove(cube));
-    cubes = [];
-    for (let i = 0; i < totalCubes; i++) {
-        createCube(i);
-    }
 });
 
 
