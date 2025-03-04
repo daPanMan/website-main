@@ -436,7 +436,7 @@ function zoomCubeIn(cube) {
     // ✅ Fade in the iframe smoothly
     setTimeout(() => {
         cssObject.visible = true; // ✅ Make iframe visible
-        gsap.to(iframeElement, { opacity: 1, duration: 0.5, ease: "power2.out" });
+        gsap.to(iframeElement, { opacity: 0.7, duration: 0.5, ease: "power2.out" });
 
         // ✅ Show Reset Button when the iframe is visible
         showCloseButton();
