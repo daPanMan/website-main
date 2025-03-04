@@ -237,6 +237,8 @@ iframeElement.style.transform = "translate(-50%, -50%) scale(1)";
 iframeElement.style.backfaceVisibility = "hidden";
 iframeElement.style.willChange = "transform";
 
+let defaultHTML = "about.html";
+
 // ✅ Allow scrolling inside the iframe on mobile
 iframeElement.addEventListener("touchstart", (event) => {
     event.stopPropagation(); // Allow scrolling inside iframe
@@ -330,6 +332,7 @@ function createCube(index) {
             map: diskTexture, 
             side: THREE.DoubleSide
         });
+        defaultHTML = "./html/spotify.html";
     } else {
         // Regular material for other shapes
         material = new THREE.MeshPhysicalMaterial({
@@ -339,9 +342,11 @@ function createCube(index) {
             clearcoat: 0.3,
             reflectivity: 0.5
         });
+        defaultHTML = "about.html";
     }
 
     const cube = new THREE.Mesh(randomShape, material);
+    cube.userData.url = defaultHTML;
 
     // ✅ Add slight random offset for a more natural formation
     const randomOffsetX = (Math.random() - 0.5) * (isMobile ? 1 : 3);
@@ -481,6 +486,7 @@ function zoomCubeIn(cube) {
     // ✅ Fade in the iframe smoothly
     setTimeout(() => {
         cssObject.visible = true; // ✅ Make iframe visible
+        iframeElement.src = cube.userData.url;
         gsap.to(iframeElement, { opacity: 0.7, duration: 0.5, ease: "power2.out" });
 
         // ✅ Show Reset Button when the iframe is visible
