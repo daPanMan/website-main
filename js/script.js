@@ -208,7 +208,7 @@ document.getElementById("reset-scale-button").addEventListener("touchstart", res
 /* SHAPE FEATURES */
 // ✅ Load Textures for Cubes
 const textureLoader = new THREE.TextureLoader();
-const cubeTexture = textureLoader.load('textures/CB.png');
+const diskTexture = textureLoader.load('textures/disk.png');
 
 // ✅ Create Cubes & Store Positions
 const cubes = [];
@@ -319,18 +319,27 @@ function createCube(index) {
         new THREE.SphereGeometry(0.9, 32, 32),
         new THREE.ConeGeometry(1, 2, 32),
         new THREE.TorusGeometry(1, 0.4, 16, 100),
-        new THREE.CylinderGeometry(1, 1, 2, 32)
+        new THREE.CylinderGeometry(2, 2, 0.2, 64),
     ];
     const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
-
+    let material;
     const beigeColor = new THREE.Color(0xF5F5DC);
-    const material = new THREE.MeshPhysicalMaterial({
-        color: beigeColor,
-        roughness: 0.6,
-        metalness: 0.1,
-        clearcoat: 0.3,
-        reflectivity: 0.5
-    });
+    // ✅ Check if the selected shape is a disk and apply the texture
+    if (randomShape instanceof THREE.CylinderGeometry && randomShape.parameters.height <= 0.2) {
+        material = new THREE.MeshStandardMaterial({
+            map: diskTexture, 
+            side: THREE.DoubleSide
+        });
+    } else {
+        // Regular material for other shapes
+        material = new THREE.MeshPhysicalMaterial({
+            color: 0xF5F5DC,
+            roughness: 0.6,
+            metalness: 0.1,
+            clearcoat: 0.3,
+            reflectivity: 0.5
+        });
+    }
 
     const cube = new THREE.Mesh(randomShape, material);
 
