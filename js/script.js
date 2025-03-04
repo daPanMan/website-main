@@ -61,6 +61,11 @@ function init(){
 document.getElementById("enter-button").addEventListener("click", () => {
     init();
 });
+document.getElementById("enter-button").addEventListener("touchstart", (event) => {
+    event.preventDefault(); // ✅ Prevents unintended scrolling
+    init();
+}, { passive: false });
+
 
 
 // ✅ Function to Play a Sound
@@ -184,6 +189,7 @@ function noShowCloseButton() {
 
 // ✅ Attach Click Event to Reset Button
 document.getElementById("reset-scale-button").addEventListener("click", resetScale);
+document.getElementById("reset-scale-button").addEventListener("touchstart", resetScale);
 
 
 
