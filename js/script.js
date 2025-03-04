@@ -321,7 +321,7 @@ function createCube(index) {
         new THREE.TorusGeometry(1, 0.4, 16, 100),
         new THREE.CylinderGeometry(2, 2, 0.2, 64),
     ];
-    const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+    const randomShape = shapes[index];
     let material;
     const beigeColor = new THREE.Color(0xF5F5DC);
     // ✅ Check if the selected shape is a disk and apply the texture
