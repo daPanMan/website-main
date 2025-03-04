@@ -35,7 +35,7 @@ document.body.appendChild(cssRenderer.domElement);
 
 // ✅ Initially hide the 3D canvas & CSS3DRenderer
 document.getElementById("three-canvas").style.display = "none";
-bgm.muted = true;
+bgm.pause();
 cssRenderer.domElement.style.display = "none";
 
 // ✅ Function to Enter the Main 3D Page
@@ -50,7 +50,7 @@ document.getElementById("enter-button").addEventListener("click", () => {
 
     // ✅ Show the 3D world smoothly
     setTimeout(() => {
-        bgm.muted = false;
+        bgm.play();
         bgm.volume = 0.45;
         threeCanvas.style.display = "block"; // Show Three.js canvas
         cssRenderer.domElement.style.display = "block"; // Show CSS3DRenderer
