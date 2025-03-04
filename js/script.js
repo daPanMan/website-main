@@ -54,7 +54,7 @@ document.getElementById("enter-button").addEventListener("click", () => {
         bgm.volume = 0.45;
         threeCanvas.style.display = "block"; // Show Three.js canvas
         cssRenderer.domElement.style.display = "block"; // Show CSS3DRenderer
-        gsap.to(threeCanvas, { opacity: 1, duration: 2, ease: "power2.out" }); // Smooth fade-in
+        gsap.to(threeCanvas, { opacity: 1, duration: 5, ease: "power2.out" }); // Smooth fade-in
     }, 500);
 });
 
