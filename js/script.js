@@ -482,11 +482,11 @@ function zoomCubeIn(cube) {
     // ✅ Move the Cube to Center and Scale Up
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "back.out(1.7)" });
     gsap.to(cube.scale, { x: 2.2, y: 2.2, z: 2.2, duration: 1, ease: "back.out(1.7)" });
-
+    iframeElement.src = cube.userData.url;
     // ✅ Fade in the iframe smoothly
     setTimeout(() => {
         cssObject.visible = true; // ✅ Make iframe visible
-        iframeElement.src = cube.userData.url;
+        
         gsap.to(bgm, { volume: 0.1, duration: 1 });
         gsap.to(iframeElement, { opacity: 0.8, duration: 0.5, ease: "power2.out" });
 
