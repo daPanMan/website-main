@@ -135,7 +135,7 @@ function resetScale() {
 }
 
 // ✅ Show the Reset Button When Iframe is Visible
-function showResetButton() {
+function showCloseButton() {
     document.getElementById("reset-scale-button").style.display = "block";
 }
 
@@ -397,7 +397,7 @@ function zoomCubeIn(cube) {
         gsap.to(iframeElement, { opacity: 1, duration: 0.5, ease: "power2.out" });
 
         // ✅ Show Reset Button when the iframe is visible
-        showResetButton();
+        showCloseButton();
     }, 500);
 
     activeCube = cube;
