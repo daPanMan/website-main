@@ -462,6 +462,7 @@ function onCubeClick(event) {
             returnCubeToFormation(clickedCube);
         } else {
             playSound(zoomInSound);
+            gsap.to(camera.position, { x: 0, y: 0, z: 9, duration: 1 });
             zoomCubeIn(clickedCube);
         }
     }
@@ -489,7 +490,7 @@ function zoomCubeIn(cube) {
         
         gsap.to(bgm, { volume: 0.1, duration: 1 });
         gsap.to(iframeElement, { opacity: 0.8, duration: 0.5, ease: "power2.out" });
-        gsap.to(camera.position, { x: 0, y: 0, z: 9, duration: 1 });
+        
 
 
         // ✅ Show Reset Button when the iframe is visible
