@@ -346,7 +346,10 @@ function createCube(index) {
     const randomOffsetZ = (Math.random() - 0.5) * 1;
 
     cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ + randomOffsetZ);
-    cube.geometry.computeBoundingBox();
+    if (cube.geometry) {
+        cube.geometry.computeBoundingBox();
+    }
+    
     cube.frustumCulled = false;
 
     // ✅ Random rotation for variety
