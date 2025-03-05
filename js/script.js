@@ -59,6 +59,7 @@ function init(){
 
     // ✅ Show the 3D world smoothly
     setTimeout(() => {
+        
         bgm.volume = 0.45;
         threeCanvas.style.display = "block"; // Show Three.js canvas
         cssRenderer.domElement.style.display = "block"; // Show CSS3DRenderer
@@ -75,6 +76,7 @@ document.getElementById("enter-button").addEventListener("click", () => {
 });
 document.getElementById("enter-button").addEventListener("touchstart", (event) => {
     event.preventDefault(); // ✅ Prevents unintended scrolling
+    bgm.play();
     init();
 }, { passive: false });
 
@@ -327,7 +329,7 @@ function createCube(index) {
     let material;
     const beigeColor = new THREE.Color(0xF5F5DC);
     // ✅ Check if the selected shape is a disk and apply the texture
-    if (randomShape instanceof THREE.CylinderGeometry) {
+    if (randomShape instanceof THREE.CylinderGeometry && randomShape.parameters.height <= 0.2) {
         material = new THREE.MeshStandardMaterial({
             map: diskTexture, 
             side: THREE.DoubleSide
