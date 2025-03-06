@@ -485,7 +485,7 @@ function animateCubeMovement(cube) {
     if (cube.userData.url === linkedIn) {
         // ✅ Rotate only around the Y-axis
         gsap.to(cube.rotation, {
-            y: "+=" + Math.PI * 2, // Full spin around Y-axis
+            y: Math.random()* Math.PI * 2, // Full spin around Y-axis
             duration: randomTime * 1.5,
             ease: "sine.inOut",
             yoyo: true,
