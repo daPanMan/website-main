@@ -658,6 +658,7 @@ window.addEventListener("click", (event) => {
         // ✅ Clicked outside cubes → Close the iframe
         playSound(zoomOutSound);
         returnCubeToFormation(activeCube);
+        volumeSliderContainer.style.display = 'none';
     }
 }, { passive: false });
 
