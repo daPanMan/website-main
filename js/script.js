@@ -377,6 +377,9 @@ function createCube(index) {
         });
         defaultHTML = "about.html";
     }
+
+    
+    const cube = new THREE.Mesh(randomShape, material);
     
     cube.userData.url = defaultHTML;
 
@@ -385,7 +388,6 @@ function createCube(index) {
     const randomOffsetY = (Math.random() - 0.5) * (isMobile ? 1 : 3);
     const randomOffsetZ = (Math.random() - 0.5) * 1;
 
-    const cube = new THREE.Mesh(randomShape, material);
 
     cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ + randomOffsetZ);
     cube.geometry.computeBoundingBox();
