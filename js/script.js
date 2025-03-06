@@ -345,15 +345,20 @@ function addFloatingTitle(cube, text) {
 const fontLoader = new THREE.FontLoader();
 let linkedInGeometry = null; // Store text geometry for reuse
 
-linkedInGeometry = new THREE.TextGeometry("in", {
-    font: font,
-    size: 1.5,        // Letter size
-    height: 0.4,      // Extrusion depth
-    curveSegments: 12,
-    bevelEnabled: true,
-    bevelThickness: 0.05,
-    bevelSize: 0.05,
-    bevelSegments: 5
+fontLoader.load('./fonts/helvetiker_bold.typeface.json', function (font) {
+    linkedInGeometry = new THREE.TextGeometry("in", {
+        font: font,
+        size: 1.5,        // Letter size
+        height: 0.4,      // Extrusion depth
+        curveSegments: 12,
+        bevelEnabled: true,
+        bevelThickness: 0.05,
+        bevelSize: 0.05,
+        bevelSegments: 5
+    });
+
+    linkedInGeometry.computeBoundingBox();
+    linkedInGeometry.center();
 });
 
 
@@ -375,7 +380,6 @@ function createCube(index) {
         baseZ = (Math.random() - 0.5) * 2;
     }
 
-    
     // ✅ Choose a shape (including "in" text)
     const shapes = [
         new THREE.BoxGeometry(1.5, 1.5, 1.5),
@@ -383,7 +387,7 @@ function createCube(index) {
         new THREE.ConeGeometry(1, 2, 32),
         new THREE.TorusGeometry(1, 0.4, 16, 100),
         new THREE.CylinderGeometry(2, 2, 0.2, 64),
-        linkedInGeometry
+        linkedInGeometry // Fallback if font not loaded
     ];
 
     const randomShape = shapes[index]; 
