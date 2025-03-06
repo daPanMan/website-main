@@ -345,12 +345,12 @@ function createCube(index) {
     if (randomShape instanceof THREE.BoxGeometry) {
         // ✅ Apply dice textures
         material = [
-            new THREE.MeshStandardMaterial({ map: diceTextures[0] }), // Right face
-            new THREE.MeshStandardMaterial({ map: diceTextures[1] }), // Left face
-            new THREE.MeshStandardMaterial({ map: diceTextures[2] }), // Top face
-            new THREE.MeshStandardMaterial({ map: diceTextures[3] }), // Bottom face
-            new THREE.MeshStandardMaterial({ map: diceTextures[4] }), // Front face
-            new THREE.MeshStandardMaterial({ map: diceTextures[5] })  // Back face
+            new THREE.MeshBasicMaterial({ map: diceTextures[0] }), // Right face
+            new THREE.MeshBasicMaterial({ map: diceTextures[1] }), // Left face
+            new THREE.MeshBasicMaterial({ map: diceTextures[2] }), // Top face
+            new THREE.MeshBasicMaterial({ map: diceTextures[3] }), // Bottom face
+            new THREE.MeshBasicMaterial({ map: diceTextures[4] }), // Front face
+            new THREE.MeshBasicMaterial({ map: diceTextures[5] })  // Back face
         ];
         defaultHTML = pigGame;
     } else if (randomShape instanceof THREE.CylinderGeometry && randomShape.parameters.height <= 0.2) {
