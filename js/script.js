@@ -481,6 +481,7 @@ function animateCubeMovement(cube) {
         yoyo: true,
         repeat: -1 
     });
+    console.log(cube.userData.url);
 
     if (cube.userData.url === linkedIn) {
         console.log("linked in detected");
