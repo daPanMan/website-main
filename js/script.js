@@ -397,7 +397,7 @@ function createCube(index) {
         // ✅ Add Floating Title Above Each Shape
         cubeTitle = `My Tracks`;
     } else if (randomShape instanceof THREE.ExtrudeGeometry) {
-        const material = new THREE.MeshBasicMaterial({
+        const material = new THREE.MeshStandardMaterial({
             map: appIconTexture, // Apply the texture
 
         });
