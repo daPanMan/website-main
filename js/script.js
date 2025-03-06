@@ -223,7 +223,9 @@ document.getElementById("reset-scale-button").addEventListener("touchstart", res
 // ✅ Load Textures for Cubes
 const textureLoader = new THREE.TextureLoader();
 const diskTexture = textureLoader.load('textures/disk.png');
-const appIconTexture = textureLoader.load('textures/linkedin.png'); 
+const appIconTexture = textureLoader.load('textures/linkedin.png', () => console.log('Texture Loaded Successfully ✅'),
+undefined,
+(err) => console.error('Texture Failed to Load ❌', err)); 
 
 function createAppIconShape() {
     const shape = new THREE.Shape();
