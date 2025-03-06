@@ -313,7 +313,8 @@ function createCube(index) {
     const isMobile = window.innerWidth < 568; // ✅ Detect mobile devices
 
     let baseX, baseY, baseZ;
-    const cube = new THREE.Mesh(randomShape, material);
+    let cubeTitle = `Shape ${index + 1}`;
+    
 
     if (isMobile) {
         // ✅ Vertical Line Formation for Mobile
@@ -355,7 +356,7 @@ function createCube(index) {
         ];
         defaultHTML = pigGame;
         // ✅ Add Floating Title Above Each Shape
-        addFloatingTitle(cube, `Pig Game with Dice`);
+        cubeTitle = `Pig Game with Dice`;
     } else if (randomShape instanceof THREE.CylinderGeometry && randomShape.parameters.height <= 0.2) {
         material = new THREE.MeshStandardMaterial({
             map: diskTexture, 
@@ -364,7 +365,7 @@ function createCube(index) {
         defaultHTML = spotify;
 
         // ✅ Add Floating Title Above Each Shape
-        addFloatingTitle(cube, `My Tracks`);
+        cubeTitle = `My Tracks`;
     } else {
         // Regular material for other shapes
         material = new THREE.MeshPhysicalMaterial({
@@ -375,11 +376,7 @@ function createCube(index) {
             reflectivity: 0.5
         });
         defaultHTML = "about.html";
-
-        // ✅ Add Floating Title Above Each Shape
-        addFloatingTitle(cube, `Shape ${index + 1}`);
     }
-
     
     cube.userData.url = defaultHTML;
 
@@ -387,6 +384,8 @@ function createCube(index) {
     const randomOffsetX = (Math.random() - 0.5) * (isMobile ? 1 : 3);
     const randomOffsetY = (Math.random() - 0.5) * (isMobile ? 1 : 3);
     const randomOffsetZ = (Math.random() - 0.5) * 1;
+
+    const cube = new THREE.Mesh(randomShape, material);
 
     cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ + randomOffsetZ);
     cube.geometry.computeBoundingBox();
@@ -399,7 +398,7 @@ function createCube(index) {
     cubes.push(cube);
     originalPositions.push({ x: baseX, y: baseY, z: baseZ });
 
-    
+    addFloatingTitle(cube, cubeTitle);
 
     animateCubeMovement(cube);
 }
