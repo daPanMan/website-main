@@ -257,7 +257,7 @@ const diceTextures = [
 const cubes = [];
 const originalPositions = [];
 const circleRadius = 6;
-const totalCubes = 5;
+const totalCubes = 6;
 let activeCube = null;
 
 // ✅ Add Lighting
