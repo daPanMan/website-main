@@ -390,7 +390,7 @@ function createCube(index) {
         linkedInGeometry ? linkedInGeometry : new THREE.BoxGeometry(1.5, 1.5, 1.5) // Fallback if font not loaded
     ];
 
-    const randomShape = shapes[index % shapes.length]; 
+    const randomShape = shapes[index]; 
     let material;
 
     if (randomShape instanceof THREE.BoxGeometry) {
