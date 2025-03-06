@@ -428,7 +428,7 @@ function createCube(index) {
         defaultHTML = spotify;
         cubeTitle = `My Tracks`;
     } else if (randomShape instanceof THREE.SphereGeometry) {
-        defaultHTML = unity;
+        defaultHTML = unityGame;
         cubeTitle = `My 3D Mini Game`;
     } else if (randomShape === linkedInGeometry) {
         material = new THREE.MeshStandardMaterial({ color: 0xffffff }); 
