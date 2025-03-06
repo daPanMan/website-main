@@ -20,6 +20,9 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 const zoomInSound = new Audio("audio/zoom-in.wav");
 const zoomOutSound = new Audio("audio/zoom-out.wav");
+const spotify = "./html/spotify.html";
+const pigGame = "./html/Pig-Game-with-Dice/index.html";
+
 // ✅ Add OrbitControls
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -212,6 +215,15 @@ document.getElementById("reset-scale-button").addEventListener("touchstart", res
 const textureLoader = new THREE.TextureLoader();
 const diskTexture = textureLoader.load('textures/disk.png');
 
+const diceTextures = [
+    textureLoader.load('./html/Pig-Game-with-Dice/dice-1.png'), // 1
+    textureLoader.load('./html/Pig-Game-with-Dice/dice-2.png'), // 2
+    textureLoader.load('./html/Pig-Game-with-Dice/dice-3.png'), // 3
+    textureLoader.load('./html/Pig-Game-with-Dice/dice-4.png'), // 4
+    textureLoader.load('./html/Pig-Game-with-Dice/dice-5.png'), // 5
+    textureLoader.load('./html/Pig-Game-with-Dice/dice-6.png')  // 6
+];
+
 // ✅ Create Cubes & Store Positions
 const cubes = [];
 const originalPositions = [];
@@ -329,12 +341,24 @@ function createCube(index) {
     let material;
     const beigeColor = new THREE.Color(0xF5F5DC);
     // ✅ Check if the selected shape is a disk and apply the texture
-    if (randomShape instanceof THREE.CylinderGeometry && randomShape.parameters.height <= 0.2) {
+
+    if (randomShape instanceof THREE.BoxGeometry) {
+        // ✅ Apply dice textures
+        material = [
+            new THREE.MeshStandardMaterial({ map: diceTextures[0] }), // Right face
+            new THREE.MeshStandardMaterial({ map: diceTextures[1] }), // Left face
+            new THREE.MeshStandardMaterial({ map: diceTextures[2] }), // Top face
+            new THREE.MeshStandardMaterial({ map: diceTextures[3] }), // Bottom face
+            new THREE.MeshStandardMaterial({ map: diceTextures[4] }), // Front face
+            new THREE.MeshStandardMaterial({ map: diceTextures[5] })  // Back face
+        ];
+        defaultHTML = pigGame;
+    } else if (randomShape instanceof THREE.CylinderGeometry && randomShape.parameters.height <= 0.2) {
         material = new THREE.MeshStandardMaterial({
             map: diskTexture, 
             side: THREE.DoubleSide
         });
-        defaultHTML = "./html/spotify.html";
+        defaultHTML = spotify;
     } else {
         // Regular material for other shapes
         material = new THREE.MeshPhysicalMaterial({
