@@ -23,6 +23,7 @@ const zoomOutSound = new Audio("audio/zoom-out.wav");
 const spotify = "./html/spotify.html";
 const pigGame = "./html/Pig-Game-with-Dice/index.html";
 const linkedIn = "./html/linkedIn.html";
+const unityGame = './html/unity/index.html'
 const appIconShape = createAppIconShape();
 
 const extrudeSettings = {
@@ -426,6 +427,9 @@ function createCube(index) {
         });
         defaultHTML = spotify;
         cubeTitle = `My Tracks`;
+    } else if (randomShape instanceof THREE.SphereGeometry) {
+        defaultHTML = unity;
+        cubeTitle = `My 3D Mini Game`;
     } else if (randomShape === linkedInGeometry) {
         material = new THREE.MeshStandardMaterial({ color: 0xffffff }); 
         defaultHTML = linkedIn;
