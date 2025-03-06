@@ -367,6 +367,7 @@ fontLoader.load('fonts/helvetiker_bold.typeface.json', function (font) {
     console.error("❌ Font Failed to Load:", error); // Debugging
 });
 
+console.log(linkedInGeometry);
 
 
 function createCube(index) {
