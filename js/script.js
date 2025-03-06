@@ -388,6 +388,13 @@ function createCube(index) {
         baseZ = (Math.random() - 0.5) * 2;
     }
 
+    // ✅ Wait for the font to load before creating the "in" shape
+    if (index === 5 && !linkedInGeometry) {  
+        console.log("⏳ Waiting for LinkedIn text geometry to load...");
+        setTimeout(() => createCube(index), 100);
+        return;
+    }
+
     // ✅ Choose a shape (including "in" text)
     const shapes = [
         new THREE.BoxGeometry(1.5, 1.5, 1.5),
