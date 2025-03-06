@@ -340,20 +340,39 @@ function addFloatingTitle(cube, text) {
 
 
 // ✅ Function to Create a Random Shape (Circle on Desktop, Vertical on Mobile)
-function createCube(index) {
-    const isMobile = window.innerWidth < 568; // ✅ Detect mobile devices
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 
+const fontLoader = new FontLoader();
+let linkedInGeometry = null; // Store text geometry for reuse
+
+fontLoader.load('fonts/helvetiker_bold.typeface.json', function (font) {
+    linkedInGeometry = new TextGeometry("in", {
+        font: font,
+        size: 1.5,        // Letter size
+        height: 0.4,      // Extrusion depth
+        curveSegments: 12,
+        bevelEnabled: true,
+        bevelThickness: 0.05,
+        bevelSize: 0.05,
+        bevelSegments: 5
+    });
+
+    linkedInGeometry.computeBoundingBox();
+    linkedInGeometry.center();
+});
+
+
+function createCube(index) {
+    const isMobile = window.innerWidth < 568; 
     let baseX, baseY, baseZ;
     let cubeTitle = `Shape ${index + 1}`;
-    
 
     if (isMobile) {
-        // ✅ Vertical Line Formation for Mobile
-        baseX = 0; // Centered horizontally
-        baseY = index * 2.5 - (totalCubes / 2) * 2.5; // Spread vertically
-        baseZ = 0; // Keep it in the same depth
+        baseX = 0;
+        baseY = index * 2.5 - (totalCubes / 2) * 2.5;
+        baseZ = 0;
     } else {
-        // ✅ Circular Formation for Desktop
         const angle = (index / totalCubes) * Math.PI * 2;
         const spreadFactor = 1.5;
         const baseRadius = circleRadius * spreadFactor;
@@ -362,32 +381,29 @@ function createCube(index) {
         baseZ = (Math.random() - 0.5) * 2;
     }
 
-    // ✅ Choose a random shape for each "cube"
+    // ✅ Choose a shape (including "in" text)
     const shapes = [
         new THREE.BoxGeometry(1.5, 1.5, 1.5),
         new THREE.SphereGeometry(0.9, 32, 32),
         new THREE.ConeGeometry(1, 2, 32),
         new THREE.TorusGeometry(1, 0.4, 16, 100),
         new THREE.CylinderGeometry(2, 2, 0.2, 64),
-        new THREE.ExtrudeGeometry(appIconShape, extrudeSettings)
+        linkedInGeometry ? linkedInGeometry : new THREE.BoxGeometry(1.5, 1.5, 1.5) // Fallback if font not loaded
     ];
-    const randomShape = shapes[index];
+
+    const randomShape = shapes[index % shapes.length]; 
     let material;
-    const beigeColor = new THREE.Color(0xF5F5DC);
-    // ✅ Check if the selected shape is a disk and apply the texture
 
     if (randomShape instanceof THREE.BoxGeometry) {
-        // ✅ Apply dice textures
         material = [
-            new THREE.MeshBasicMaterial({ map: diceTextures[0] }), // Right face
-            new THREE.MeshBasicMaterial({ map: diceTextures[1] }), // Left face
-            new THREE.MeshBasicMaterial({ map: diceTextures[2] }), // Top face
-            new THREE.MeshBasicMaterial({ map: diceTextures[3] }), // Bottom face
-            new THREE.MeshBasicMaterial({ map: diceTextures[4] }), // Front face
-            new THREE.MeshBasicMaterial({ map: diceTextures[5] })  // Back face
+            new THREE.MeshBasicMaterial({ map: diceTextures[0] }),
+            new THREE.MeshBasicMaterial({ map: diceTextures[1] }),
+            new THREE.MeshBasicMaterial({ map: diceTextures[2] }),
+            new THREE.MeshBasicMaterial({ map: diceTextures[3] }),
+            new THREE.MeshBasicMaterial({ map: diceTextures[4] }),
+            new THREE.MeshBasicMaterial({ map: diceTextures[5] })
         ];
         defaultHTML = pigGame;
-        // ✅ Add Floating Title Above Each Shape
         cubeTitle = `Pig Game with Dice`;
     } else if (randomShape instanceof THREE.CylinderGeometry && randomShape.parameters.height <= 0.2) {
         material = new THREE.MeshStandardMaterial({
@@ -395,23 +411,12 @@ function createCube(index) {
             side: THREE.DoubleSide
         });
         defaultHTML = spotify;
-
-        // ✅ Add Floating Title Above Each Shape
         cubeTitle = `My Tracks`;
-    } else if (randomShape instanceof THREE.ExtrudeGeometry) {
-        randomShape.computeVertexNormals(); // Ensures proper lighting & shading
-        randomShape.computeBoundingBox(); // Helps with correct scaling
-        
-        const material = new THREE.MeshStandardMaterial({
-            map: appIconTexture, // Apply the texture
-            side: THREE.DoubleSide
-        });
+    } else if (randomShape === linkedInGeometry) {
+        material = new THREE.MeshStandardMaterial({ color: 0x0077B5 }); // LinkedIn blue
         defaultHTML = linkedIn;
-
-        // ✅ Add Floating Title Above Each Shape
         cubeTitle = `My LinkedIn`;
     } else {
-        // Regular material for other shapes
         material = new THREE.MeshPhysicalMaterial({
             color: 0xF5F5DC,
             roughness: 0.6,
@@ -422,32 +427,26 @@ function createCube(index) {
         defaultHTML = "about.html";
     }
 
-    
     const cube = new THREE.Mesh(randomShape, material);
-    
     cube.userData.url = defaultHTML;
 
-    // ✅ Add slight random offset for a more natural formation
     const randomOffsetX = (Math.random() - 0.5) * (isMobile ? 1 : 3);
     const randomOffsetY = (Math.random() - 0.5) * (isMobile ? 1 : 3);
     const randomOffsetZ = (Math.random() - 0.5) * 1;
-
 
     cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ + randomOffsetZ);
     cube.geometry.computeBoundingBox();
     cube.frustumCulled = false;
 
-    // ✅ Random rotation for variety
     cube.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-
     scene.add(cube);
     cubes.push(cube);
     originalPositions.push({ x: baseX, y: baseY, z: baseZ });
 
     addFloatingTitle(cube, cubeTitle);
-
     animateCubeMovement(cube);
 }
+
 
 
 
