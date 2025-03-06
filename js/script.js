@@ -345,7 +345,7 @@ function addFloatingTitle(cube, text) {
 const fontLoader = new THREE.FontLoader();
 let linkedInGeometry = null; // Store text geometry for reuse
 
-fontLoader.load('./fonts/helvetiker_bold.typeface.json', function (font) {
+fontLoader.load('fonts/helvetiker_bold.typeface.json', function (font) {
     linkedInGeometry = new THREE.TextGeometry("in", {
         font: font,
         size: 1.5,        // Letter size
