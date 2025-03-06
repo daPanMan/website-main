@@ -427,7 +427,7 @@ function createCube(index) {
         defaultHTML = spotify;
         cubeTitle = `My Tracks`;
     } else if (randomShape === linkedInGeometry) {
-        material = new THREE.MeshStandardMaterial({ color: 0x0077B5 }); // LinkedIn blue
+        material = new THREE.MeshStandardMaterial({ color: 0xffffff }); 
         defaultHTML = linkedIn;
         cubeTitle = `My LinkedIn`;
     } else {
