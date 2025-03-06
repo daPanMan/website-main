@@ -486,6 +486,8 @@ function animateCubeMovement(cube) {
     if (cube.userData.url === linkedIn) {
         console.log("linked in detected");
 
+        cube.position.set(0, 0, 0);
+
         cube.rotation.set(0, 0, 0); // ✅ Reset rotation before animating
 
         gsap.to(cube.rotation, {
