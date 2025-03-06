@@ -454,7 +454,7 @@ function createCube(index) {
     cube.geometry.computeBoundingBox();
     cube.frustumCulled = false;
 
-    cube.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+    cube.rotation.set(0,0,0);
     scene.add(cube);
     cubes.push(cube);
     originalPositions.push({ x: baseX, y: baseY, z: baseZ });
