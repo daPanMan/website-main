@@ -484,9 +484,9 @@ function animateCubeMovement(cube) {
     
     // ✅ Rotate freely in all directions for other shapes
     gsap.to(cube.rotation, {
-        x: Math.random() * Math.PI * 2,
-        y: Math.random() * Math.PI * 2,
-        z: Math.random() * Math.PI * 2,
+        x: 0,
+        y: 0,
+        z: 0,
         duration: randomTime * 1.5,
         ease: "sine.inOut",
         yoyo: true,
@@ -588,7 +588,6 @@ function zoomCubeIn(cube) {
         
         gsap.to(bgm, { volume: 0.1, duration: 1 });
         gsap.to(iframeElement, { opacity: 0.8, duration: 0.5, ease: "power2.out" });
-        cube.rotation.set(0,0,0);
         
 
 
