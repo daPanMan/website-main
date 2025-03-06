@@ -443,6 +443,10 @@ function createCube(index) {
 
     const cube = new THREE.Mesh(randomShape, material);
     cube.userData.url = defaultHTML;
+    if (randomShape === linkedInGeometry) {
+        cube.userData.isLinkedIn = true; // Mark this shape
+    }
+    
 
     const randomOffsetX = (Math.random() - 0.5) * (isMobile ? 1 : 3);
     const randomOffsetY = (Math.random() - 0.5) * (isMobile ? 1 : 3);
@@ -471,24 +475,38 @@ function animateCubeMovement(cube) {
     const randomTime = 2 + Math.random() * 3; // Vary speed between 2-5 seconds
 
     gsap.to(cube.position, {
-        x: cube.position.x + (Math.random() - 0.5) * 1.5, // Small random movement
+        x: cube.position.x + (Math.random() - 0.5) * 1.5, 
         y: cube.position.y + (Math.random() - 0.5) * 1.5,
         z: cube.position.z + (Math.random() - 0.5) * 0.5,
         duration: randomTime,
         ease: "power1.inOut",
         yoyo: true,
-        repeat: -1 // Loop forever
+        repeat: -1 
     });
 
-    gsap.to(cube.rotation, {
-        x: Math.random() * Math.PI * 2,
-        y: Math.random() * Math.PI * 2,
-        duration: randomTime * 1.5,
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: -1
-    });
+    if (cube.userData.isLinkedIn) {
+        // ✅ Rotate only around the Y-axis
+        gsap.to(cube.rotation, {
+            y: "+=" + Math.PI * 2, // Full spin around Y-axis
+            duration: randomTime * 1.5,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1
+        });
+    } else {
+        // ✅ Rotate freely in all directions for other shapes
+        gsap.to(cube.rotation, {
+            x: Math.random() * Math.PI * 2,
+            y: Math.random() * Math.PI * 2,
+            z: Math.random() * Math.PI * 2,
+            duration: randomTime * 1.5,
+            ease: "sine.inOut",
+            yoyo: true,
+            repeat: -1
+        });
+    }
 }
+
 
 // ✅ Generate Cubes in a Looser Circular Pattern
 for (let i = 0; i < totalCubes; i++) {
