@@ -485,13 +485,16 @@ function animateCubeMovement(cube) {
 
     if (cube.userData.url === linkedIn) {
         console.log("linked in detected");
-        // ✅ Rotate only around the Y-axis
+
+        cube.rotation.set(0, 0, 0); // ✅ Reset rotation before animating
+
         gsap.to(cube.rotation, {
-            y: "+=" + Math.PI * 2, // Rotate around Y-axis continuously
+            y: "+=" + Math.PI * 2, // Full spin around Y-axis
             duration: randomTime * 1.5,
-            ease: "none", // Ensures a smooth, constant spin
+            ease: "none", // Smooth continuous rotation
             repeat: -1
         });
+
         
     } else {
         // ✅ Rotate freely in all directions for other shapes
