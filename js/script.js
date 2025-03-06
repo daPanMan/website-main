@@ -399,6 +399,9 @@ function createCube(index) {
         // ✅ Add Floating Title Above Each Shape
         cubeTitle = `My Tracks`;
     } else if (randomShape instanceof THREE.ExtrudeGeometry) {
+        randomShape.computeVertexNormals(); // Ensures proper lighting & shading
+        randomShape.computeBoundingBox(); // Helps with correct scaling
+        
         const material = new THREE.MeshStandardMaterial({
             map: appIconTexture, // Apply the texture
             side: THREE.DoubleSide
