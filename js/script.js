@@ -399,7 +399,7 @@ function createCube(index) {
     } else if (randomShape instanceof THREE.ExtrudeGeometry) {
         const material = new THREE.MeshStandardMaterial({
             map: appIconTexture, // Apply the texture
-
+            side: THREE.DoubleSide
         });
         defaultHTML = linkedIn;
 
