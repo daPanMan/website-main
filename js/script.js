@@ -443,9 +443,7 @@ function createCube(index) {
 
     const cube = new THREE.Mesh(randomShape, material);
     cube.userData.url = defaultHTML;
-    if (randomShape === linkedInGeometry) {
-        cube.userData.isLinkedIn = true; // Mark this shape
-    }
+    
     
 
     const randomOffsetX = (Math.random() - 0.5) * (isMobile ? 1 : 3);
@@ -484,7 +482,7 @@ function animateCubeMovement(cube) {
         repeat: -1 
     });
 
-    if (cube.userData.isLinkedIn) {
+    if (cube.userData.url === linkedIn) {
         // ✅ Rotate only around the Y-axis
         gsap.to(cube.rotation, {
             y: "+=" + Math.PI * 2, // Full spin around Y-axis
