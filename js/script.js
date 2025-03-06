@@ -353,12 +353,17 @@ function createCube(index) {
             new THREE.MeshBasicMaterial({ map: diceTextures[5] })  // Back face
         ];
         defaultHTML = pigGame;
+        // ✅ Add Floating Title Above Each Shape
+        addFloatingTitle(cube, `Pig Game with Dice`);
     } else if (randomShape instanceof THREE.CylinderGeometry && randomShape.parameters.height <= 0.2) {
         material = new THREE.MeshStandardMaterial({
             map: diskTexture, 
             side: THREE.DoubleSide
         });
         defaultHTML = spotify;
+
+        // ✅ Add Floating Title Above Each Shape
+        addFloatingTitle(cube, `My Tracks`);
     } else {
         // Regular material for other shapes
         material = new THREE.MeshPhysicalMaterial({
@@ -369,6 +374,9 @@ function createCube(index) {
             reflectivity: 0.5
         });
         defaultHTML = "about.html";
+
+        // ✅ Add Floating Title Above Each Shape
+        addFloatingTitle(cube, `Shape ${index + 1}`);
     }
 
     const cube = new THREE.Mesh(randomShape, material);
@@ -390,8 +398,7 @@ function createCube(index) {
     cubes.push(cube);
     originalPositions.push({ x: baseX, y: baseY, z: baseZ });
 
-    // ✅ Add Floating Title Above Each Shape
-    addFloatingTitle(cube, `Shape ${index + 1}`);
+    
 
     animateCubeMovement(cube);
 }
