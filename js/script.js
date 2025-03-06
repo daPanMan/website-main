@@ -484,9 +484,9 @@ function animateCubeMovement(cube) {
     
     // ✅ Rotate freely in all directions for other shapes
     gsap.to(cube.rotation, {
-        x: 0,
-        y: 0,
-        z: 0,
+        x: Math.random() * Math.PI * 2,
+        y: Math.random() * Math.PI * 2,
+        z: Math.random() * Math.PI * 2,
         duration: randomTime * 1.5,
         ease: "sine.inOut",
         yoyo: true,
