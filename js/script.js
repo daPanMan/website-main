@@ -589,6 +589,10 @@ function zoomCubeIn(cube) {
     // ✅ Fade in the iframe smoothly
     setTimeout(() => {
         cssObject.visible = true; // ✅ Make iframe visible
+        if (window.innerWidth < 568){
+            cssObject.scale.set(0.001,0.001,0.001);
+        }
+
         
         gsap.to(bgm, { volume: 0.1, duration: 1 });
         gsap.to(iframeElement, { opacity: 0.8, duration: 0.5, ease: "power2.out" });
