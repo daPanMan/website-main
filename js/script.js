@@ -487,12 +487,12 @@ function animateCubeMovement(cube) {
         console.log("linked in detected");
         // ✅ Rotate only around the Y-axis
         gsap.to(cube.rotation, {
-            y: Math.random()* Math.PI * 2, // Full spin around Y-axis
+            y: "+=" + Math.PI * 2, // Rotate around Y-axis continuously
             duration: randomTime * 1.5,
-            ease: "sine.inOut",
-            yoyo: true,
+            ease: "none", // Ensures a smooth, constant spin
             repeat: -1
         });
+        
     } else {
         // ✅ Rotate freely in all directions for other shapes
         gsap.to(cube.rotation, {
