@@ -1,4 +1,4 @@
-import { createAppIconShape } from "./shapes/appIcon";
+import { createAppIconShape } from "./shapes/appIcon.js";
 
 // ✅ Setup Scene, Camera, and Renderer
 const scene = new THREE.Scene();
