@@ -361,6 +361,8 @@ fontLoader.load('fonts/helvetiker_bold.typeface.json', function (font) {
     linkedInGeometry.center();
 });
 
+console.log(linkedInGeometry);
+
 
 function createCube(index) {
     const isMobile = window.innerWidth < 568; 
