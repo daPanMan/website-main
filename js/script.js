@@ -345,20 +345,15 @@ function addFloatingTitle(cube, text) {
 const fontLoader = new THREE.FontLoader();
 let linkedInGeometry = null; // Store text geometry for reuse
 
-fontLoader.load('fonts/helvetiker_bold.typeface.json', function (font) {
-    linkedInGeometry = new THREE.TextGeometry("in", {
-        font: font,
-        size: 1.5,        // Letter size
-        height: 0.4,      // Extrusion depth
-        curveSegments: 12,
-        bevelEnabled: true,
-        bevelThickness: 0.05,
-        bevelSize: 0.05,
-        bevelSegments: 5
-    });
-
-    linkedInGeometry.computeBoundingBox();
-    linkedInGeometry.center();
+linkedInGeometry = new THREE.TextGeometry("in", {
+    font: font,
+    size: 1.5,        // Letter size
+    height: 0.4,      // Extrusion depth
+    curveSegments: 12,
+    bevelEnabled: true,
+    bevelThickness: 0.05,
+    bevelSize: 0.05,
+    bevelSegments: 5
 });
 
 
