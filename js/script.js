@@ -483,6 +483,7 @@ function animateCubeMovement(cube) {
     });
 
     if (cube.userData.url === linkedIn) {
+        console.log("linked in detected");
         // ✅ Rotate only around the Y-axis
         gsap.to(cube.rotation, {
             y: Math.random()* Math.PI * 2, // Full spin around Y-axis
