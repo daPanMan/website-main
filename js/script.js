@@ -1,3 +1,5 @@
+import { createAppIconShape } from "./shapes/appIcon";
+
 // ✅ Setup Scene, Camera, and Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -22,6 +24,15 @@ const zoomInSound = new Audio("audio/zoom-in.wav");
 const zoomOutSound = new Audio("audio/zoom-out.wav");
 const spotify = "./html/spotify.html";
 const pigGame = "./html/Pig-Game-with-Dice/index.html";
+const linkedIn = "./html/linkedIn.html";
+const appIconShape = createAppIconShape();
+
+const extrudeSettings = {
+    depth: 0.3, // Thickness of the app icon
+    bevelEnabled: true,
+    bevelSize: 0.05,
+    bevelThickness: 0.05
+};
 
 // ✅ Add OrbitControls
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -214,6 +225,7 @@ document.getElementById("reset-scale-button").addEventListener("touchstart", res
 // ✅ Load Textures for Cubes
 const textureLoader = new THREE.TextureLoader();
 const diskTexture = textureLoader.load('textures/disk.png');
+const appIconTexture = textureLoader.load('textures/linkedin.png'); 
 
 const diceTextures = [
     textureLoader.load('./html/Pig-Game-with-Dice/dice-1.png'), // 1
@@ -338,6 +350,7 @@ function createCube(index) {
         new THREE.ConeGeometry(1, 2, 32),
         new THREE.TorusGeometry(1, 0.4, 16, 100),
         new THREE.CylinderGeometry(2, 2, 0.2, 64),
+        new THREE.ExtrudeGeometry(appIconShape, extrudeSettings)
     ];
     const randomShape = shapes[index];
     let material;
@@ -366,6 +379,16 @@ function createCube(index) {
 
         // ✅ Add Floating Title Above Each Shape
         cubeTitle = `My Tracks`;
+    } else if (randomShape instanceof THREE.ExtrudeGeometry) {
+        const material = new THREE.MeshStandardMaterial({
+            map: appIconTexture, // Apply the texture
+            metalness: 0.2,
+            roughness: 0.5
+        });
+        defaultHTML = linkedIn;
+
+        // ✅ Add Floating Title Above Each Shape
+        cubeTitle = `My LinkedIn`;
     } else {
         // Regular material for other shapes
         material = new THREE.MeshPhysicalMaterial({
