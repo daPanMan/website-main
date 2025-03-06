@@ -3,91 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkedIn Profile Embed</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <title>Enlarged LinkedIn Profile Badge</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-        }
-
-        /* ✅ Container for LinkedIn badge & iframe */
+        /* ✅ Center and Scale the LinkedIn Badge */
         #linkedin-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Full viewport height */
         }
 
-        /* ✅ LinkedIn badge (shown initially) */
-        #linkedin-badge {
-            display: block;
-            cursor: pointer;
-            width: 150px;
-        }
-
-        /* ✅ LinkedIn iframe (hidden by default) */
-        #linkedin-iframe {
-            display: none;
-            width: 400px;
-            height: 500px;
-            border: none;
-            background: white;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-        }
-
-        /* ✅ Close button */
-        #close-button {
-            display: none;
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: red;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 14px;
-            border-radius: 50%;
+        /* ✅ Scale up the LinkedIn badge */
+        .LI-profile-badge {
+            transform: scale(3); /* Increases size */
+            transform-origin: center; /* Ensures it scales from center */
         }
     </style>
 </head>
 <body>
 
-    <h1>My LinkedIn Profile</h1>
-    <p>Click the LinkedIn badge to view my profile!</p>
-
     <div id="linkedin-container">
-        <!-- ✅ LinkedIn Badge (Click to Expand) -->
-        <a id="linkedin-badge" href="https://www.linkedin.com/in/dong-pan-763362221/" target="_blank">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" 
-                 alt="LinkedIn Profile" width="150">
-        </a>
-
-        <!-- ✅ Hidden iframe for LinkedIn Profile -->
-        <iframe id="linkedin-iframe" src="https://www.linkedin.com/in/dong-pan-763362221/" allowfullscreen></iframe>
-
-        <!-- ✅ Close Button -->
-        <button id="close-button"><i class="fas fa-times"></i></button>
+        <!-- ✅ Use LinkedIn's officially supported badge iframe -->
+        <script src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
+        <div class="LI-profile-badge"  
+            data-version="v1" 
+            data-size="large" 
+            data-locale="en_US" 
+            data-type="horizontal" 
+            data-theme="light" 
+            data-vanity="dong-pan-763362221">
+        </div>
     </div>
-
-    <script>
-        document.getElementById("linkedin-badge").addEventListener("click", function (event) {
-            event.preventDefault(); // Prevent opening new tab
-            document.getElementById("linkedin-badge").style.display = "none"; // Hide badge
-            document.getElementById("linkedin-iframe").style.display = "block"; // Show iframe
-            document.getElementById("close-button").style.display = "block"; // Show close button
-        });
-
-        // ✅ Close the iframe when clicking the close button
-        document.getElementById("close-button").addEventListener("click", function () {
-            document.getElementById("linkedin-badge").style.display = "block"; // Show badge again
-            document.getElementById("linkedin-iframe").style.display = "none"; // Hide iframe
-            document.getElementById("close-button").style.display = "none"; // Hide close button
-        });
-    </script>
 
 </body>
 </html>
