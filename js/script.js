@@ -481,35 +481,18 @@ function animateCubeMovement(cube) {
         yoyo: true,
         repeat: -1 
     });
-    console.log(cube.userData.url);
+    
+    // ✅ Rotate freely in all directions for other shapes
+    gsap.to(cube.rotation, {
+        x: Math.random() * Math.PI * 2,
+        y: Math.random() * Math.PI * 2,
+        z: Math.random() * Math.PI * 2,
+        duration: randomTime * 1.5,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1
+    });
 
-    if (cube.userData.url === linkedIn) {
-        console.log("linked in detected");
-
-        cube.position.set(0, 0, 0);
-
-        cube.rotation.set(0, 0, 0); // ✅ Reset rotation before animating
-
-        gsap.to(cube.rotation, {
-            y: "+=" + Math.PI * 2, // Full spin around Y-axis
-            duration: randomTime * 1.5,
-            ease: "none", // Smooth continuous rotation
-            repeat: -1
-        });
-
-        
-    } else {
-        // ✅ Rotate freely in all directions for other shapes
-        gsap.to(cube.rotation, {
-            x: Math.random() * Math.PI * 2,
-            y: Math.random() * Math.PI * 2,
-            z: Math.random() * Math.PI * 2,
-            duration: randomTime * 1.5,
-            ease: "sine.inOut",
-            yoyo: true,
-            repeat: -1
-        });
-    }
 }
 
 
@@ -605,6 +588,7 @@ function zoomCubeIn(cube) {
         
         gsap.to(bgm, { volume: 0.1, duration: 1 });
         gsap.to(iframeElement, { opacity: 0.8, duration: 0.5, ease: "power2.out" });
+        cube.rotation.set(0,0,0);
         
 
 
