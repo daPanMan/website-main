@@ -343,13 +343,15 @@ function addFloatingTitle(cube, text) {
 
 
 const fontLoader = new THREE.FontLoader();
-let linkedInGeometry = null; // Store text geometry for reuse
+let linkedInGeometry = null;
 
 fontLoader.load('fonts/helvetiker_bold.typeface.json', function (font) {
+    console.log("✅ Font Loaded Successfully!", font); // Debugging
+
     linkedInGeometry = new THREE.TextGeometry("in", {
         font: font,
-        size: 1.5,        // Letter size
-        height: 0.4,      // Extrusion depth
+        size: 1.5,
+        height: 0.4,
         curveSegments: 12,
         bevelEnabled: true,
         bevelThickness: 0.05,
@@ -359,9 +361,12 @@ fontLoader.load('fonts/helvetiker_bold.typeface.json', function (font) {
 
     linkedInGeometry.computeBoundingBox();
     linkedInGeometry.center();
+    
+    console.log("✅ Text Geometry Created:", linkedInGeometry); // Debugging
+}, undefined, function (error) {
+    console.error("❌ Font Failed to Load:", error); // Debugging
 });
 
-console.log(linkedInGeometry);
 
 
 function createCube(index) {
