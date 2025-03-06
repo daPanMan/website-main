@@ -590,7 +590,7 @@ function zoomCubeIn(cube) {
     setTimeout(() => {
         cssObject.visible = true; // ✅ Make iframe visible
         if (window.innerWidth < 568){
-            cssObject.scale.set(0.005,0.005,0.005);
+            cssObject.scale.set(0.004,0.004,0.004);
         }
 
         
