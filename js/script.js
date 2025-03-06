@@ -313,6 +313,7 @@ function createCube(index) {
     const isMobile = window.innerWidth < 568; // ✅ Detect mobile devices
 
     let baseX, baseY, baseZ;
+    const cube = new THREE.Mesh(randomShape, material);
 
     if (isMobile) {
         // ✅ Vertical Line Formation for Mobile
@@ -379,7 +380,7 @@ function createCube(index) {
         addFloatingTitle(cube, `Shape ${index + 1}`);
     }
 
-    const cube = new THREE.Mesh(randomShape, material);
+    
     cube.userData.url = defaultHTML;
 
     // ✅ Add slight random offset for a more natural formation
