@@ -1,5 +1,3 @@
-import { createAppIconShape } from "./js/shapes/appIcon.js";
-
 // ✅ Setup Scene, Camera, and Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -226,6 +224,25 @@ document.getElementById("reset-scale-button").addEventListener("touchstart", res
 const textureLoader = new THREE.TextureLoader();
 const diskTexture = textureLoader.load('textures/disk.png');
 const appIconTexture = textureLoader.load('textures/linkedin.png'); 
+
+function createAppIconShape() {
+    const shape = new THREE.Shape();
+    const radius = 0.3; // Corner radius
+    const width = 2;
+    const height = 2;
+
+    shape.moveTo(-width / 2 + radius, -height / 2);
+    shape.lineTo(width / 2 - radius, -height / 2);
+    shape.quadraticCurveTo(width / 2, -height / 2, width / 2, -height / 2 + radius);
+    shape.lineTo(width / 2, height / 2 - radius);
+    shape.quadraticCurveTo(width / 2, height / 2, width / 2 - radius, height / 2);
+    shape.lineTo(-width / 2 + radius, height / 2);
+    shape.quadraticCurveTo(-width / 2, height / 2, -width / 2, height / 2 - radius);
+    shape.lineTo(-width / 2, -height / 2 + radius);
+    shape.quadraticCurveTo(-width / 2, -height / 2, -width / 2 + radius, -height / 2);
+
+    return shape;
+}
 
 const diceTextures = [
     textureLoader.load('./html/Pig-Game-with-Dice/dice-1.png'), // 1
