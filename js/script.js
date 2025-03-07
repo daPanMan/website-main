@@ -564,7 +564,7 @@ function onCubeClick(event) {
             returnCubeToFormation(clickedCube);
         } else {
             playSound(zoomInSound);
-            
+            gsap.to(camera.position, { x: 0, y: 0, z: 9, duration: 1 });
             zoomCubeIn(clickedCube);
         }
     }
@@ -593,7 +593,7 @@ function zoomCubeIn(cube) {
             cssObject.scale.set(0.004,0.004,0.004);
         }
 
-        gsap.to(camera.position, { x: 0, y: 0, z: 9, duration: 1 });
+        
         gsap.to(bgm, { volume: 0.1, duration: 1 });
         gsap.to(iframeElement, { opacity: 0.8, duration: 0.5, ease: "power2.out" });
         
