@@ -224,7 +224,7 @@ document.getElementById("reset-scale-button").addEventListener("touchstart", res
 // ✅ Load Textures for Cubes
 const textureLoader = new THREE.TextureLoader();
 const diskTexture = textureLoader.load('textures/disk.png');
-const unityTexture = textureLoader.load('textures/unity.png');
+const unityTexture = textureLoader.load('textures/unity.jpg');
 const appIconTexture = textureLoader.load('textures/linkedin.png', () => console.log('Texture Loaded Successfully ✅'),
 undefined,
 (err) => console.error('Texture Failed to Load ❌', err)); 
@@ -423,11 +423,6 @@ function createCube(index) {
         cubeTitle = `Pig Game with Dice`;
     } else if (randomShape instanceof THREE.BoxGeometry && randomShape.parameters.height === 1.6) {
         material = [
-            new THREE.MeshBasicMaterial({ map: unityTexture }),
-            new THREE.MeshBasicMaterial({ map: unityTexture }),
-            new THREE.MeshBasicMaterial({ map: unityTexture }),
-            new THREE.MeshBasicMaterial({ map: unityTexture }),
-            new THREE.MeshBasicMaterial({ map: unityTexture }),
             new THREE.MeshBasicMaterial({ map: unityTexture })
         ];
         defaultHTML = unityGame;
