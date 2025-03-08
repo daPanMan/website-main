@@ -424,6 +424,11 @@ function createCube(index) {
     } else if (randomShape instanceof THREE.BoxGeometry && randomShape.parameters.height === 1.6) {
         material = [
             new THREE.MeshBasicMaterial({ map: unityTexture }),
+            new THREE.MeshBasicMaterial({ map: unityTexture }),
+            new THREE.MeshBasicMaterial({ map: unityTexture }),
+            new THREE.MeshBasicMaterial({ map: unityTexture }),
+            new THREE.MeshBasicMaterial({ map: unityTexture }),
+            new THREE.MeshBasicMaterial({ map: unityTexture })
         ];
         defaultHTML = unityGame;
         cubeTitle = `My 3D Mini Game`;
