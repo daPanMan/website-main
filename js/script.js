@@ -224,6 +224,7 @@ document.getElementById("reset-scale-button").addEventListener("touchstart", res
 // ✅ Load Textures for Cubes
 const textureLoader = new THREE.TextureLoader();
 const diskTexture = textureLoader.load('textures/disk.png');
+const unityTexture = textureLoader.load('textures/unity.png');
 const appIconTexture = textureLoader.load('textures/linkedin.png', () => console.log('Texture Loaded Successfully ✅'),
 undefined,
 (err) => console.error('Texture Failed to Load ❌', err)); 
@@ -401,7 +402,7 @@ function createCube(index) {
         new THREE.BoxGeometry(1.5, 1.5, 1.5),
         new THREE.SphereGeometry(0.9, 32, 32),
         new THREE.ConeGeometry(1, 2, 32),
-        new THREE.TorusGeometry(1, 0.4, 16, 100),
+        new THREE.BoxGeometry(1.6, 1.6, 1.6),
         new THREE.CylinderGeometry(2, 2, 0.2, 64),
         linkedInGeometry // Fallback if font not loaded
     ];
@@ -409,7 +410,7 @@ function createCube(index) {
     const randomShape = shapes[index]; 
     let material;
 
-    if (randomShape instanceof THREE.BoxGeometry) {
+    if (randomShape instanceof THREE.BoxGeometry && randomShape.parameters.height === 1.5) {
         material = [
             new THREE.MeshBasicMaterial({ map: diceTextures[0] }),
             new THREE.MeshBasicMaterial({ map: diceTextures[1] }),
@@ -420,6 +421,12 @@ function createCube(index) {
         ];
         defaultHTML = pigGame;
         cubeTitle = `Pig Game with Dice`;
+    } else if (randomShape instanceof THREE.BoxGeometry && randomShape.parameters.height === 1.6) {
+        material = [
+            new THREE.MeshBasicMaterial({ map: unityTexture }),
+        ];
+        defaultHTML = unityGame;
+        cubeTitle = `My 3D Mini Game`;
     } else if (randomShape instanceof THREE.CylinderGeometry && randomShape.parameters.height <= 0.2) {
         material = new THREE.MeshStandardMaterial({
             map: diskTexture, 
@@ -427,9 +434,6 @@ function createCube(index) {
         });
         defaultHTML = spotify;
         cubeTitle = `My Tracks`;
-    } else if (randomShape instanceof THREE.SphereGeometry) {
-        defaultHTML = unityGame;
-        cubeTitle = `My 3D Mini Game`;
     } else if (randomShape === linkedInGeometry) {
         material = new THREE.MeshStandardMaterial({ color: 0xffffff }); 
         defaultHTML = linkedIn;
