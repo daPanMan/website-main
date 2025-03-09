@@ -121,6 +121,7 @@ function toggleVolumeSlider() {
 function toggleMute() {
     bgm.muted = !bgm.muted;
     muteButton.innerHTML = bgm.muted ? "🔇" : "🔊";
+    bgm.volume = bgm.muted ? 0 : bgm.volume;
 }
 
 
