@@ -47,6 +47,8 @@ const bgm = document.getElementById("bgm");
 const volumeSlider = document.getElementById("volume-slider");
 const musicIcon = document.getElementById("music-icon");
 const volumeSliderContainer = document.getElementById("volume-slider-container");
+const muteButton = document.getElementById("mute-button");
+muteButton.innerHTML = bgm.muted ? "🔇" : "🔊";
 let isInterrupted = false;
 
 // ✅ Create a CSS3D Renderer for HTML Content in 3D
@@ -78,7 +80,6 @@ function init(){
         cssRenderer.domElement.style.display = "block"; // Show CSS3DRenderer
         gsap.to(threeCanvas, { opacity: 1, duration: 10, ease: "power2.out" });
 
-        
     }, 500);
 }
 
@@ -109,10 +110,22 @@ function toggleVolumeSlider() {
         bgm.volume = 0.45;
         bgm.play();
     }
+    muteButton.style.display = (muteButton.style.display === "none") ? "block" : "none";
     
     // Toggle slider visibility
     volumeSliderContainer.style.display = (volumeSliderContainer.style.display === "none") ? "block" : "none";
 }
+
+
+// ✅ Toggle Mute Function
+function toggleMute() {
+    bgm.muted = !bgm.muted;
+    muteButton.innerHTML = bgm.muted ? "🔇" : "🔊";
+}
+
+
+// ✅ Event Listener for Mute Button
+muteButton.addEventListener("click", toggleMute);
 
 // ✅ Update Volume
 function updateVolume() {
