@@ -437,13 +437,19 @@ function createCube(index) {
         defaultHTML = spotify;
         cubeTitle = `My Tracks`;
     } else if (shape === linkedInGeometry) {
-        material = new THREE.MeshStandardMaterial({ color: 0xffffff }); 
+        material = new THREE.MeshStandardMaterial({ 
+            color: 0xffffff,
+            metalness: 0.2,   // Lower metalness to reduce shine
+            clearcoat: 0.1 
+         }); 
         defaultHTML = linkedIn;
         cubeTitle = `My LinkedIn`;
     } else if (shape === emailGeometry){
         // ✅ Define different materials for different sides
         material = new THREE.MeshStandardMaterial({
-            color: 0x11FFE3
+            color: 0x11FFE3,
+            metalness: 0.2,   // Lower metalness to reduce shine
+            clearcoat: 0.1 
         });
         
         defaultHTML = email; // Special case
