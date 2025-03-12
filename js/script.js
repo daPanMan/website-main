@@ -241,8 +241,7 @@ document.getElementById("reset-scale-button").addEventListener("touchstart", res
 const textureLoader = new THREE.TextureLoader();
 const diskTexture = textureLoader.load('textures/disk.png');
 const unityTexture = textureLoader.load('textures/unity.jpg');
-const appIconTexture = textureLoader.load('textures/linkedin.png', () => console.log('Texture Loaded Successfully ✅'),
-undefined,
+
 (err) => console.error('Texture Failed to Load ❌', err)); 
 const envelopeTexture = textureLoader.load('textures/email.png'); 
 
