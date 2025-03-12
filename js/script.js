@@ -23,7 +23,8 @@ const zoomOutSound = new Audio("audio/zoom-out.wav");
 const spotify = "./html/spotify.html";
 const pigGame = "./html/Pig-Game-with-Dice/index.html";
 const linkedIn = "./html/linkedIn.html";
-const unityGame = './html/unity/index.html'
+const unityGame = './html/unity/index.html';
+const email = './html/email.html';
 
 const extrudeSettings = {
     depth: 0.3, // Thickness of the app icon
@@ -366,31 +367,14 @@ function addFloatingTitle(cube, text) {
 }
 
 
-function openEmailForm() {
-    document.getElementById("contact-form").style.display = "block";
-}
+
 
 // ✅ Close button for the form
 document.getElementById("close-contact").addEventListener("click", () => {
     document.getElementById("contact-form").style.display = "none";
 });
 
-// ✅ Handle form submission
-document.getElementById("email-form").addEventListener("submit", (event) => {
-    event.preventDefault(); // Prevent actual form submission
 
-    // ✅ Get form values
-    let name = document.getElementById("name").value;
-    let email = document.getElementById("email").value;
-    let message = document.getElementById("message").value;
-
-    // ✅ Open email client with pre-filled email
-    let mailtoLink = `mailto:your.email@example.com?subject=Contact from ${name}&body=${message}%0A%0AFrom: ${email}`;
-    window.location.href = mailtoLink;
-
-    // ✅ Hide form after submission
-    document.getElementById("contact-form").style.display = "none";
-});
 
 
 // ✅ Function to Create a Random Shape (Circle on Desktop, Vertical on Mobile)
@@ -502,7 +486,7 @@ function createCube(index) {
         material = [sideMaterial, sideMaterial, frontMaterial, sideMaterial, sideMaterial, sideMaterial];
     
 
-        defaultHTML = "contact"; // Special case
+        defaultHTML = email; // Special case
         cubeTitle = `Contact Me 📩`;
     } else {
         material = new THREE.MeshPhysicalMaterial({
@@ -650,10 +634,7 @@ function zoomCubeIn(cube) {
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "back.out(1.7)" });
     gsap.to(cube.scale, { x: 2.2, y: 2.2, z: 2.2, duration: 1, ease: "back.out(1.7)" });
 
-    if (cube.userData.url === "contact") {
-        openEmailForm();
-        return;
-    }
+   
 
     // ✅ Increase the text size when zoomed in
     titleObjects.forEach(title => {

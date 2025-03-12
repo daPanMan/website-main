@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Me</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        #contact-form {
+            width: 300px;
+            padding: 20px;
+            background: white;
+            color: black;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.5);
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background: #ff4444;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+        }
+        #close-contact {
+            cursor: pointer;
+            color: red;
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="contact-form">
+        <h3>Contact Me</h3>
+        <form id="email-form">
+            <input type="text" id="name" placeholder="Your Name" required>
+            <input type="email" id="email" placeholder="Your Email" required>
+            <textarea id="message" placeholder="Your Message" required></textarea>
+            <button type="submit">Send</button>
+        </form>
+        <span id="close-contact">Close</span>
+    </div>
+
+    <script>
+        // ✅ Handle form submission
+        document.getElementById("email-form").addEventListener("submit", (event) => {
+            event.preventDefault(); // Prevent actual form submission
+
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let message = document.getElementById("message").value;
+
+            // ✅ Open email client with pre-filled email
+            let mailtoLink = `mailto:your.email@example.com?subject=Contact from ${name}&body=${message}%0A%0AFrom: ${email}`;
+            window.location.href = mailtoLink;
+
+            // ✅ Close form after submission
+            window.parent.postMessage("closeContactForm", "*"); // Notify parent to close iframe
+        });
+
+        // ✅ Close button event listener
+        document.getElementById("close-contact").addEventListener("click", () => {
+            window.parent.postMessage("closeContactForm", "*"); // Notify parent to close iframe
+        });
+    </script>
+
+</body>
+</html>
