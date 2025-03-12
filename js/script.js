@@ -304,7 +304,6 @@ function adjustIframeScale() {
     }
 }
 
-
 window.addEventListener("resize", adjustIframeScale);
 adjustIframeScale(); // Run on page load
 
@@ -341,7 +340,6 @@ function addFloatingTitle(cube, text) {
     // ✅ Store the title object for updating later
     titleObjects.push(titleObject);
 }
-
 
 // ✅ Function to Create a Random Shape (Circle on Desktop, Vertical on Mobile)
 const fontLoader = new THREE.FontLoader();
@@ -445,7 +443,7 @@ function createCube(index) {
     } else if (shape === emailGeometry){
         // ✅ Define different materials for different sides
         material = new THREE.MeshStandardMaterial({
-            color: 0x11FFE3,
+            color: 0x11FFE3
         });
         
         defaultHTML = email; // Special case
