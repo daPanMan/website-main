@@ -242,28 +242,10 @@ const textureLoader = new THREE.TextureLoader();
 const diskTexture = textureLoader.load('textures/disk.png');
 const unityTexture = textureLoader.load('textures/unity.jpg');
 
-const envelopeTexture = textureLoader.load('textures/email.png'); 
 
 
 
-function createEnvelopeShape() {
-    const shape = new THREE.Shape();
-    const width = 2.5; // Width of the envelope
-    const height = 1.6; // Height of the envelope
-    const radius = 0.3; // Corner radius
 
-    shape.moveTo(-width / 2 + radius, -height / 2);
-    shape.lineTo(width / 2 - radius, -height / 2);
-    shape.quadraticCurveTo(width / 2, -height / 2, width / 2, -height / 2 + radius);
-    shape.lineTo(width / 2, height / 2 - radius);
-    shape.quadraticCurveTo(width / 2, height / 2, width / 2 - radius, height / 2);
-    shape.lineTo(-width / 2 + radius, height / 2);
-    shape.quadraticCurveTo(-width / 2, height / 2, -width / 2, height / 2 - radius);
-    shape.lineTo(-width / 2, -height / 2 + radius);
-    shape.quadraticCurveTo(-width / 2, -height / 2, -width / 2 + radius, -height / 2);
-
-    return shape;
-}
 
 const diceTextures = [...Array(6)].map((_, i) => 
     textureLoader.load(`./html/Pig-Game-with-Dice/dice-${i + 1}.png`)
@@ -361,13 +343,10 @@ function addFloatingTitle(cube, text) {
 }
 
 
-
-
 // ✅ Function to Create a Random Shape (Circle on Desktop, Vertical on Mobile)
-
-
 const fontLoader = new THREE.FontLoader();
 let linkedInGeometry = null;
+let emailGeometry = null;
 
 fontLoader.load('fonts/helvetiker_bold.typeface.json', function (font) {
     console.log("✅ Font Loaded Successfully!", font); // Debugging
@@ -382,9 +361,21 @@ fontLoader.load('fonts/helvetiker_bold.typeface.json', function (font) {
         bevelSize: 0.05,
         bevelSegments: 5
     });
+    emailGeometry = new THREE.TextGeometry("@", {
+        font: font,
+        size: 1.5,
+        height: 0.4,
+        curveSegments: 12,
+        bevelEnabled: true,
+        bevelThickness: 0.05,
+        bevelSize: 0.05,
+        bevelSegments: 5
+    });
 
     linkedInGeometry.computeBoundingBox();
     linkedInGeometry.center();
+    emailGeometry.computeBoundingBox();
+    emailGeometry.center();
     
     console.log("✅ Text Geometry Created:", linkedInGeometry); // Debugging
 }, undefined, function (error) {
@@ -425,12 +416,7 @@ function createCube(index) {
     const shapes = [
         new THREE.BoxGeometry(1.5, 1.5, 1.5),
         new THREE.SphereGeometry(0.9, 32, 32),
-        new THREE.ExtrudeGeometry(createEnvelopeShape(), {
-            depth: 0.3, // Thickness of the envelope
-            bevelEnabled: true,
-            bevelSize: 0.05,
-            bevelThickness: 0.05
-        }),
+        emailGeometry,
         new THREE.BoxGeometry(1.6, 1.6, 1.6),
         new THREE.CylinderGeometry(2, 2, 0.2, 64),
         linkedInGeometry
@@ -456,10 +442,10 @@ function createCube(index) {
         material = new THREE.MeshStandardMaterial({ color: 0xffffff }); 
         defaultHTML = linkedIn;
         cubeTitle = `My LinkedIn`;
-    } else if (shape instanceof THREE.ExtrudeGeometry){
+    } else if (shape === emailGeometry){
         // ✅ Define different materials for different sides
         material = new THREE.MeshStandardMaterial({
-            map: envelopeTexture, // ✅ Texture on the front face
+            color: 0x11FFE3,
         });
         
         defaultHTML = email; // Special case
@@ -606,8 +592,6 @@ function zoomCubeIn(cube) {
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "back.out(1.7)" });
     gsap.to(cube.scale, { x: 2.2, y: 2.2, z: 2.2, duration: 1, ease: "back.out(1.7)" });
 
-   
-
     // ✅ Increase the text size when zoomed in
     titleObjects.forEach(title => {
         if (title.userData.cube === cube) {
@@ -624,8 +608,6 @@ function zoomCubeIn(cube) {
 
     activeCube = cube;
 }
-
-
 
 
 
