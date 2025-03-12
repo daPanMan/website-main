@@ -448,15 +448,43 @@ function createCube(index) {
     let shape;
     let material;
 
-    // ✅ If it's the last cube, make it an Envelope
-    if (index === totalCubes - 1) {
-        shape = new THREE.ExtrudeGeometry(createEnvelopeShape(), {
+  
+    // ✅ Other Shapes
+    const shapes = [
+        new THREE.BoxGeometry(1.5, 1.5, 1.5),
+        new THREE.SphereGeometry(0.9, 32, 32),
+        new THREE.ExtrudeGeometry(createEnvelopeShape(), {
             depth: 0.3, // Thickness of the envelope
             bevelEnabled: true,
             bevelSize: 0.05,
             bevelThickness: 0.05
-        });
+        }),
+        new THREE.BoxGeometry(1.6, 1.6, 1.6),
+        new THREE.CylinderGeometry(2, 2, 0.2, 64),
+        linkedInGeometry
+    ];
+    shape = shapes[index];
 
+    if (shape instanceof THREE.BoxGeometry && shape.parameters.height === 1.5) {
+        material = diceTextures.map(texture => new THREE.MeshBasicMaterial({ map: texture }));
+        defaultHTML = pigGame;
+        cubeTitle = `Pig Game with Dice`;
+    } else if (shape instanceof THREE.BoxGeometry && shape.parameters.height === 1.6) {
+        material = new Array(6).fill(new THREE.MeshBasicMaterial({ map: unityTexture }));
+        defaultHTML = unityGame;
+        cubeTitle = `My 3D Mini Game`;
+    } else if (shape instanceof THREE.CylinderGeometry && shape.parameters.height <= 0.2) {
+        material = new THREE.MeshStandardMaterial({
+            map: diskTexture, 
+            side: THREE.DoubleSide
+        });
+        defaultHTML = spotify;
+        cubeTitle = `My Tracks`;
+    } else if (shape === linkedInGeometry) {
+        material = new THREE.MeshStandardMaterial({ color: 0xffffff }); 
+        defaultHTML = linkedIn;
+        cubeTitle = `My LinkedIn`;
+    } else if (shape instanceof THREE.ExtrudeGeometry){
         material = new THREE.MeshPhysicalMaterial({
             color: 0xffcc00, // Yellowish envelope color
             roughness: 0.5,
@@ -467,47 +495,16 @@ function createCube(index) {
         defaultHTML = "contact"; // Special case
         cubeTitle = `Contact Me 📩`;
     } else {
-        // ✅ Other Shapes
-        const shapes = [
-            new THREE.BoxGeometry(1.5, 1.5, 1.5),
-            new THREE.SphereGeometry(0.9, 32, 32),
-            new THREE.ConeGeometry(1, 2, 32),
-            new THREE.BoxGeometry(1.6, 1.6, 1.6),
-            new THREE.CylinderGeometry(2, 2, 0.2, 64),
-            linkedInGeometry
-        ];
-        shape = shapes[index];
-
-        if (shape instanceof THREE.BoxGeometry && shape.parameters.height === 1.5) {
-            material = diceTextures.map(texture => new THREE.MeshBasicMaterial({ map: texture }));
-            defaultHTML = pigGame;
-            cubeTitle = `Pig Game with Dice`;
-        } else if (shape instanceof THREE.BoxGeometry && shape.parameters.height === 1.6) {
-            material = new Array(6).fill(new THREE.MeshBasicMaterial({ map: unityTexture }));
-            defaultHTML = unityGame;
-            cubeTitle = `My 3D Mini Game`;
-        } else if (shape instanceof THREE.CylinderGeometry && shape.parameters.height <= 0.2) {
-            material = new THREE.MeshStandardMaterial({
-                map: diskTexture, 
-                side: THREE.DoubleSide
-            });
-            defaultHTML = spotify;
-            cubeTitle = `My Tracks`;
-        } else if (shape === linkedInGeometry) {
-            material = new THREE.MeshStandardMaterial({ color: 0xffffff }); 
-            defaultHTML = linkedIn;
-            cubeTitle = `My LinkedIn`;
-        } else {
-            material = new THREE.MeshPhysicalMaterial({
-                color: 0xF5F5DC,
-                roughness: 0.6,
-                metalness: 0.1,
-                clearcoat: 0.3,
-                reflectivity: 0.5
-            });
-            defaultHTML = "about.html";
-        }
+        material = new THREE.MeshPhysicalMaterial({
+            color: 0xF5F5DC,
+            roughness: 0.6,
+            metalness: 0.1,
+            clearcoat: 0.3,
+            reflectivity: 0.5
+        });
+        defaultHTML = "about.html";
     }
+    
 
     const cube = new THREE.Mesh(shape, material);
     cube.userData.url = defaultHTML;
@@ -648,7 +645,7 @@ function zoomCubeIn(cube) {
         openEmailForm();
         return;
     }
-    
+
     // ✅ Increase the text size when zoomed in
     titleObjects.forEach(title => {
         if (title.userData.cube === cube) {
