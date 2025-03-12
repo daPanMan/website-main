@@ -384,7 +384,7 @@ console.log(linkedInGeometry);
 
 
 function createCube(index) {
-    if (index === 5 && !linkedInGeometry) {  
+    if (index === 5 && !linkedInGeometry && !emailGeometry) {  
         console.log("⏳ Waiting for LinkedIn text geometry to load...");
         setTimeout(() => createCube(index), 100); // Retry in 100ms
         return;
