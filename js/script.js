@@ -24,7 +24,6 @@ const spotify = "./html/spotify.html";
 const pigGame = "./html/Pig-Game-with-Dice/index.html";
 const linkedIn = "./html/linkedIn.html";
 const unityGame = './html/unity/index.html'
-const appIconShape = createAppIconShape();
 
 const extrudeSettings = {
     depth: 0.3, // Thickness of the app icon
@@ -245,11 +244,13 @@ const appIconTexture = textureLoader.load('textures/linkedin.png', () => console
 undefined,
 (err) => console.error('Texture Failed to Load ❌', err)); 
 
-function createAppIconShape() {
+
+
+function createEnvelopeShape() {
     const shape = new THREE.Shape();
+    const width = 2.5; // Width of the envelope
+    const height = 1.6; // Height of the envelope
     const radius = 0.3; // Corner radius
-    const width = 2;
-    const height = 2;
 
     shape.moveTo(-width / 2 + radius, -height / 2);
     shape.lineTo(width / 2 - radius, -height / 2);
@@ -263,6 +264,7 @@ function createAppIconShape() {
 
     return shape;
 }
+
 
 const diceTextures = [
     textureLoader.load('./html/Pig-Game-with-Dice/dice-1.png'), // 1
@@ -367,6 +369,31 @@ function addFloatingTitle(cube, text) {
 }
 
 
+function openEmailForm() {
+    document.getElementById("contact-form").style.display = "block";
+}
+
+// ✅ Close button for the form
+document.getElementById("close-contact").addEventListener("click", () => {
+    document.getElementById("contact-form").style.display = "none";
+});
+
+// ✅ Handle form submission
+document.getElementById("email-form").addEventListener("submit", (event) => {
+    event.preventDefault(); // Prevent actual form submission
+
+    // ✅ Get form values
+    let name = document.getElementById("name").value;
+    let email = document.getElementById("email").value;
+    let message = document.getElementById("message").value;
+
+    // ✅ Open email client with pre-filled email
+    let mailtoLink = `mailto:your.email@example.com?subject=Contact from ${name}&body=${message}%0A%0AFrom: ${email}`;
+    window.location.href = mailtoLink;
+
+    // ✅ Hide form after submission
+    document.getElementById("contact-form").style.display = "none";
+});
 
 
 // ✅ Function to Create a Random Shape (Circle on Desktop, Vertical on Mobile)
@@ -418,63 +445,73 @@ function createCube(index) {
         baseZ = (Math.random() - 0.5) * 2;
     }
 
-    // ✅ Wait for the font to load before creating the "in" shape
-    if (index === 5 && !linkedInGeometry) {  
-        console.log("⏳ Waiting for LinkedIn text geometry to load...");
-        setTimeout(() => createCube(index), 100);
-        return;
-    }
-
-    // ✅ Choose a shape (including "in" text)
-    const shapes = [
-        new THREE.BoxGeometry(1.5, 1.5, 1.5),
-        new THREE.SphereGeometry(0.9, 32, 32),
-        new THREE.ConeGeometry(1, 2, 32),
-        new THREE.BoxGeometry(1.6, 1.6, 1.6),
-        new THREE.CylinderGeometry(2, 2, 0.2, 64),
-        linkedInGeometry // Fallback if font not loaded
-    ];
-
-    const randomShape = shapes[index]; 
+    let shape;
     let material;
 
-    if (randomShape instanceof THREE.BoxGeometry) {
-        if (randomShape.parameters.height === 1.5) {
+    // ✅ If it's the last cube, make it an Envelope
+    if (index === totalCubes - 1) {
+        shape = new THREE.ExtrudeGeometry(createEnvelopeShape(), {
+            depth: 0.3, // Thickness of the envelope
+            bevelEnabled: true,
+            bevelSize: 0.05,
+            bevelThickness: 0.05
+        });
+
+        material = new THREE.MeshPhysicalMaterial({
+            color: 0xffcc00, // Yellowish envelope color
+            roughness: 0.5,
+            metalness: 0.7,
+            clearcoat: 0.4
+        });
+
+        defaultHTML = "contact"; // Special case
+        cubeTitle = `Contact Me 📩`;
+    } else {
+        // ✅ Other Shapes
+        const shapes = [
+            new THREE.BoxGeometry(1.5, 1.5, 1.5),
+            new THREE.SphereGeometry(0.9, 32, 32),
+            new THREE.ConeGeometry(1, 2, 32),
+            new THREE.BoxGeometry(1.6, 1.6, 1.6),
+            new THREE.CylinderGeometry(2, 2, 0.2, 64),
+            linkedInGeometry
+        ];
+        shape = shapes[index];
+
+        if (shape instanceof THREE.BoxGeometry && shape.parameters.height === 1.5) {
             material = diceTextures.map(texture => new THREE.MeshBasicMaterial({ map: texture }));
             defaultHTML = pigGame;
             cubeTitle = `Pig Game with Dice`;
-        } else if (randomShape.parameters.height === 1.6) {
+        } else if (shape instanceof THREE.BoxGeometry && shape.parameters.height === 1.6) {
             material = new Array(6).fill(new THREE.MeshBasicMaterial({ map: unityTexture }));
             defaultHTML = unityGame;
             cubeTitle = `My 3D Mini Game`;
-        } 
-    } else if (randomShape instanceof THREE.CylinderGeometry && randomShape.parameters.height <= 0.2) {
-        material = new THREE.MeshStandardMaterial({
-            map: diskTexture, 
-            side: THREE.DoubleSide
-        });
-        defaultHTML = spotify;
-        cubeTitle = `My Tracks`;
-    } else if (randomShape === linkedInGeometry) {
-        material = new THREE.MeshStandardMaterial({ color: 0xffffff }); 
-        defaultHTML = linkedIn;
-        cubeTitle = `My LinkedIn`;
-    } else {
-        material = new THREE.MeshPhysicalMaterial({
-            color: 0xF5F5DC,
-            roughness: 0.6,
-            metalness: 0.1,
-            clearcoat: 0.3,
-            reflectivity: 0.5
-        });
-        defaultHTML = "about.html";
+        } else if (shape instanceof THREE.CylinderGeometry && shape.parameters.height <= 0.2) {
+            material = new THREE.MeshStandardMaterial({
+                map: diskTexture, 
+                side: THREE.DoubleSide
+            });
+            defaultHTML = spotify;
+            cubeTitle = `My Tracks`;
+        } else if (shape === linkedInGeometry) {
+            material = new THREE.MeshStandardMaterial({ color: 0xffffff }); 
+            defaultHTML = linkedIn;
+            cubeTitle = `My LinkedIn`;
+        } else {
+            material = new THREE.MeshPhysicalMaterial({
+                color: 0xF5F5DC,
+                roughness: 0.6,
+                metalness: 0.1,
+                clearcoat: 0.3,
+                reflectivity: 0.5
+            });
+            defaultHTML = "about.html";
+        }
     }
 
-    const cube = new THREE.Mesh(randomShape, material);
+    const cube = new THREE.Mesh(shape, material);
     cube.userData.url = defaultHTML;
     
-    
-
     const randomOffsetX = (Math.random() - 0.5) * (isMobile ? 1 : 3);
     const randomOffsetY = (Math.random() - 0.5) * (isMobile ? 1 : 3);
     const randomOffsetZ = (Math.random() - 0.5) * 1;
@@ -483,7 +520,7 @@ function createCube(index) {
     cube.geometry.computeBoundingBox();
     cube.frustumCulled = false;
 
-    cube.rotation.set(0,0,0);
+    cube.rotation.set(0, 0, 0);
     scene.add(cube);
     cubes.push(cube);
     originalPositions.push({ x: baseX, y: baseY, z: baseZ });
@@ -491,6 +528,7 @@ function createCube(index) {
     addFloatingTitle(cube, cubeTitle);
     animateCubeMovement(cube);
 }
+
 
 
 
@@ -606,6 +644,11 @@ function zoomCubeIn(cube) {
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "back.out(1.7)" });
     gsap.to(cube.scale, { x: 2.2, y: 2.2, z: 2.2, duration: 1, ease: "back.out(1.7)" });
 
+    if (cube.userData.url === "contact") {
+        openEmailForm();
+        return;
+    }
+    
     // ✅ Increase the text size when zoomed in
     titleObjects.forEach(title => {
         if (title.userData.cube === cube) {
