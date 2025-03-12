@@ -243,6 +243,7 @@ const unityTexture = textureLoader.load('textures/unity.jpg');
 const appIconTexture = textureLoader.load('textures/linkedin.png', () => console.log('Texture Loaded Successfully ✅'),
 undefined,
 (err) => console.error('Texture Failed to Load ❌', err)); 
+const envelopeTexture = textureLoader.load('textures/email.png'); 
 
 
 
@@ -266,14 +267,10 @@ function createEnvelopeShape() {
 }
 
 
-const diceTextures = [
-    textureLoader.load('./html/Pig-Game-with-Dice/dice-1.png'), // 1
-    textureLoader.load('./html/Pig-Game-with-Dice/dice-2.png'), // 2
-    textureLoader.load('./html/Pig-Game-with-Dice/dice-3.png'), // 3
-    textureLoader.load('./html/Pig-Game-with-Dice/dice-4.png'), // 4
-    textureLoader.load('./html/Pig-Game-with-Dice/dice-5.png'), // 5
-    textureLoader.load('./html/Pig-Game-with-Dice/dice-6.png')  // 6
-];
+const diceTextures = [...Array(6)].map((_, i) => 
+    textureLoader.load(`./html/Pig-Game-with-Dice/dice-${i + 1}.png`)
+);
+
 
 // ✅ Create Cubes & Store Positions
 const cubes = [];
@@ -490,12 +487,20 @@ function createCube(index) {
         defaultHTML = linkedIn;
         cubeTitle = `My LinkedIn`;
     } else if (shape instanceof THREE.ExtrudeGeometry){
-        material = new THREE.MeshPhysicalMaterial({
-            color: 0xffcc00, // Yellowish envelope color
+        const frontMaterial = new THREE.MeshStandardMaterial({
+            map: envelopeTexture, // Texture on the front face
+        });
+    
+        const sideMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffcc00, // Solid yellow color for the other sides
             roughness: 0.5,
             metalness: 0.7,
             clearcoat: 0.4
         });
+    
+        // ✅ Use an array of materials: [Front Face, Sides]
+        material = [sideMaterial, sideMaterial, frontMaterial, sideMaterial, sideMaterial, sideMaterial];
+    
 
         defaultHTML = "contact"; // Special case
         cubeTitle = `Contact Me 📩`;
