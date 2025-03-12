@@ -363,14 +363,6 @@ function addFloatingTitle(cube, text) {
 
 
 
-// ✅ Close button for the form
-document.getElementById("close-contact").addEventListener("click", () => {
-    document.getElementById("contact-form").style.display = "none";
-});
-
-
-
-
 // ✅ Function to Create a Random Shape (Circle on Desktop, Vertical on Mobile)
 
 
