@@ -456,7 +456,7 @@ function createCube(index) {
         cubeTitle = `Contact Me 📩`;
     } else {
         material = new THREE.MeshPhysicalMaterial({
-            color: 0xF5F5DC,
+            color: 0x1C9084,
             roughness: 0.6,
             metalness: 0.1,
             clearcoat: 0.3,
