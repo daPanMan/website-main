@@ -250,8 +250,8 @@ const envelopeTexture = textureLoader.load('textures/email.png');
 
 function createEnvelopeShape() {
     const shape = new THREE.Shape();
-    const width = 2.5; // Envelope width
-    const height = 1.6; // Envelope height
+    const width = 2.5; // Width of the envelope
+    const height = 1.6; // Height of the envelope
     const radius = 0.3; // Corner radius
 
     shape.moveTo(-width / 2 + radius, -height / 2);
@@ -266,7 +266,6 @@ function createEnvelopeShape() {
 
     return shape;
 }
-
 
 
 const diceTextures = [...Array(6)].map((_, i) => 
@@ -440,7 +439,12 @@ function createCube(index) {
     const shapes = [
         new THREE.BoxGeometry(1.5, 1.5, 1.5),
         new THREE.SphereGeometry(0.9, 32, 32),
-        new THREE.ExtrudeGeometry(),
+        new THREE.ExtrudeGeometry(createEnvelopeShape(), {
+            depth: 0.3, // Thickness of the envelope
+            bevelEnabled: true,
+            bevelSize: 0.05,
+            bevelThickness: 0.05
+        }),
         new THREE.BoxGeometry(1.6, 1.6, 1.6),
         new THREE.CylinderGeometry(2, 2, 0.2, 64),
         linkedInGeometry
@@ -467,32 +471,12 @@ function createCube(index) {
         defaultHTML = linkedIn;
         cubeTitle = `My LinkedIn`;
     } else if (shape instanceof THREE.ExtrudeGeometry){
-        // ✅ Ensure proper UV mapping for the front face
-        const frontMaterial = new THREE.MeshStandardMaterial({
+        // ✅ Define different materials for different sides
+        material = new THREE.MeshStandardMaterial({
             map: envelopeTexture, // ✅ Texture on the front face
             side: THREE.FrontSide, // ✅ Apply only to the front
         });
-
-        const sideMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xffcc00, // ✅ Solid yellow for the sides
-            roughness: 0.5,
-            metalness: 0.7,
-            clearcoat: 0.4
-        });
-
-        // ✅ Fix UV Mapping for ExtrudeGeometry
-        const extrudeSettings = {
-            depth: 0.3, // Thickness of the envelope
-            bevelEnabled: false, // ❌ Bevel can cause weird textures, so disable it
-            UVGenerator: THREE.ExtrudeGeometry.WorldUVGenerator // ✅ Helps with correct mapping
-        };
-
-        // ✅ Create the geometry properly
-        shape = new THREE.ExtrudeGeometry(createEnvelopeShape(), extrudeSettings);
-
-        // ✅ Apply separate materials: [Front Face, Back Face, Sides]
-        material = [frontMaterial, frontMaterial, sideMaterial];
-
+        
         defaultHTML = email; // Special case
         cubeTitle = `Contact Me 📩`;
     } else {
