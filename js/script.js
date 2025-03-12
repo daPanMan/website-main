@@ -837,7 +837,7 @@ function getTouchDistance(touches) {
 
 /** FINAL ADD-ONS */
 // ✅ Ambient Light (Soft Global Light)
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); 
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); 
 scene.add(ambientLight);
 
 // ✅ Directional Light (Creates Shadows & Depth)
