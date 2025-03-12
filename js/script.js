@@ -447,7 +447,7 @@ function createCube(index) {
     } else if (shape === emailGeometry){
         // ✅ Define different materials for different sides
         material = new THREE.MeshStandardMaterial({
-            color: 0x11FFE3,
+            color: 0x1C9084,
             metalness: 0.2,   // Lower metalness to reduce shine
             clearcoat: 0.1 
         });
