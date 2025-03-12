@@ -467,7 +467,7 @@ function createCube(index) {
     } else if (shape instanceof THREE.ExtrudeGeometry){
         // ✅ Define different materials for different sides
         material = new THREE.MeshStandardMaterial({
-            map: diskTexture, // ✅ Texture on the front face
+            map: envelopeTexture, // ✅ Texture on the front face
         });
         
         defaultHTML = email; // Special case
@@ -502,10 +502,6 @@ function createCube(index) {
     addFloatingTitle(cube, cubeTitle);
     animateCubeMovement(cube);
 }
-
-
-
-
 
 
 
