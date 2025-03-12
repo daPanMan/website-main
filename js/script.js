@@ -438,7 +438,7 @@ function createCube(index) {
         cubeTitle = `My Tracks`;
     } else if (shape === linkedInGeometry) {
         material = new THREE.MeshStandardMaterial({ 
-            color: 0xffffff,
+            color: 0xd3d3d3,
             metalness: 0.2,   // Lower metalness to reduce shine
             clearcoat: 0.1 
          }); 
