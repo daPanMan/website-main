@@ -58,6 +58,17 @@ cssRenderer.domElement.style.position = "absolute";
 cssRenderer.domElement.style.top = 0;
 document.body.appendChild(cssRenderer.domElement);
 
+// ✅ Adjust iframe scale for different screen sizes
+function adjustIframeScale() {
+    if (window.innerWidth < 768) {
+        cssObject.scale.set(0.004, 0.004, 0.004);
+    } else {
+        cssObject.scale.set(0.01, 0.01, 0.01);
+    }
+}
+window.addEventListener("resize", adjustIframeScale);
+adjustIframeScale(); // Run on page load
+
 // ✅ Initially hide the 3D canvas & CSS3DRenderer
 document.getElementById("three-canvas").style.display = "none";
 bgm.pause();
@@ -545,31 +556,31 @@ window.addEventListener("touchstart", (event) => {
     onCubeClick(event);
 }, { passive: false });
 
+function getMouseCoordinates(event) {
+    const rect = renderer.domElement.getBoundingClientRect();
+    if (event.touches) { 
+        return {
+            x: ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1,
+            y: -((event.touches[0].clientY - rect.top) / rect.height) * 2 + 1
+        };
+    } else { 
+        return {
+            x: ((event.clientX - rect.left) / rect.width) * 2 - 1,
+            y: -((event.clientY - rect.top) / rect.height) * 2 + 1
+        };
+    }
+}
 
 function onCubeClick(event) {
     isInterrupted = true;
-    let x, y;
-    const rect = renderer.domElement.getBoundingClientRect();
-    
-    
-    if (event.touches) { 
-        x = ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
-        y = -((event.touches[0].clientY - rect.top) / rect.height) * 2 + 1;
-    } else { 
-        x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-    }
-
+    const { x, y } = getMouseCoordinates(event);
     mouse.x = x;
     mouse.y = y;
-
-    renderer.render(scene, camera);
     raycaster.setFromCamera(mouse, camera);
 
     const intersects = raycaster.intersectObjects(cubes, true);
     if (intersects.length > 0) {
         const clickedCube = intersects[0].object;
-        
         if (clickedCube === activeCube) {
             playSound(zoomOutSound);
             returnCubeToFormation(clickedCube);
@@ -584,36 +595,27 @@ function onCubeClick(event) {
 
 function zoomCubeIn(cube) {
     if (activeCube === cube) return;
+    if (activeCube) returnCubeToFormation(activeCube);
 
-    if (activeCube) {
-        returnCubeToFormation(activeCube);
-    }
-
-    // ✅ Stop the wandering animation for this cube
-    gsap.killTweensOf(cube.position); // Stops its movement
-    gsap.killTweensOf(cube.rotation); // Stops any rotation changes
-
-    // ✅ Move the Cube to Center and Scale Up
+    gsap.killTweensOf(cube.position);
+    gsap.killTweensOf(cube.rotation);
+    
     gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "back.out(1.7)" });
     gsap.to(cube.scale, { x: 2.2, y: 2.2, z: 2.2, duration: 1, ease: "back.out(1.7)" });
-    iframeElement.src = cube.userData.url;
-    // ✅ Fade in the iframe smoothly
-    setTimeout(() => {
-        cssObject.visible = true; // ✅ Make iframe visible
-        if (window.innerWidth < 568){
-            cssObject.scale.set(0.004,0.004,0.004);
+
+    // ✅ Increase the text size when zoomed in
+    titleObjects.forEach(title => {
+        if (title.userData.cube === cube) {
+            gsap.to(title.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 0.5 });
         }
+    });
 
-        
-        gsap.to(bgm, { volume: 0.1, duration: 1 });
-        gsap.to(iframeElement, { opacity: 0.8, duration: 0.5, ease: "power2.out" });
-        
-
-
-        // ✅ Show Reset Button when the iframe is visible
+    iframeElement.src = cube.userData.url;
+    setTimeout(() => {
+        cssObject.visible = true;
+        gsap.to(iframeElement, { opacity: 0.8, duration: 0.5 });
         showCloseButton();
     }, 500);
-    
 
     activeCube = cube;
 }
@@ -858,6 +860,18 @@ pointLight.position.set(0, 5, 5);
 scene.add(pointLight);
 
 // ✅ Animation Loop
+
+function updateStars() {
+    for (let i = 0; i < stars.length * 0.3; i++) { // Update only 30% of stars
+        let star = stars[Math.floor(Math.random() * stars.length)];
+        star.position.z += 0.05;
+        if (star.position.z > 50) {
+            star.position.z = -50;
+        }
+    }
+}
+
+
 function animate() {
     requestAnimationFrame(animate);
 
@@ -874,12 +888,8 @@ function animate() {
     });
 
     starField.rotation.y += 0.0005;
-    stars.forEach(star => {
-        star.position.z += 0.05;
-        if (star.position.z > 50) {
-            star.position.z = -50;
-        }
-    });
+    updateStars(); // Call the optimized star movement function
+
 
     cubes.forEach(cube => {
         cube.rotation.x += 0.005;
