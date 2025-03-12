@@ -267,7 +267,6 @@ function createEnvelopeShape() {
     return shape;
 }
 
-
 const diceTextures = [...Array(6)].map((_, i) => 
     textureLoader.load(`./html/Pig-Game-with-Dice/dice-${i + 1}.png`)
 );
@@ -282,9 +281,6 @@ let activeCube = null;
 
 // ✅ Add Lighting
 scene.add(new THREE.AmbientLight(0xffffff, 1));
-
-
-
 
 // ✅ Store all title objects in an array for updates
 const titleObjects = [];
@@ -474,7 +470,6 @@ function createCube(index) {
         // ✅ Define different materials for different sides
         material = new THREE.MeshStandardMaterial({
             map: diskTexture, // ✅ Texture on the front face
-            side: THREE.FrontSide, // ✅ Apply only to the front
         });
         
         defaultHTML = email; // Special case
