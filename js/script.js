@@ -440,12 +440,7 @@ function createCube(index) {
     const shapes = [
         new THREE.BoxGeometry(1.5, 1.5, 1.5),
         new THREE.SphereGeometry(0.9, 32, 32),
-        new THREE.ExtrudeGeometry(createEnvelopeShape(), {
-            depth: 0.3, // Thickness of the envelope
-            bevelEnabled: true,
-            bevelSize: 0.05,
-            bevelThickness: 0.05
-        }),
+        new THREE.ExtrudeGeometry(),
         new THREE.BoxGeometry(1.6, 1.6, 1.6),
         new THREE.CylinderGeometry(2, 2, 0.2, 64),
         linkedInGeometry
