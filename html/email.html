@@ -61,6 +61,8 @@
 
     <div id="contact-form">
         <h2>Contact Me</h2>
+        <div id="success-message" style="display: none; color: green; font-weight: bold; text-align: center; margin-bottom: 10px;"></div>
+
         <form id="email-form">
             <input type="text" id="name" placeholder="Your Name" required>
             <input type="email" id="email" placeholder="Your Email" required>
@@ -70,28 +72,47 @@
         <span id="close-contact">Close</span>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <script>
+        // ✅ Initialize EmailJS
+        emailjs.init("PeD_SpSOcKdDZPzHu"); // Replace with your EmailJS user ID
+
         // ✅ Handle form submission
         document.getElementById("email-form").addEventListener("submit", (event) => {
             event.preventDefault(); // Prevent page reload
 
+            // ✅ Get form values
             let name = document.getElementById("name").value;
             let email = document.getElementById("email").value;
             let message = document.getElementById("message").value;
 
-            // ✅ Open email client with pre-filled email
-            let mailtoLink = `mailto:galvatronus2001@gmail.com?subject=Contact from ${name}&body=${message}%0A%0AFrom: ${email}`;
-            window.location.href = mailtoLink;
+            // ✅ Prepare EmailJS template data
+            let templateParams = {
+                from_name: name,
+                from_email: email,
+                message: message
+            };
 
-            // ✅ Close the form after submission
-            document.getElementById("contact-form").style.display = "none";
-        });
+            // ✅ Send email using EmailJS
+            emailjs.send("service_1q5yozh", "template_jjjrk8l", templateParams)
+                .then((response) => {
+                    console.log("✅ Email Sent Successfully!", response);
 
-        // ✅ Close button event listener
-        document.getElementById("close-contact").addEventListener("click", () => {
-            document.getElementById("contact-form").style.display = "none";
+                    // ✅ Show "Email Sent" Message
+                    let successMessage = document.getElementById("success-message");
+                    successMessage.innerText = "✅ Email Sent Successfully!";
+                    successMessage.style.display = "block";
+
+                    // ✅ Keep the form visible
+                })
+                .catch((error) => {
+                    console.error("❌ Error Sending Email:", error);
+                    alert("❌ Failed to send email. Try again later.");
+                });
         });
     </script>
+
 
 </body>
 </html>
