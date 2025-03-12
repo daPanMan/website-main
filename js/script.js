@@ -428,6 +428,11 @@ console.log(linkedInGeometry);
 
 
 function createCube(index) {
+    if (index === 5 && !linkedInGeometry) {  
+        console.log("⏳ Waiting for LinkedIn text geometry to load...");
+        setTimeout(() => createCube(index), 100); // Retry in 100ms
+        return;
+    }
     const isMobile = window.innerWidth < 568; 
     let baseX, baseY, baseZ;
     let cubeTitle = `Shape ${index + 1}`;
@@ -504,7 +509,6 @@ function createCube(index) {
         });
         defaultHTML = "about.html";
     }
-    
 
     const cube = new THREE.Mesh(shape, material);
     cube.userData.url = defaultHTML;
