@@ -58,14 +58,7 @@ cssRenderer.domElement.style.position = "absolute";
 cssRenderer.domElement.style.top = 0;
 document.body.appendChild(cssRenderer.domElement);
 
-// ✅ Adjust iframe scale for different screen sizes
-function adjustIframeScale() {
-    if (window.innerWidth < 768) {
-        cssObject.scale.set(0.004, 0.004, 0.004);
-    } else {
-        cssObject.scale.set(0.01, 0.01, 0.01);
-    }
-}
+
 window.addEventListener("resize", adjustIframeScale);
 adjustIframeScale(); // Run on page load
 
@@ -328,6 +321,14 @@ cssObject.position.set(0, 0, 3); // Position in front of the cube
 cssObject.visible = false; // Hide initially
 scene.add(cssObject);
 
+// ✅ Adjust iframe scale for different screen sizes
+function adjustIframeScale() {
+    if (window.innerWidth < 768) {
+        cssObject.scale.set(0.004, 0.004, 0.004);
+    } else {
+        cssObject.scale.set(0.01, 0.01, 0.01);
+    }
+}
 
 // ✅ Function to Add Floating Title Above Cube
 function addFloatingTitle(cube, text) {
