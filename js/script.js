@@ -243,10 +243,6 @@ const diskTexture = textureLoader.load('textures/disk.png');
 const unityTexture = textureLoader.load('textures/unity.jpg');
 
 
-
-
-
-
 const diceTextures = [...Array(6)].map((_, i) => 
     textureLoader.load(`./html/Pig-Game-with-Dice/dice-${i + 1}.png`)
 );
@@ -346,6 +342,11 @@ const fontLoader = new THREE.FontLoader();
 let linkedInGeometry = null;
 let emailGeometry = null;
 
+const wireframeMaterial = new THREE.MeshBasicMaterial({
+    color: 0x000000, // Border color (black)
+    wireframe: true // Show only edges
+});
+
 fontLoader.load('fonts/helvetiker_bold.typeface.json', function (font) {
     console.log("✅ Font Loaded Successfully!", font); // Debugging
 
@@ -408,7 +409,6 @@ function createCube(index) {
 
     let shape;
     let material;
-
   
     // ✅ Other Shapes
     const shapes = [
@@ -837,7 +837,7 @@ function getTouchDistance(touches) {
 
 /** FINAL ADD-ONS */
 // ✅ Ambient Light (Soft Global Light)
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); 
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.1); 
 scene.add(ambientLight);
 
 // ✅ Directional Light (Creates Shadows & Depth)
