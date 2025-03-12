@@ -242,7 +242,6 @@ const textureLoader = new THREE.TextureLoader();
 const diskTexture = textureLoader.load('textures/disk.png');
 const unityTexture = textureLoader.load('textures/unity.jpg');
 
-(err) => console.error('Texture Failed to Load ❌', err)); 
 const envelopeTexture = textureLoader.load('textures/email.png'); 
 
 
