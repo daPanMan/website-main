@@ -59,8 +59,6 @@ cssRenderer.domElement.style.top = 0;
 document.body.appendChild(cssRenderer.domElement);
 
 
-window.addEventListener("resize", adjustIframeScale);
-adjustIframeScale(); // Run on page load
 
 // ✅ Initially hide the 3D canvas & CSS3DRenderer
 document.getElementById("three-canvas").style.display = "none";
@@ -329,6 +327,10 @@ function adjustIframeScale() {
         cssObject.scale.set(0.01, 0.01, 0.01);
     }
 }
+
+
+window.addEventListener("resize", adjustIframeScale);
+adjustIframeScale(); // Run on page load
 
 // ✅ Function to Add Floating Title Above Cube
 function addFloatingTitle(cube, text) {
