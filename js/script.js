@@ -471,20 +471,12 @@ function createCube(index) {
         defaultHTML = linkedIn;
         cubeTitle = `My LinkedIn`;
     } else if (shape instanceof THREE.ExtrudeGeometry){
-        const frontMaterial = new THREE.MeshStandardMaterial({
+        material = new THREE.MeshStandardMaterial({
             map: envelopeTexture, // Texture on the front face
+            side: THREE.DoubleSide
         });
     
-        const sideMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xffcc00, // Solid yellow color for the other sides
-            roughness: 0.5,
-            metalness: 0.7,
-            clearcoat: 0.4
-        });
-    
-        // ✅ Use an array of materials: [Front Face, Sides]
-        material = [sideMaterial, sideMaterial, frontMaterial, sideMaterial, sideMaterial, sideMaterial];
-    
+        
 
         defaultHTML = email; // Special case
         cubeTitle = `Contact Me 📩`;
