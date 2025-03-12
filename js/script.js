@@ -473,7 +473,7 @@ function createCube(index) {
     } else if (shape instanceof THREE.ExtrudeGeometry){
         // ✅ Define different materials for different sides
         material = new THREE.MeshStandardMaterial({
-            map: envelopeTexture, // ✅ Texture on the front face
+            map: diskTexture, // ✅ Texture on the front face
             side: THREE.FrontSide, // ✅ Apply only to the front
         });
         
