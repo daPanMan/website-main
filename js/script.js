@@ -537,29 +537,6 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
 });
 
-let lastTouchY = 0;
-let scrollSpeed = 0.05; // Adjust for sensitivity
-
-document.getElementById("three-canvas").addEventListener("touchmove", function(event) {
-    if (window.innerWidth < 768) { // ✅ Only apply on mobile
-        let touchY = event.touches[0].clientY; // Get touch Y position
-
-        if (lastTouchY) {
-            let deltaY = touchY - lastTouchY; // Calculate scroll direction
-            moveCubes(deltaY * scrollSpeed); // Move cubes vertically
-        }
-
-        lastTouchY = touchY; // Update last touch position
-    }
-}, { passive: false }); 
-
-// ✅ Function to Move Shapes Vertically
-function moveCubes(offsetY) {
-    cubes.forEach(cube => {
-        cube.position.y += offsetY; // Move cube up/down
-    });
-}
-
 
 
 
