@@ -73,3 +73,23 @@ iframe {
 .big-title {
     font-family: 'Press Start 2P', sans-serif;
 }
+
+#scroll-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow-y: auto;  /* Enable vertical scrolling */
+    overscroll-behavior: contain;
+}
+
+/* On mobile, allow scrolling */
+@media (max-width: 768px) {
+    body {
+        overflow: auto !important; /* Allow scrolling */
+    }
+    
+    #scroll-container {
+        height: auto; /* Allow dynamic height */
+        min-height: 150vh; /* Ensure enough space for scrolling */
+    }
+}

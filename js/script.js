@@ -398,7 +398,7 @@ function createCube(index) {
 
     if (isMobile) {
         baseX = 0;
-        baseY = index * 3.5 - (totalCubes / 2) * 3.5;
+        baseY = index * 5 - (totalCubes / 2) * 5;
         baseZ = 0;
     } else {
         const angle = (index / totalCubes) * Math.PI * 2;
