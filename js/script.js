@@ -242,7 +242,7 @@ document.getElementById("reset-scale-button").addEventListener("touchstart", res
 const textureLoader = new THREE.TextureLoader();
 const diskTexture = textureLoader.load('textures/disk.png');
 const unityTexture = textureLoader.load('textures/unity.jpg');
-const tennisTexture = textureLoader.load('textures/tennis.png');
+const tennisTexture = textureLoader.load('textures/tennis.jpg');
 
 
 const diceTextures = [...Array(6)].map((_, i) => 
