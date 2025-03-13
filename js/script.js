@@ -399,14 +399,15 @@ function createCube(index) {
     let cubeTitle = `Shape ${index + 1}`;
 
     if (isMobile) {
-        // ✅ Define More Rows Than Columns (Tall Grid)
-        let cols = 3; // 3 columns
-        let rows = Math.ceil(totalCubes / cols); // Automatically adjust rows
-        let spacingX = 3; // Horizontal spacing
-        let spacingY = 3.5; // Vertical spacing (more spacing for height)
+        // ✅ Automatically adjust to be taller than wide
+        let cols = Math.ceil(Math.sqrt(totalCubes / 1.5)); // Fewer columns
+        let rows = Math.ceil(totalCubes / cols); // More rows
 
-        let col = index % cols; // Column position
-        let row = Math.floor(index / cols); // Row position
+        let spacingX = 3; // Horizontal spacing
+        let spacingY = 5; // Vertical spacing (more to make it taller)
+
+        let col = index % cols; // Column index
+        let row = Math.floor(index / cols); // Row index
 
         // ✅ Center the grid properly
         baseX = (col - (cols - 1) / 2) * spacingX; 
