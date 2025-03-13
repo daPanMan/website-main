@@ -399,17 +399,18 @@ function createCube(index) {
     let cubeTitle = `Shape ${index + 1}`;
 
     if (isMobile) {
-        // ✅ 9:16 Grid Formation
+        // ✅ Define More Rows Than Columns (Tall Grid)
         let cols = 3; // 3 columns
-        let rows = 3; // 3 rows (adjust based on total cubes)
+        let rows = Math.ceil(totalCubes / cols); // Automatically adjust rows
         let spacingX = 3; // Horizontal spacing
-        let spacingY = 6; // Vertical spacing
+        let spacingY = 3.5; // Vertical spacing (more spacing for height)
 
         let col = index % cols; // Column position
         let row = Math.floor(index / cols); // Row position
 
-        baseX = (col - (cols - 1) / 2) * spacingX; // Centered grid
-        baseY = (row - (rows - 1) / 2) * spacingY;
+        // ✅ Center the grid properly
+        baseX = (col - (cols - 1) / 2) * spacingX; 
+        baseY = (row - (rows - 1) / 2) * spacingY; 
         baseZ = 0;
     } else {
         const angle = (index / totalCubes) * Math.PI * 2;
