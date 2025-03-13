@@ -264,6 +264,8 @@ scene.add(new THREE.AmbientLight(0xffffff, 1));
 const titleObjects = [];
 
 
+
+
 // ✅ Create the `iframe` Element
 const iframeElement = document.createElement("iframe");
 iframeElement.src = "about.html"; // Replace with your actual page
@@ -535,8 +537,7 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
 });
 
-// ✅ Prevent touch events from blocking scroll
-window.addEventListener("touchmove", function(event) {
+document.getElementById("scroll-container").addEventListener("touchmove", function(event) {
     if (window.innerWidth < 768) {
         event.stopPropagation(); // Prevent Three.js from blocking scrolling
     }
