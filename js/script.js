@@ -540,7 +540,7 @@ window.addEventListener('resize', () => {
 let lastTouchY = 0;
 let scrollSpeed = 0.05; // Adjust for sensitivity
 
-document.addEventListener("touchmove", function(event) {
+document.getElementById("three-canvas").addEventListener("touchmove", function(event) {
     if (window.innerWidth < 768) { // ✅ Only apply on mobile
         let touchY = event.touches[0].clientY; // Get touch Y position
 
