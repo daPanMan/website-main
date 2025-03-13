@@ -460,6 +460,7 @@ function createCube(index) {
         material = new THREE.MeshBasicMaterial({
             map: tennisTexture
         });
+        cubeTitle = `PONG`;
         defaultHTML = pong;
     }
 
