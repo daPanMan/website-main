@@ -192,8 +192,8 @@ function addBigTitle(text) {
     const bigTitleObject = new THREE.CSS3DObject(titleElement);
     bigTitleObject.scale.set(0.01, 0.01, 0.01); // Prevent infinite scaling
 
-    // ✅ Position it above the cube formation
-    bigTitleObject.position.set(0, 0, 0); // Adjust height
+    // ✅ Position it below the cube formation
+    bigTitleObject.position.set(0, 0, -10); // Adjust height
 
     // ✅ Add it to the scene
     scene.add(bigTitleObject);
@@ -535,11 +535,13 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
 });
 
-document.addEventListener("touchmove", (event) => {
+// ✅ Prevent touch events from blocking scroll
+document.addEventListener("touchmove", function(event) {
     if (window.innerWidth < 768) {
-        event.stopPropagation(); // Prevent cube interactions from blocking scroll
+        event.stopPropagation(); // Prevent Three.js from blocking scrolling
     }
 }, { passive: true });
+
 
 
 // ✅ Raycaster for Click Detection
