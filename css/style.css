@@ -95,7 +95,4 @@ iframe {
         min-height: 150vh; /* Ensure enough space for scrolling */
     }
 
-    canvas {
-        position: relative !important; /* Make sure it's positioned properly */
-    }
 }
