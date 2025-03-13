@@ -84,16 +84,10 @@ iframe {
     overscroll-behavior: contain;
 }
 
-/* On mobile, allow scrolling */
 @media (max-width: 768px) {
     body {
-        overflow-y: auto !important; /* Allow scrolling */
-        height: auto !important;
+        height: 200vh; /* Ensure the page is scrollable */
+        overflow-y: auto;
     }
-    
-    #scroll-container {
-        height: auto; /* Allow dynamic height */
-        min-height: 150vh; /* Ensure enough space for scrolling */
-    }
-
 }
+

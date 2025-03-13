@@ -537,12 +537,20 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
 });
 
-document.getElementById("scroll-container").addEventListener("touchmove", function(event) {
-    if (window.innerWidth < 768) {
-        event.stopPropagation(); // Prevent Three.js interference
-        event.preventDefault();  // 🔹 Allow normal scrolling
+window.addEventListener("scroll", () => {
+    if (window.innerWidth < 768) { // ✅ Only apply on mobile
+        let scrollY = window.scrollY * 0.05; // Adjust speed if needed
+
+        cubes.forEach((cube, index) => {
+            gsap.to(cube.position, { 
+                y: originalPositions[index].y - scrollY, 
+                duration: 0.5, 
+                ease: "power2.out"
+            });
+        });
     }
-}, { passive: true });
+});
+
 
 
 
