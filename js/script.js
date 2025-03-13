@@ -456,7 +456,7 @@ function createCube(index) {
         
         defaultHTML = email; // Special case
         cubeTitle = `Contact Me 📩`;
-    } else if (shape instanceof SphereGeometry){
+    } else if (shape instanceof THREE.SphereGeometry){
         material = new THREE.MeshBasicMaterial({
             map: tennisTexture
         });
