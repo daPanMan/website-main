@@ -400,6 +400,7 @@ function createCube(index) {
         baseX = 0;
         baseY = index * 5 - (totalCubes / 2) * 5;
         baseZ = 0;
+        
     } else {
         const angle = (index / totalCubes) * Math.PI * 2;
         const spreadFactor = 1.5;
@@ -484,6 +485,21 @@ function createCube(index) {
     animateCubeMovement(cube);
 }
 
+function adjustIframeSize() {
+    const iframeContainer = document.getElementById("iframe-container");
+    
+    if (window.innerWidth < 768) {
+        iframeContainer.style.width = "95vw";
+        iframeContainer.style.height = "90vh";
+    } else {
+        iframeContainer.style.width = "80vw";
+        iframeContainer.style.height = "80vh";
+    }
+}
+
+// ✅ Adjust size when the window resizes
+window.addEventListener("resize", adjustIframeSize);
+adjustIframeSize(); // ✅ Call it once when page loads
 
 
 // ✅ Function to Make Cubes Wander Randomly
