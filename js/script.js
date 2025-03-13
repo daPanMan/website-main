@@ -193,7 +193,7 @@ function addBigTitle(text) {
     bigTitleObject.scale.set(0.01, 0.01, 0.01); // Prevent infinite scaling
 
     // ✅ Position it below the cube formation
-    bigTitleObject.position.set(0, 0, -10); // Adjust height
+    bigTitleObject.position.set(0, 0, 0); // Adjust height
 
     // ✅ Add it to the scene
     scene.add(bigTitleObject);
@@ -875,6 +875,7 @@ function animate() {
     // ✅ Ensure the big title always faces the camera
     if (bigTitle) {
         bigTitle.lookAt(camera.position);
+        bigTitle.position.set(0, 0, -5); // Adjust height
     }
 
     // ✅ Ensure titles always face the camera
