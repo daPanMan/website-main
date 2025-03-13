@@ -539,7 +539,8 @@ window.addEventListener('resize', () => {
 
 document.getElementById("scroll-container").addEventListener("touchmove", function(event) {
     if (window.innerWidth < 768) {
-        event.stopPropagation(); // Prevent Three.js from blocking scrolling
+        event.stopPropagation(); // Prevent Three.js interference
+        event.preventDefault();  // 🔹 Allow normal scrolling
     }
 }, { passive: true });
 

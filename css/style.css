@@ -87,7 +87,8 @@ iframe {
 /* On mobile, allow scrolling */
 @media (max-width: 768px) {
     body {
-        overflow: auto !important; /* Allow scrolling */
+        overflow-y: auto !important; /* Allow scrolling */
+        height: auto !important;
     }
     
     #scroll-container {
