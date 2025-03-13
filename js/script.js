@@ -399,8 +399,17 @@ function createCube(index) {
     let cubeTitle = `Shape ${index + 1}`;
 
     if (isMobile) {
-        baseX = 0;
-        baseY = index * 6 - (totalCubes / 2) * 6;
+        // ✅ 9:16 Grid Formation
+        let cols = 3; // 3 columns
+        let rows = 3; // 3 rows (adjust based on total cubes)
+        let spacingX = 3; // Horizontal spacing
+        let spacingY = 6; // Vertical spacing
+
+        let col = index % cols; // Column position
+        let row = Math.floor(index / cols); // Row position
+
+        baseX = (col - (cols - 1) / 2) * spacingX; // Centered grid
+        baseY = (row - (rows - 1) / 2) * spacingY;
         baseZ = 0;
     } else {
         const angle = (index / totalCubes) * Math.PI * 2;
