@@ -25,6 +25,7 @@ const pigGame = "./html/Pig-Game-with-Dice/index.html";
 const linkedIn = "./html/linkedIn.html";
 const unityGame = './html/unity/index.html';
 const email = './html/email.html';
+const pong = './html/pong.html';
 
 const extrudeSettings = {
     depth: 0.3, // Thickness of the app icon
@@ -241,6 +242,7 @@ document.getElementById("reset-scale-button").addEventListener("touchstart", res
 const textureLoader = new THREE.TextureLoader();
 const diskTexture = textureLoader.load('textures/disk.png');
 const unityTexture = textureLoader.load('textures/unity.jpg');
+const tennisTexture = textureLoader.load('textures/tennis.png');
 
 
 const diceTextures = [...Array(6)].map((_, i) => 
@@ -454,15 +456,11 @@ function createCube(index) {
         
         defaultHTML = email; // Special case
         cubeTitle = `Contact Me 📩`;
-    } else {
-        material = new THREE.MeshPhysicalMaterial({
-            color: 0x1C9084,
-            roughness: 0.6,
-            metalness: 0.1,
-            clearcoat: 0.3,
-            reflectivity: 0.5
+    } else if (shape instanceof SphereGeometry){
+        material = new THREE.MeshBasicMaterial({
+            map: tennisTexture
         });
-        defaultHTML = "about.html";
+        defaultHTML = pong;
     }
 
     const cube = new THREE.Mesh(shape, material);
