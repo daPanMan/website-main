@@ -535,6 +535,11 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
 });
 
+document.addEventListener("touchmove", (event) => {
+    if (window.innerWidth < 768) {
+        event.stopPropagation(); // Prevent cube interactions from blocking scroll
+    }
+}, { passive: true });
 
 
 // ✅ Raycaster for Click Detection
