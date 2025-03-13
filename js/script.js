@@ -536,7 +536,7 @@ window.addEventListener('resize', () => {
 });
 
 // ✅ Prevent touch events from blocking scroll
-document.addEventListener("touchmove", function(event) {
+window.addEventListener("touchmove", function(event) {
     if (window.innerWidth < 768) {
         event.stopPropagation(); // Prevent Three.js from blocking scrolling
     }
