@@ -92,6 +92,7 @@ document.getElementById("enter-button").addEventListener("click", () => {
     init();
 });
 document.getElementById("enter-button").addEventListener("touchstart", (event) => {
+    event.stopPropagation();
     event.preventDefault(); // ✅ Prevents unintended scrolling
     bgm.play();
     init();
