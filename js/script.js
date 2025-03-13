@@ -403,8 +403,8 @@ function createCube(index) {
         let cols = Math.ceil(Math.sqrt(totalCubes / 1.5)); // Fewer columns
         let rows = Math.ceil(totalCubes / cols); // More rows
 
-        let spacingX = 3; // Horizontal spacing
-        let spacingY = 5; // Vertical spacing (more to make it taller)
+        let spacingX = 5; // Horizontal spacing
+        let spacingY = 7; // Vertical spacing (more to make it taller)
 
         let col = index % cols; // Column index
         let row = Math.floor(index / cols); // Row index
