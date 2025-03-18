@@ -42,19 +42,19 @@
 
 
 <div id="volume-control" style="position: fixed; top: 20px; left: 20px; z-index: 100; cursor: pointer;">
-    <span id="music-icon" style="font-size: 24px; color: rgb(255, 255, 255); user-select: none; display: inline-block;">🎵</span>
+    <span id="music-icon" style="font-size: 44px; filter: brightness(5); user-select: none; display: inline-block;">🎵</span>
     <div id="volume-slider-container" style="
         display: none; 
         position: absolute; 
-        top: 180%; /* Position directly below the icon */
-        left: -106%;
+        top: 200%; /* Position directly below the icon */
+        left: -114%;
         transform: rotate(270deg);
         background: rgba(0, 0, 0, 0.8); 
         padding: 5px; 
         border-radius: 5px;
     ">
         <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.45" 
-            style="writing-mode: bt-lr; width: 100px;">
+            style="writing-mode: bt-lr; width: 200px;">
     </div>
     <button id="mute-button" style="
         background: none;
@@ -62,9 +62,9 @@
         border: none;
         top: 100%; /* Position directly below the icon */
         color: white;
-        font-size: 20px;
-        margin-top: 5px;
-        margin-left: -2px;
+        font-size: 30px;
+        margin-top: 17px;
+        margin-left: 9px;
         cursor: pointer;
     ">🔊</button>
 </div>
