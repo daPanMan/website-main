@@ -250,6 +250,23 @@ const diceTextures = [...Array(6)].map((_, i) =>
     textureLoader.load(`./html/Pig-Game-with-Dice/dice-${i + 1}.png`)
 );
 
+// ✅ Define Different Shape Sets
+const shapeSets = {
+    mainMenu: [
+        { type: "cube", label: "Pong", texture: tennisTexture, id: "pong" },
+        { type: "cube", label: "Unity Game", texture: unityTexture, id: "unity" },
+        { type: "cylinder", label: "Spotify", texture: diskTexture, id: "spotify" },
+        { type: "cube", label: "Pig Game", texture: diceTextures, id: "pigGame" },
+        { type: "text", label: "LinkedIn", geometry: "linkedIn", id: "linkedin" },
+        { type: "text", label: "Email", geometry: "email", id: "email" }
+    ],
+    projects: [
+        { type: "cube", label: "Game Dev", id: "game" },
+        { type: "sphere", label: "Web Dev", id: "web" },
+        { type: "cylinder", label: "AI Models", id: "ai" }
+    ],
+};
+
 
 // ✅ Create Cubes & Store Positions
 const cubes = [];
