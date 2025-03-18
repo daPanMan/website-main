@@ -136,6 +136,11 @@ main {
 .btn--new {
   top: 4rem;
 }
+
+.btn--rules {
+  top: 8rem;
+}
+
 .btn--roll {
   top: 39.3rem;
 }
