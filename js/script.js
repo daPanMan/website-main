@@ -1,10 +1,19 @@
+import { gamepad } from './geometry/gamepad.js'; 
+import { linkedInGeometry } from './geometry/linkedin.js'; 
+import { mainPageGeometry } from './geometry/mainpage.js';
+import { createCube, 
+    animateCubeMovement, 
+    onCubeClick, 
+    zoomCubeIn, 
+    returnCubeToFormation 
+} from './qbe.js';
 // ✅ Setup Scene, Camera, and Renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 
 const bigTitle = addBigTitle("This is\nJohn Pan");
-
+const isMobile = window.innerWidth < 568; 
 // ✅ Function to Adjust the Camera Based on Screen Size
 function adjustCamera() {
     if (window.innerWidth < 768) {
@@ -36,12 +45,15 @@ const extrudeSettings = {
 
 // ✅ Add OrbitControls
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.enableZoom = true;
-controls.zoomSpeed = 1.2; // Adjust zoom speed if needed
-controls.enableRotate = false;
-controls.enablePan = false;
+Object.assign(controls, {
+  enableDamping: true,
+  dampingFactor: 0.05,
+  enableZoom: true,
+  zoomSpeed: 1.2,
+  enableRotate: false,
+  enablePan: false
+});
+
 
 // ✅ Background Music Controls
 const bgm = document.getElementById("bgm");
@@ -176,18 +188,21 @@ volumeSlider.addEventListener("mouseup", () => {
 // ✅ Function to Create a Big Floating Title Above the Entire Cube Formation
 function addBigTitle(text) {
     // ✅ Create a new HTML element for the big title
-    const titleElement = document.createElement("div");
-    titleElement.className = "big-title";
-    titleElement.innerText = text;
+    const titleElement = Object.assign(document.createElement("div"), {
+        className: "big-title",
+        innerText: text
+    });
 
-    // ✅ Apply CSS styles
-    titleElement.style.position = "absolute";
-    titleElement.style.color = "white";
-    titleElement.style.fontSize = "132px";
-    titleElement.style.fontWeight = "bold";
-    titleElement.style.textShadow = "0px 0px 10px rgba(255,255,255,0.8)";
-    titleElement.style.pointerEvents = "none";
-    titleElement.style.whiteSpace = "nowrap";
+    Object.assign(titleElement.style, {
+        position: "absolute",
+        color: "white",
+        fontSize: "132px",
+        fontWeight: "bold",
+        textShadow: "0px 0px 10px rgba(255,255,255,0.8)",
+        pointerEvents: "none",
+        whiteSpace: "nowrap"
+    });
+
 
     // ✅ Create a CSS3DObject for the title
     const bigTitleObject = new THREE.CSS3DObject(titleElement);
@@ -201,6 +216,7 @@ function addBigTitle(text) {
 
     return bigTitleObject;
 }
+
 
 // ✅ Function to Reset the Iframe and Cube Scale
 function resetScale() {
@@ -267,12 +283,14 @@ const shapeSets = {
     ],
 };
 
+const cubeSpecs = [
+    { type: mainPageGeometry(), label: "My LinkedIn", url: linkedIn }
+]
+
 
 // ✅ Create Cubes & Store Positions
 const cubes = [];
 const originalPositions = [];
-const circleRadius = 6;
-const totalCubes = 6;
 let activeCube = null;
 
 // ✅ Add Lighting
@@ -360,194 +378,52 @@ function addFloatingTitle(cube, text) {
 }
 
 // ✅ Function to Create a Random Shape (Circle on Desktop, Vertical on Mobile)
-const fontLoader = new THREE.FontLoader();
-let linkedInGeometry = null;
-let emailGeometry = null;
+
+
+
 
 const wireframeMaterial = new THREE.MeshBasicMaterial({
     color: 0x000000, // Border color (black)
     wireframe: true // Show only edges
 });
 
-fontLoader.load('fonts/helvetiker_bold.typeface.json', function (font) {
-    console.log("✅ Font Loaded Successfully!", font); // Debugging
+let totalCubes = cubeSpecs.length;
 
-    linkedInGeometry = new THREE.TextGeometry("in", {
-        font: font,
-        size: 1.5,
-        height: 0.4,
-        curveSegments: 12,
-        bevelEnabled: true,
-        bevelThickness: 0.05,
-        bevelSize: 0.05,
-        bevelSegments: 5
-    });
-    emailGeometry = new THREE.TextGeometry("@", {
-        font: font,
-        size: 1.5,
-        height: 0.4,
-        curveSegments: 12,
-        bevelEnabled: true,
-        bevelThickness: 0.05,
-        bevelSize: 0.05,
-        bevelSegments: 5
-    });
+let cubesPerAxis = Math.ceil(Math.pow(totalCubes, 1/3));
+let cubeSize = 6; // Distance between cubes
+let offset = (cubesPerAxis - 1) / 2; // Centering offset
 
-    linkedInGeometry.computeBoundingBox();
-    linkedInGeometry.center();
-    emailGeometry.computeBoundingBox();
-    emailGeometry.center();
-    
-    console.log("✅ Text Geometry Created:", linkedInGeometry); // Debugging
-}, undefined, function (error) {
-    console.error("❌ Font Failed to Load:", error); // Debugging
-});
+// ✅ Generate Cubes in a Looser Circular Pattern
+for (let i = 0; i < cubeSpecs.length; i++) {
+    const cube = createCube(i, cubeSpecs[i]);
+    cubes.push(cube);
 
-console.log(linkedInGeometry);
+    // Calculate 3D grid indices
+    let xIndex = i % cubesPerAxis;
+    let yIndex = Math.floor(i / cubesPerAxis) % cubesPerAxis;
+    let zIndex = Math.floor(i / (cubesPerAxis * cubesPerAxis));
 
+    // Centered grid position
+    let baseX = (xIndex - offset) * cubeSize;
+    let baseY = (yIndex - offset) * cubeSize;
+    let baseZ = (zIndex - offset) * cubeSize;
 
-function createCube(index) {
-    if ((index === 5 && !linkedInGeometry) || (index === 2 && !emailGeometry)) {  
-        console.log("⏳ Waiting for LinkedIn text geometry to load...");
-        setTimeout(() => createCube(index), 200); // Retry in 100ms
-        return;
-    }
-    const isMobile = window.innerWidth < 568; 
-    let baseX, baseY, baseZ;
-    let cubeTitle = `Shape ${index + 1}`;
-
-    if (isMobile) {
-        // ✅ Automatically adjust to be taller than wide
-        let cols = Math.ceil(Math.sqrt(totalCubes / 1.5)); // Fewer columns
-        let rows = Math.ceil(totalCubes / cols); // More rows
-
-        let spacingX = 7; // Horizontal spacing
-        let spacingY = 8; // Vertical spacing (more to make it taller)
-
-        let col = index % cols; // Column index
-        let row = Math.floor(index / cols); // Row index
-
-        // ✅ Center the grid properly
-        baseX = (col - (cols - 1) / 2) * spacingX; 
-        baseY = (row - (rows - 1) / 2) * spacingY; 
-        baseZ = 0;
-    } else {
-        const angle = (index / totalCubes) * Math.PI * 2;
-        const spreadFactor = 1.5;
-        const baseRadius = circleRadius * spreadFactor;
-        baseX = Math.cos(angle) * baseRadius;
-        baseY = Math.sin(angle) * baseRadius;
-        baseZ = (Math.random() - 0.5) * 2;
-    }
-
-    let shape;
-    let material;
-  
-    // ✅ Other Shapes
-    const shapes = [
-        new THREE.BoxGeometry(1.5, 1.5, 1.5),
-        new THREE.SphereGeometry(0.9, 32, 32),
-        emailGeometry,
-        new THREE.BoxGeometry(1.6, 1.6, 1.6),
-        new THREE.CylinderGeometry(2, 2, 0.2, 64),
-        linkedInGeometry
-    ];
-    shape = shapes[index];
-
-    if (shape instanceof THREE.BoxGeometry && shape.parameters.height === 1.5) {
-        material = diceTextures.map(texture => new THREE.MeshBasicMaterial({ map: texture }));
-        defaultHTML = pigGame;
-        cubeTitle = `Pig Game with Dice`;
-    } else if (shape instanceof THREE.BoxGeometry && shape.parameters.height === 1.6) {
-        material = new Array(6).fill(new THREE.MeshBasicMaterial({ map: unityTexture }));
-        defaultHTML = unityGame;
-        cubeTitle = `My 3D Mini Game`;
-    } else if (shape instanceof THREE.CylinderGeometry && shape.parameters.height <= 0.2) {
-        material = new THREE.MeshStandardMaterial({
-            map: diskTexture, 
-            side: THREE.DoubleSide
-        });
-        defaultHTML = spotify;
-        cubeTitle = `My Tracks`;
-    } else if (shape === linkedInGeometry) {
-        material = new THREE.MeshStandardMaterial({ 
-            color: 0x946f6a,
-            metalness: 0.2,   // Lower metalness to reduce shine
-            clearcoat: 0.1 
-         }); 
-        defaultHTML = linkedIn;
-        cubeTitle = `My LinkedIn`;
-    } else if (shape === emailGeometry){
-        // ✅ Define different materials for different sides
-        material = new THREE.MeshStandardMaterial({
-            color: 0x1C9084,
-            metalness: 0.2,   // Lower metalness to reduce shine
-            clearcoat: 0.1 
-        });
-        
-        defaultHTML = email; // Special case
-        cubeTitle = `Contact Me 📩`;
-    } else if (shape instanceof THREE.SphereGeometry){
-        material = new THREE.MeshBasicMaterial({
-            map: tennisTexture
-        });
-        cubeTitle = `PONG`;
-        defaultHTML = pong;
-    }
-
-    const cube = new THREE.Mesh(shape, material);
-    cube.userData.url = defaultHTML;
-    
-    const randomOffsetX = (Math.random() - 0.5) * (isMobile ? 1 : 3);
-    const randomOffsetY = (Math.random() - 0.5) * (isMobile ? 1 : 3);
+    // Optional: Slight random offset for natural look
+    const randomOffsetX = (Math.random() - 0.5) * 1;
+    const randomOffsetY = (Math.random() - 0.5) * 1;
     const randomOffsetZ = (Math.random() - 0.5) * 1;
 
     cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ + randomOffsetZ);
-    cube.geometry.computeBoundingBox();
     cube.frustumCulled = false;
-
     cube.rotation.set(0, 0, 0);
+
     scene.add(cube);
-    cubes.push(cube);
+
     originalPositions.push({ x: baseX, y: baseY, z: baseZ });
 
-    addFloatingTitle(cube, cubeTitle);
+    // Optionally add title and animate
+    addFloatingTitle(cube, cube.userData.title);
     animateCubeMovement(cube);
-}
-
-
-
-// ✅ Function to Make Cubes Wander Randomly
-function animateCubeMovement(cube) {
-    const randomTime = 2 + Math.random() * 3; // Vary speed between 2-5 seconds
-
-    gsap.to(cube.position, {
-        x: cube.position.x + (Math.random() - 0.5) * 1.5, 
-        y: cube.position.y + (Math.random() - 0.5) * 1.5,
-        z: cube.position.z + (Math.random() - 0.5) * 0.5,
-        duration: randomTime,
-        ease: "power1.inOut",
-        yoyo: true,
-        repeat: -1 
-    });
-    
-    // ✅ Rotate freely in all directions for other shapes
-    gsap.to(cube.rotation, {
-        x: Math.random() * Math.PI * 2,
-        y: Math.random() * Math.PI * 2,
-        z: Math.random() * Math.PI * 2,
-        duration: randomTime * 1.5,
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: -1
-    });
-
-}
-
-
-// ✅ Generate Cubes in a Looser Circular Pattern
-for (let i = 0; i < totalCubes; i++) {
-    createCube(i);
 }
 adjustCamera();
 
@@ -567,8 +443,6 @@ window.addEventListener('resize', () => {
 });
 
 
-
-
 // ✅ Raycaster for Click Detection
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -577,7 +451,7 @@ const mouse = new THREE.Vector2();
 window.addEventListener("click", onCubeClick);
 window.addEventListener("touchstart", (event) => {
     event.preventDefault();
-    onCubeClick(event);
+    onCubeClick(event, isInterrupted);
 }, { passive: false });
 
 function getMouseCoordinates(event) {
@@ -595,86 +469,7 @@ function getMouseCoordinates(event) {
     }
 }
 
-function onCubeClick(event) {
-    isInterrupted = true;
-    const { x, y } = getMouseCoordinates(event);
-    mouse.x = x;
-    mouse.y = y;
-    raycaster.setFromCamera(mouse, camera);
 
-    const intersects = raycaster.intersectObjects(cubes, true);
-    if (intersects.length > 0) {
-        const clickedCube = intersects[0].object;
-        if (clickedCube === activeCube) {
-            playSound(zoomOutSound);
-            returnCubeToFormation(clickedCube);
-        } else {
-            playSound(zoomInSound);
-            gsap.to(camera.position, { x: 0, y: 0, z: 9, duration: 1 });
-            zoomCubeIn(clickedCube);
-        }
-    }
-    isInterrupted = false;
-}
-
-function zoomCubeIn(cube) {
-    if (activeCube === cube) return;
-    if (activeCube) returnCubeToFormation(activeCube);
-
-    gsap.killTweensOf(cube.position);
-    gsap.killTweensOf(cube.rotation);
-    
-    gsap.to(cube.position, { x: 0, y: 0, z: 0, duration: 1, ease: "back.out(1.7)" });
-    gsap.to(cube.scale, { x: 2.2, y: 2.2, z: 2.2, duration: 1, ease: "back.out(1.7)" });
-
-    // ✅ Increase the text size when zoomed in
-    titleObjects.forEach(title => {
-        if (title.userData.cube === cube) {
-            gsap.to(title.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 0.5 });
-        }
-    });
-
-    iframeElement.src = cube.userData.url;
-    setTimeout(() => {
-        cssObject.visible = true;
-        gsap.to(iframeElement, { opacity: 0.8, duration: 0.5 });
-        showCloseButton();
-    }, 500);
-
-    activeCube = cube;
-}
-
-
-
-function returnCubeToFormation(cube) {
-    const index = cubes.indexOf(cube);
-    if (index !== -1) {
-        // ✅ Move cube back to its original position
-        gsap.to(cube.position, { 
-            x: originalPositions[index].x, 
-            y: originalPositions[index].y, 
-            z: originalPositions[index].z, 
-            duration: 1, 
-            ease: "back.out(1.7)" 
-        });
-
-        noShowCloseButton();
-
-        gsap.to(cube.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "back.out(1.7)" });
-
-        // ✅ Fade out iframe before hiding it
-        gsap.to(iframeElement, { opacity: 0, duration: 0.5, ease: "power2.in", onComplete: () => {
-            cssObject.visible = false; // ✅ Hide iframe after fade-out
-        }});
-        gsap.to(bgm, { volume: 0.45, duration: 1 }); // Volume fades to 0.2 over 3 seconds
-        gsap.to(camera.position, { x: 0, y: 0, z: 16, duration: 1 });
-
-        // ✅ Restart the wandering animation when cube returns
-        setTimeout(() => animateCubeMovement(cube), 1000); // Delay to prevent instant movement
-    }
-
-    activeCube = null;
-}
 
 
 
@@ -721,7 +516,6 @@ window.addEventListener("touchstart", (event) => {
         returnCubeToFormation(activeCube);
     }
 }, { passive: false });
-
 
 
 window.addEventListener("wheel", (event) => {
@@ -903,11 +697,15 @@ function animate() {
         bigTitle.position.set(0, 0, -5); // Adjust height
     }
 
-    // ✅ Ensure titles always face the camera
+    // ✅ Ensure titles move with their cubes and face the camera
     titleObjects.forEach(title => {
-        title.position.copy(title.userData.cube.position); // Keep above the cube
-        title.position.y += 2; // Keep it floating
-        title.lookAt(camera.position); // Ensure it faces the camera
+        const cube = title.userData.cube; // Get the associated cube
+        if (cube) {
+            // Synchronize title position with the cube
+            title.position.copy(cube.position);
+            title.position.y += 2; // Keep it floating above the cube
+            title.lookAt(camera.position); // Ensure it faces the camera
+        }
     });
 
     starField.rotation.y += 0.0005;
