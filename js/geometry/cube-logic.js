@@ -61,15 +61,31 @@ export function addFloatingTitle(cube, text) {
     titleObjects.push(titleObject);
 }
 
-// Attach cube click handler
-// You must define or import onCubeClick for this to work
-// Example stub:
-function onCubeClick(event) {
-    // TODO: Implement cube click logic or import from another module
-    console.log('Cube clicked!', event);
+// Raycasting click handler — only fires when a 3D cube is actually hit
+function getPointer(event) {
+    const x = event.touches ? event.touches[0].clientX : event.clientX;
+    const y = event.touches ? event.touches[0].clientY : event.clientY;
+    mouse.x = (x / window.innerWidth) * 2 - 1;
+    mouse.y = -(y / window.innerHeight) * 2 + 1;
 }
-//window.addEventListener('click', onCubeClick);
-// window.addEventListener('touchstart', (event) => {
-//     event.preventDefault();
-//     onCubeClick(event);
-// }, { passive: false });
+
+function onCubeClick(event) {
+    // Don't process clicks while the intro overlay is visible
+    const introPage = document.getElementById('intro-page');
+    if (introPage && introPage.style.display !== 'none') return;
+
+    getPointer(event);
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(cubes);
+    if (intersects.length > 0) {
+        const clickedCube = intersects[0].object;
+        console.log('Cube clicked!', clickedCube.userData);
+        // TODO: Add cube interaction logic (zoom, open iframe, etc.)
+    }
+}
+
+window.addEventListener('click', onCubeClick);
+window.addEventListener('touchstart', (event) => {
+    event.preventDefault();
+    onCubeClick(event);
+}, { passive: false });

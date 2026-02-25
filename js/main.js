@@ -7,6 +7,7 @@ import { animate } from './core/animation-loop.js';
 import { gamepad } from './geometry/gamepad.js';
 import { linkedInGeometry } from './geometry/linkedin.js';
 import { mainPageGeometry } from './geometry/mainpage.js';
+import './ui-intro.js';
 
 // Setup big title
 const bigTitle = addBigTitle("This is\nJohn Pan");
@@ -23,16 +24,5 @@ setupCubes(cubeSpecs);
 
 // Start animation loop
 animate();
-
-// Basic cube click handler
-function onCubeClick(event) {
-  console.log('Cube clicked!', event);
-}
-window.onCubeClick = onCubeClick;
-window.addEventListener('click', onCubeClick);
-window.addEventListener('touchstart', (event) => {
-    event.preventDefault();
-    onCubeClick(event);
-}, { passive: false });
 
 // Additional UI, event, and iframe logic can be imported and initialized here

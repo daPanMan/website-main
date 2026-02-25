@@ -1,5 +1,5 @@
 // Intro overlay, enter button, transition to main 3D page
-import { bgm } from './audio-controls.js';
+import { bgm } from './features/audio-controls.js';
 
 export function init3DWorld() {
     const introPage = document.getElementById('intro-page');
@@ -10,13 +10,19 @@ export function init3DWorld() {
     setTimeout(() => {
         bgm.volume = 0.45;
         threeCanvas.style.display = 'block';
-        document.querySelector('.three-css3d').style.display = 'block';
+        const css3d = document.querySelector('.three-css3d');
+        if (css3d) css3d.style.display = 'block';
         gsap.to(threeCanvas, { opacity: 1, duration: 10, ease: 'power2.out' });
     }, 500);
 }
 
 
-document.getElementById('enter-button').addEventListener('click', () => {
+// Block all clicks on the intro overlay from reaching the window handler
+document.getElementById('intro-page').addEventListener('click', (e) => e.stopPropagation());
+document.getElementById('intro-page').addEventListener('touchstart', (e) => e.stopPropagation(), { passive: false });
+
+document.getElementById('enter-button').addEventListener('click', (event) => {
+    event.stopPropagation();
     bgm.play();
     init3DWorld();
 });
