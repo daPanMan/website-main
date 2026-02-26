@@ -1,5 +1,6 @@
 // Intro overlay, enter button, transition to main 3D page
 import { bgm } from './features/audio-controls.js';
+import { showChatbox } from './features/chatbox.js';
 
 export function init3DWorld() {
     const introPage = document.getElementById('intro-page');
@@ -13,6 +14,7 @@ export function init3DWorld() {
         const css3d = document.querySelector('.three-css3d');
         if (css3d) css3d.style.display = 'block';
         gsap.to(threeCanvas, { opacity: 1, duration: 10, ease: 'power2.out' });
+        showChatbox();
     }, 500);
 }
 

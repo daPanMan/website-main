@@ -1,67 +1,90 @@
-// Cube creation, positioning, floating titles, click/touch handlers, raycasting
+// Geometry creation, positioning, floating titles, click/touch handlers, raycasting
 import { scene, camera, renderer, addBigTitle } from '../core/scene-setup.js';
 import { playSound, zoomInSound, zoomOutSound } from '../features/audio-controls.js';
 
 const raycaster = new window.THREE.Raycaster();
 const mouse = new window.THREE.Vector2();
 
-export const cubes = [];
+export const cubes = [];          // top-level objects (Group or Mesh)
+export const clickTargets = [];   // all meshes (for raycasting into groups)
 export const originalPositions = [];
 export let activeCube = null;
 export const titleObjects = [];
 
+// Predefined positions so objects are nicely spread around the title
+const POSITIONS = [
+    { x: -5, y:  0, z: 0 },   // left
+    { x:  5, y:  0, z: 0 },   // right
+    { x:  0, y: -4, z: 0 },   // bottom center
+    { x: -4, y:  3, z: 0 },   // top-left
+    { x:  4, y:  3, z: 0 },   // top-right
+    { x:  0, y:  4, z: 0 },   // top center
+];
+
 export function setupCubes(cubeSpecs) {
-    let totalCubes = cubeSpecs.length;
-    let cubesPerAxis = Math.ceil(Math.pow(totalCubes, 1/3));
-    let cubeSize = 6;
-    let offset = (cubesPerAxis - 1) / 2;
     for (let i = 0; i < cubeSpecs.length; i++) {
-        // Create a real THREE.Mesh for each cube
-        const geometry = new window.THREE.BoxGeometry(1, 1, 1);
-        const material = new window.THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new window.THREE.Mesh(geometry, material);
-        cube.userData = cubeSpecs[i].userData || {};
-        cubes.push(cube);
-        let xIndex = i % cubesPerAxis;
-        let yIndex = Math.floor(i / cubesPerAxis) % cubesPerAxis;
-        let zIndex = Math.floor(i / (cubesPerAxis * cubesPerAxis));
-        let baseX = (xIndex - offset) * cubeSize;
-        let baseY = (yIndex - offset) * cubeSize;
-        let baseZ = (zIndex - offset) * cubeSize;
-        const randomOffsetX = (Math.random() - 0.5) * 1;
-        const randomOffsetY = (Math.random() - 0.5) * 1;
-        const randomOffsetZ = (Math.random() - 0.5) * 1;
-        cube.position.set(baseX + randomOffsetX, baseY + randomOffsetY, baseZ + randomOffsetZ);
-        cube.frustumCulled = false;
-        cube.rotation.set(0, 0, 0);
-        scene.add(cube);
-        originalPositions.push({ x: baseX, y: baseY, z: baseZ });
-        addFloatingTitle && addFloatingTitle(cube, cube.userData.title);
-        // animateCubeMovement && animateCubeMovement(cube);
+        const spec = cubeSpecs[i];
+        // Use the custom geometry/group returned by the geometry factory
+        const obj = spec.type;
+
+        // Store userData on the top-level object
+        obj.userData = {
+            ...(spec.userData || {}),
+            label: spec.label,
+            url: spec.url,
+            index: i
+        };
+
+        // Position from predefined layout
+        const pos = POSITIONS[i % POSITIONS.length];
+        obj.position.set(pos.x, pos.y, pos.z);
+        obj.frustumCulled = false;
+
+        scene.add(obj);
+        cubes.push(obj);
+        originalPositions.push({ x: pos.x, y: pos.y, z: pos.z });
+
+        // Collect all child meshes for raycasting (works for both Mesh and Group)
+        if (obj.isMesh) {
+            clickTargets.push(obj);
+        } else {
+            obj.traverse(child => {
+                if (child.isMesh) {
+                    // Propagate userData so we can find the parent on click
+                    child.userData._parentIndex = i;
+                    clickTargets.push(child);
+                }
+            });
+        }
+
+        addFloatingTitle(obj, spec.userData?.title || spec.label);
     }
 }
 
-export function addFloatingTitle(cube, text) {
+export function addFloatingTitle(obj, text) {
+    if (!text) return;
     const titleElement = document.createElement('div');
     titleElement.className = 'cube-title';
     titleElement.innerText = text;
-    titleElement.style.position = 'absolute';
-    titleElement.style.color = 'white';
-    titleElement.style.fontSize = '60px';
-    titleElement.style.fontWeight = 'bold';
-    titleElement.style.textShadow = '0px 0px 5px rgba(255,255,255,0.8)';
-    titleElement.style.pointerEvents = 'none';
-    titleElement.style.whiteSpace = 'nowrap';
+    Object.assign(titleElement.style, {
+        position: 'absolute',
+        color: 'white',
+        fontSize: '60px',
+        fontWeight: 'bold',
+        textShadow: '0px 0px 5px rgba(255,255,255,0.8)',
+        pointerEvents: 'none',
+        whiteSpace: 'nowrap'
+    });
     const titleObject = new window.THREE.CSS3DObject(titleElement);
     titleObject.scale.set(0.005, 0.005, 0.005);
-    titleObject.position.copy(cube.position);
+    titleObject.position.copy(obj.position);
     titleObject.position.y += 2;
-    titleObject.userData.cube = cube;
+    titleObject.userData.cube = obj;
     scene.add(titleObject);
     titleObjects.push(titleObject);
 }
 
-// Raycasting click handler — only fires when a 3D cube is actually hit
+// Raycasting click handler — only fires when a 3D geometry is actually hit
 function getPointer(event) {
     const x = event.touches ? event.touches[0].clientX : event.clientX;
     const y = event.touches ? event.touches[0].clientY : event.clientY;
@@ -70,17 +93,19 @@ function getPointer(event) {
 }
 
 function onCubeClick(event) {
-    // Don't process clicks while the intro overlay is visible
     const introPage = document.getElementById('intro-page');
     if (introPage && introPage.style.display !== 'none') return;
 
     getPointer(event);
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(cubes);
+    const intersects = raycaster.intersectObjects(clickTargets, false);
     if (intersects.length > 0) {
-        const clickedCube = intersects[0].object;
-        console.log('Cube clicked!', clickedCube.userData);
-        // TODO: Add cube interaction logic (zoom, open iframe, etc.)
+        const hit = intersects[0].object;
+        // Find the top-level cube object
+        const parentIndex = hit.userData._parentIndex;
+        const clickedObj = parentIndex !== undefined ? cubes[parentIndex] : hit;
+        console.log('Clicked:', clickedObj.userData);
+        // TODO: Add interaction logic (zoom, open iframe, etc.)
     }
 }
 

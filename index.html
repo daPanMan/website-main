@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="/favicon_io/favicon.ico" type="image/x-icon">
 </head>
-<audio id="bgm" loop autoplay>
+<audio id="bgm" loop>
     <source src="audio/website.mp3" type="audio/mpeg">
 </audio>
 <!-- ✅ Fullscreen Intro Page -->
@@ -22,6 +22,23 @@
     <button id="mute-button" style="background: none; display: none; border: none; top: 100%; color: white; font-size: 30px; margin-top: 17px; margin-left: 9px; cursor: pointer;">🔊</button>
 </div>
 <div id="reset-scale-button" style="position: fixed; top: 20px; right: 20px; z-index: 200; cursor: pointer; background: rgba(0, 0, 0, 0.8); color: white; padding: 10px 15px; border-radius: 5px; font-size: 14px; user-select: none; display: none;">Close Page</div>
+
+<!-- AI Chatbox -->
+<div id="chatbox" class="chatbox-collapsed">
+    <div id="chatbox-header">
+        <span id="chatbox-title">💬 Chat with John</span>
+        <button id="chatbox-toggle">−</button>
+    </div>
+    <div id="chatbox-body">
+        <div id="chatbox-messages">
+            <div class="chat-msg bot">Hey! I'm John. Ask me anything about myself or this site!</div>
+        </div>
+        <div id="chatbox-input-area">
+            <input type="text" id="chatbox-input" placeholder="Type a message..." autocomplete="off">
+            <button id="chatbox-send">➤</button>
+        </div>
+    </div>
+</div>
 <body>
     <canvas id="three-canvas"></canvas>
     <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/build/three.min.js"></script>

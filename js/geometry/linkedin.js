@@ -1,30 +1,20 @@
+// geometry/linkedin.js — LinkedIn logo cube with texture
 export function linkedInGeometry() {
-    const textureLoader = new THREE.TextureLoader();
-
-    // Load the LinkedIn texture
+    const textureLoader = new window.THREE.TextureLoader();
     const linkedinTexture = textureLoader.load('textures/linkedin.png');
 
-    // Create a simple cube geometry (no rounded corners for now)
-    const geometry = new THREE.BoxGeometry(1.5, 1.5, 0.2);
+    const geometry = new window.THREE.BoxGeometry(1.5, 1.5, 0.3);
 
- 
-
-    // Update the geometry to reflect the changes
-    geometry.attributes.position.needsUpdate = true;
-    geometry.computeVertexNormals(); // Recalculate normals for proper lighting
-
-    // Create materials for the cube
+    const sideMaterial = new window.THREE.MeshStandardMaterial({ color: 0x0077b5 }); // LinkedIn blue
     const materials = [
-        new THREE.MeshStandardMaterial({ color: 0xff0000 }), // Right side (red)
-        new THREE.MeshStandardMaterial({ color: 0x00ff00 }), // Left side (green)
-        new THREE.MeshStandardMaterial({ color: 0x0000ff }), // Top side (blue)
-        new THREE.MeshStandardMaterial({ color: 0xffff00 }), // Bottom side (yellow)
-        new THREE.MeshStandardMaterial({ map: linkedinTexture }), // Front side (LinkedIn texture)
-        new THREE.MeshStandardMaterial({ map: linkedinTexture })  // Back side (LinkedIn texture)
+        sideMaterial, // right
+        sideMaterial, // left
+        sideMaterial, // top
+        sideMaterial, // bottom
+        new window.THREE.MeshStandardMaterial({ map: linkedinTexture }), // front
+        new window.THREE.MeshStandardMaterial({ map: linkedinTexture })  // back
     ];
 
-    // Create the cube with materials
-    const cube = new THREE.Mesh(geometry, materials);
-
+    const cube = new window.THREE.Mesh(geometry, materials);
     return cube;
 }

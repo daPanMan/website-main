@@ -7,18 +7,19 @@ import { animate } from './core/animation-loop.js';
 import { gamepad } from './geometry/gamepad.js';
 import { linkedInGeometry } from './geometry/linkedin.js';
 import { mainPageGeometry } from './geometry/mainpage.js';
+import { emailGeometry } from './geometry/email.js';
 import './ui-intro.js';
 
 // Setup big title
 const bigTitle = addBigTitle("This is\nJohn Pan");
 window.bigTitle = bigTitle;
 
-// Setup cubes (example specs)
+// Setup interactive 3D objects
 const cubeSpecs = [
-    { type: mainPageGeometry(), label: "My LinkedIn", url: './html/linkedIn.html', userData: { title: "LinkedIn" } },
-    { type: linkedInGeometry(), label: "Email", url: './html/email.html', userData: { title: "Email" } },
-    { type: gamepad(), label: "Gamepad", url: './html/pong.html', userData: { title: "Pong" } }
-    // Add more as needed
+    { type: mainPageGeometry(), label: "About Me", url: './about.html', userData: { title: "About Me" } },
+    { type: linkedInGeometry(), label: "LinkedIn", url: './html/linkedIn.html', userData: { title: "LinkedIn" } },
+    { type: emailGeometry(), label: "Email", url: './html/email.html', userData: { title: "Email" } },
+    { type: gamepad(), label: "Games", url: './html/pong.html', userData: { title: "Games" } }
 ];
 setupCubes(cubeSpecs);
 
