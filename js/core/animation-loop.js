@@ -1,6 +1,6 @@
 // Main animation loop, star updates, object rotation, light movement
 import { scene, camera, renderer, controls } from '../core/scene-setup.js';
-import { cubes, clickTargets, titleObjects } from '../geometry/cube-logic.js';
+import { cubes, clickTargets, titleObjects, subObjects, subTitles } from '../geometry/cube-logic.js';
 import { starField, stars } from '../geometry/background-stars.js';
 
 // --- Hover rotation tracking ---
@@ -103,6 +103,20 @@ export function animate() {
     const time = Date.now() * 0.001;
     pointLight.position.x = Math.sin(time) * 10;
     pointLight.position.z = Math.cos(time) * 10;
+
+    // Sub-geometry rotation and title tracking
+    subObjects.forEach(obj => {
+        obj.rotation.x += 0.004;
+        obj.rotation.y += 0.006;
+    });
+    subTitles.forEach(title => {
+        const obj = title.userData.cube;
+        if (obj) {
+            title.position.copy(obj.position);
+            title.position.y += 1.8;
+            title.lookAt(camera.position);
+        }
+    });
 
     controls.update();
     renderer.render(scene, camera);

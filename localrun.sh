@@ -8,6 +8,10 @@ echo "Cache cleaned."
 # Open default browser after a short delay to let the server start
 (sleep 2 && cmd.exe /c start http://localhost:8000 2>/dev/null) &
 
+echo ""
+echo "Server running at: http://localhost:8000"
+echo ""
+
 # Start Python HTTP server with caching disabled
 python3 -c "
 import http.server, functools
