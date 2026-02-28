@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>This is John Pan</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="/favicon_io/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" href="/assets/favicon/favicon.ico" type="image/x-icon">
 </head>
+<body>
 <audio id="bgm" loop>
-    <source src="audio/website.mp3" type="audio/mpeg">
+    <source src="assets/audio/website.mp3" type="audio/mpeg">
 </audio>
 <!-- ✅ Fullscreen Intro Page -->
 <div id="intro-page" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; display: flex; justify-content: center; align-items: center; z-index: 300;">
-    <button id="enter-button" style="background: rgba(255, 255, 255, 0.9); border: none; padding: 20px 40px; font-size: 24px; font-weight: bold; cursor: pointer; border-radius: 10px; transition: transform 0.3s ease, opacity 0.3s ease;">Click Me and You'll Find Out Who I Am!!!</button>
+    <button id="enter-button" style="background: rgba(255, 255, 255, 0.9); border: none; padding: 20px 40px; font-size: 24px; font-weight: bold; cursor: pointer; border-radius: 10px; transition: transform 0.3s ease, opacity 0.3s ease; max-width: 85vw; text-align: center; line-height: 1.4; -webkit-tap-highlight-color: transparent;">Click Me and You'll Find Out Who I Am!!!</button>
 </div>
 <div id="volume-control" style="position: fixed; top: 20px; left: 20px; z-index: 100; cursor: pointer;">
     <span id="music-icon" style="font-size: 44px; filter: brightness(5); user-select: none; display: inline-block;">🎵</span>
@@ -39,7 +40,7 @@
         </div>
     </div>
 </div>
-<body>
+
     <canvas id="three-canvas"></canvas>
     <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/controls/OrbitControls.js"></script>
@@ -48,7 +49,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/loaders/FontLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/geometries/TextGeometry.js"></script>
     <!-- Use the new main.js entry point -->
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="src/main.js"></script>
     <!-- Hidden Display Box for Clicked Cube -->
     <div id="popup" hidden>
         <span id="close-popup">X</span>
