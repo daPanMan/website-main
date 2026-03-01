@@ -56,8 +56,8 @@ website-main/
 │   ├── features/
 │   │   ├── audio-controls.js       # Volume slider, mute toggle, SFX
 │   │   ├── audio.js                # Audio sound map
-│   │   ├── chatbox.js              # AI chat UI
-│   │   ├── chatbot-config.js       # Chatbot personality & responses
+│   │   ├── chatbox.js              # AI chatbox UI & Groq API integration
+│   │   ├── chatbot-config.js       # Chatbot identity, personality & API config
 │   │   └── iframe-display.js       # In-scene iframe overlay (CSS3DObject)
 │   └── geometry/
 │       ├── cube-logic.js           # Core: positions, expand/collapse, raycasting, drag detection
@@ -86,6 +86,7 @@ website-main/
 │   │   ├── index.html
 │   │   ├── script.js
 │   │   ├── style.css
+│   │   ├── pig-game-flowchart.png
 │   │   └── dice-[1-6].png
 │   └── unity/                      # Unity WebGL game
 │       ├── index.html
@@ -96,6 +97,48 @@ website-main/
     ├── localrun.sh                 # Local HTTP server
     └── update.sh                   # Git push helper
 ```
+
+---
+
+## AI Chatbot
+
+The site features a fully AI-driven chatbot that lets visitors have real conversations with a digital version of you.
+
+### Architecture
+
+| Layer | File | Role |
+|-------|------|------|
+| Config | `src/features/chatbot-config.js` | Identity, personality, bio data, API settings, system prompt |
+| Runtime | `src/features/chatbox.js` | UI, conversation history, Groq API calls, rate limiting |
+| Styles | `assets/css/style.css` | Chatbox layout, AI vs non-AI bubble colors |
+
+### Provider — Groq (free tier)
+
+- **Model:** `llama-3.1-8b-instant` via Groq's OpenAI-compatible REST API
+- **Endpoint:** `https://api.groq.com/openai/v1/chat/completions`
+- **Free-tier limits:** 30 requests/min, 15 000 tokens/min
+- **Auth:** Bearer token in `Authorization` header
+
+### How it works
+
+1. User sends a message → added to `conversationHistory` as `{ role: 'user', content }`.
+2. A messages array is built: system prompt + last 20 conversation turns.
+3. `fetch()` POST to Groq → response streamed back as a chat completion.
+4. Assistant reply appended to history; history trimmed at 30 messages.
+5. Reply displayed in a green-tinted bubble (`.chat-msg.bot.ai`); error fallbacks use the default blue bubble.
+
+### Rate limiting
+
+- **Client-side:** 1.5 s minimum between API calls (`MIN_API_INTERVAL`).
+- **429 handling:** If Groq returns 429, the user sees a friendly "too many messages" message and the failed turn is rolled back from history.
+
+### Goodbye auto-close
+
+When the user sends a goodbye-like message (`bye`, `cya`, `peace`, `gtg`, `ttyl`, `goodnight`, etc.), the chatbot responds normally and then auto-collapses the chatbox after a 2-second delay.
+
+### Customization
+
+All personality, bio facts, and API settings live in `chatbot-config.js`. To swap providers, change `api.provider`, `api.model`, `api.apiKey`, and `api.endpoint` — the runtime code uses the standard OpenAI chat completions format.
 
 ---
 

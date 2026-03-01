@@ -71,6 +71,14 @@ muteButton.addEventListener('click', (e) => {
     toggleMute();
 });
 
+// --- Flag to block 3D scene interaction while dragging volume ---
+export let volumeDragging = false;
+
+volumeSlider.addEventListener('mousedown', () => { volumeDragging = true; });
+volumeSlider.addEventListener('touchstart', () => { volumeDragging = true; }, { passive: true });
+window.addEventListener('mouseup', () => { setTimeout(() => { volumeDragging = false; }, 50); });
+window.addEventListener('touchend', () => { setTimeout(() => { volumeDragging = false; }, 50); });
+
 volumeSlider.addEventListener('input', updateVolume);
 volumeSlider.addEventListener('touchmove', (e) => {
     e.stopPropagation();

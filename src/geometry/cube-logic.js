@@ -1,7 +1,7 @@
 // Geometry creation, positioning, floating titles, click/touch handlers, raycasting
 // Supports "sub-geometries" that expand when a parent object is clicked
 import { scene, camera, renderer, addBigTitle } from '../core/scene-setup.js';
-import { playSound, zoomInSound, zoomOutSound } from '../features/audio-controls.js';
+import { playSound, zoomInSound, zoomOutSound, volumeDragging } from '../features/audio-controls.js';
 import { showIframe, hideIframe, isIframeVisible } from '../features/iframe-display.js';
 
 let savedScrollY = 0; // saved mobile scroll position before zoom/expand
@@ -134,15 +134,15 @@ function getSubPositions() {
             { x: 0, y: startY - spacing * 4,  z: 0 },
         ];
     }
+    // Desktop: triangular formation (1 top, 2 bottom — or pyramid for more)
     const sx = 4;  // horizontal spread
-    const sy = 2;  // vertical spread
-    const ty = 3.5; // top center y
+    const sy = 2.5; // vertical spread
     return [
-        { x: -sx, y:  sy, z: 0 },   // top-left
-        { x:  sx, y:  sy, z: 0 },   // top-right
+        { x:  0,  y:  sy, z: 0 },   // top center
         { x: -sx, y: -sy, z: 0 },   // bottom-left
         { x:  sx, y: -sy, z: 0 },   // bottom-right
-        { x:  0,  y:  ty, z: 0 },   // top center
+        { x: -sx, y:  sy, z: 0 },   // extra: top-left
+        { x:  sx, y:  sy, z: 0 },   // extra: top-right
     ];
 }
 
@@ -185,20 +185,20 @@ function expandParent(parentObj) {
         gsap.to(title.position, { z: -15, duration: 0.8 });
     });
 
-    // 3. Move the clicked object to top position (replacing the title on mobile)
+    // 3. Move the clicked object to center, behind the sub-items so it doesn't block them
     if (window.innerWidth < 768) {
         // Mobile: move to top where title is, hide the big title
         if (window.bigTitle) {
             gsap.to(window.bigTitle.element.style, { opacity: 0, duration: 0.4 });
         }
-        gsap.to(parentObj.position, { x: 0, y: 7, z: 2, duration: 0.8, ease: 'power2.out' });
+        gsap.to(parentObj.position, { x: 0, y: 7, z: -2, duration: 0.8, ease: 'power2.out' });
     } else {
-        gsap.to(parentObj.position, { x: 0, y: 0, z: 2, duration: 0.8, ease: 'power2.out' });
+        gsap.to(parentObj.position, { x: 0, y: -1.5, z: 2, duration: 0.8, ease: 'power2.out' });
     }
-    // Move its title above center
+    // Move its title above center, then hide it once subs appear
     const parentTitle = titleObjects.find(t => t.userData.cube === parentObj);
     if (parentTitle) {
-        gsap.to(parentTitle.element.style, { opacity: 1, duration: 0.5 });
+        gsap.to(parentTitle.element.style, { opacity: 0, duration: 0.4, delay: 0.5 });
     }
 
     // 4. After centering, spawn sub-geometries from behind the parent
@@ -631,6 +631,9 @@ function isDrag(event) {
 function onCubeClick(event) {
     const introPage = document.getElementById('intro-page');
     if (introPage && introPage.style.display !== 'none') return;
+
+    // Ignore if volume slider was being dragged
+    if (volumeDragging) return;
 
     // Ignore drags — only respond to short, stationary clicks
     if (isDrag(event)) return;

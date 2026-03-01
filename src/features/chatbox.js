@@ -1,4 +1,4 @@
-// AI Chatbox - driven by chatbot-config.js
+// AI Chatbox - fully AI-driven via Groq API
 import CONFIG from './chatbot-config.js';
 
 const chatbox = document.getElementById('chatbox');
@@ -19,63 +19,96 @@ messages.querySelector('.chat-msg.bot').textContent = CONFIG.greeting;
 let collapsed = CONFIG.ui.collapsedByDefault;
 if (collapsed) chatbox.classList.add('chatbox-collapsed');
 
-function addMessage(text, sender) {
+function addMessage(text, sender, isAI = false) {
     const div = document.createElement('div');
-    div.className = `chat-msg ${sender}`;
+    div.className = `chat-msg ${sender}${isAI ? ' ai' : ''}`;
     div.textContent = text;
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
 }
 
-function getPlaceholderResponse() {
-    const pool = CONFIG.placeholderResponses;
-    return pool[Math.floor(Math.random() * pool.length)];
-}
+// Conversation history for AI context
+const conversationHistory = [];
+
+// Rate limiting
+let lastApiCall = 0;
+const MIN_API_INTERVAL = 1500; // 1.5s between calls (Groq allows 30/min)
 
 async function getAIResponse(userText) {
     if (!CONFIG.api.enabled || !CONFIG.api.apiKey) {
-        return getPlaceholderResponse();
+        return { text: "Hmm, something's off with my setup. Try again later! 😅", fromAI: false };
+    }
+
+    // Client-side rate limiting
+    const now = Date.now();
+    const timeSinceLastCall = now - lastApiCall;
+    if (timeSinceLastCall < MIN_API_INTERVAL) {
+        await new Promise(r => setTimeout(r, MIN_API_INTERVAL - timeSinceLastCall));
+    }
+    lastApiCall = Date.now();
+
+    // Add user message to history
+    conversationHistory.push({ role: 'user', content: userText });
+
+    // Build messages array with system prompt + history
+    const apiMessages = [
+        { role: 'system', content: CONFIG.api.systemPrompt }
+    ];
+    // Keep last 20 messages for context
+    const recentHistory = conversationHistory.slice(-20);
+    for (const msg of recentHistory) {
+        apiMessages.push({ role: msg.role, content: msg.content });
     }
 
     try {
-        if (CONFIG.api.provider === 'openai') {
-            const res = await fetch(CONFIG.api.endpoint || 'https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${CONFIG.api.apiKey}`
-                },
-                body: JSON.stringify({
-                    model: CONFIG.api.model,
-                    messages: [
-                        { role: 'system', content: CONFIG.api.systemPrompt },
-                        { role: 'user', content: userText }
-                    ],
-                    max_tokens: CONFIG.api.maxTokens,
-                    temperature: CONFIG.api.temperature
-                })
-            });
-            const data = await res.json();
-            if (data.choices && data.choices[0]) {
-                return data.choices[0].message.content.trim();
-            }
-        } else if (CONFIG.api.provider === 'custom' && CONFIG.api.endpoint) {
-            const res = await fetch(CONFIG.api.endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: userText,
-                    systemPrompt: CONFIG.api.systemPrompt
-                })
-            });
-            const data = await res.json();
-            return data.reply || data.message || data.response || getPlaceholderResponse();
-        }
-    } catch (err) {
-        console.warn('Chatbox API error:', err);
-    }
+        const res = await fetch(CONFIG.api.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${CONFIG.api.apiKey}`
+            },
+            body: JSON.stringify({
+                model: CONFIG.api.model,
+                messages: apiMessages,
+                max_tokens: CONFIG.api.maxTokens,
+                temperature: CONFIG.api.temperature
+            })
+        });
 
-    return getPlaceholderResponse();
+        if (res.status === 429) {
+            console.warn('Groq 429 — rate limited');
+            conversationHistory.pop();
+            return { text: "Whoa, too many messages! Give me a sec to catch my breath 😅", fromAI: false };
+        }
+
+        if (!res.ok) {
+            const errText = await res.text();
+            console.error(`Groq API ${res.status}:`, errText);
+            conversationHistory.pop();
+            return { text: "Something went wrong on my end — try again? 😅", fromAI: false };
+        }
+
+        const data = await res.json();
+
+        if (data.choices && data.choices[0]?.message?.content) {
+            const reply = data.choices[0].message.content.trim();
+            conversationHistory.push({ role: 'assistant', content: reply });
+            // Trim history if too long
+            if (conversationHistory.length > 30) {
+                conversationHistory.splice(0, 2);
+            }
+            return { text: reply, fromAI: true };
+        }
+
+        console.warn('Groq: unexpected response', data);
+        conversationHistory.pop();
+        return { text: "Hmm, I got a weird response. Try asking again! 🤔", fromAI: false };
+
+    } catch (err) {
+        console.error('Chatbox API error:', err);
+        conversationHistory.pop();
+        return { text: "Couldn't reach my brain right now — try again in a sec! 🧠", fromAI: false };
+    }
 }
 
 async function handleSend() {
@@ -85,8 +118,6 @@ async function handleSend() {
     addMessage(text, 'user');
     input.value = '';
 
-    const delay = CONFIG.typing.minDelay + Math.random() * (CONFIG.typing.maxDelay - CONFIG.typing.minDelay);
-
     // Show typing indicator
     const typingDiv = document.createElement('div');
     typingDiv.className = 'chat-msg bot typing';
@@ -94,12 +125,18 @@ async function handleSend() {
     messages.appendChild(typingDiv);
     messages.scrollTop = messages.scrollHeight;
 
-    const response = await getAIResponse(text);
+    const result = await getAIResponse(text);
 
-    setTimeout(() => {
-        typingDiv.remove();
-        addMessage(response, 'bot');
-    }, delay);
+    typingDiv.remove();
+    addMessage(result.text, 'bot', result.fromAI);
+
+    // Auto-close chatbox on goodbye-like messages
+    const goodbyePattern = /\b(bye|goodbye|good bye|see ya|later|cya|peace|gotta go|gtg|ttyl|talk later|farewell|adios|take care|night|goodnight|gn|im out|i'm out)\b/i;
+    if (goodbyePattern.test(text)) {
+        setTimeout(() => {
+            if (!collapsed) toggleChatbox();
+        }, 2000);
+    }
 }
 
 function toggleChatbox() {
