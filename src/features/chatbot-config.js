@@ -2,6 +2,8 @@
 // Edit this file to customize how the chatbot behaves and responds.
 // No code changes needed elsewhere — just update the values below.
 
+import { GROQ_API_KEY } from './api-keys.js';
+
 const CHATBOT_CONFIG = {
 
     // ---------- IDENTITY ----------
@@ -97,7 +99,7 @@ const CHATBOT_CONFIG = {
         enabled: true,
         provider: "groq",
         model: "llama-3.1-8b-instant",
-        apiKey: "go to my personal google doc and get the key yourself :)",
+        apiKey: GROQ_API_KEY,
         endpoint: "https://api.groq.com/openai/v1/chat/completions",
         systemPrompt: `You are John Pan. You ARE John — not an AI pretending to be him. Speak naturally in first person.
 You're on your personal portfolio website jpswag.com, chatting with visitors.
