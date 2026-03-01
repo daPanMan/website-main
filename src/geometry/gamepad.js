@@ -12,20 +12,46 @@ export function gamepad() {
     const goldStripe= new T.MeshStandardMaterial({ color: 0xc8a84e, roughness: 0.3, metalness: 0.15 });
 
     // ==================== MAIN BODY ====================
-    // NES controller: flat wide rectangle, ~3:1.6 aspect
+    // Dogbone / dumbbell NES controller shape: wide grips, narrow waist
     const W = 4.2, H = 0.3, D = 2.2;
+    const gripW = 1.3;   // width of each grip end
+    const waistD = 1.2;  // narrower waist depth
+    const r = 0.35;      // corner radius
 
-    // Use a rounded shape via extruded rounded rect
     const bodyShape = new T.Shape();
-    const r = 0.35; // corner radius
+    // Start bottom-left of left grip
     bodyShape.moveTo(-W/2 + r, -D/2);
-    bodyShape.lineTo( W/2 - r, -D/2);
-    bodyShape.quadraticCurveTo( W/2, -D/2,  W/2, -D/2 + r);
-    bodyShape.lineTo( W/2,  D/2 - r);
-    bodyShape.quadraticCurveTo( W/2,  D/2,  W/2 - r,  D/2);
-    bodyShape.lineTo(-W/2 + r,  D/2);
-    bodyShape.quadraticCurveTo(-W/2,  D/2, -W/2,  D/2 - r);
+    // Bottom of left grip
+    bodyShape.lineTo(-W/2 + gripW, -D/2);
+    // Taper inward to waist
+    bodyShape.quadraticCurveTo(-W/2 + gripW + 0.3, -waistD/2, -0.4, -waistD/2);
+    // Bottom of waist center
+    bodyShape.lineTo(0.4, -waistD/2);
+    // Taper outward to right grip
+    bodyShape.quadraticCurveTo(W/2 - gripW - 0.3, -waistD/2, W/2 - gripW, -D/2);
+    // Bottom of right grip
+    bodyShape.lineTo(W/2 - r, -D/2);
+    // Bottom-right corner
+    bodyShape.quadraticCurveTo(W/2, -D/2, W/2, -D/2 + r);
+    // Right side
+    bodyShape.lineTo(W/2, D/2 - r);
+    // Top-right corner
+    bodyShape.quadraticCurveTo(W/2, D/2, W/2 - r, D/2);
+    // Top of right grip
+    bodyShape.lineTo(W/2 - gripW, D/2);
+    // Taper inward to waist top
+    bodyShape.quadraticCurveTo(W/2 - gripW - 0.3, waistD/2, 0.4, waistD/2);
+    // Top of waist center
+    bodyShape.lineTo(-0.4, waistD/2);
+    // Taper outward to left grip top
+    bodyShape.quadraticCurveTo(-W/2 + gripW + 0.3, waistD/2, -W/2 + gripW, D/2);
+    // Top of left grip
+    bodyShape.lineTo(-W/2 + r, D/2);
+    // Top-left corner
+    bodyShape.quadraticCurveTo(-W/2, D/2, -W/2, D/2 - r);
+    // Left side
     bodyShape.lineTo(-W/2, -D/2 + r);
+    // Bottom-left corner
     bodyShape.quadraticCurveTo(-W/2, -D/2, -W/2 + r, -D/2);
 
     const extrudeSettings = { depth: H, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.06, bevelSegments: 3 };

@@ -33,6 +33,9 @@ website-main/
 │   └── textures/
 │       ├── stars.jpg               # Skybox background
 │       ├── linkedin.png            # LinkedIn logo texture
+│       ├── gmail.png               # Gmail logo texture
+│       ├── insta.png               # Instagram logo texture
+│       ├── snap.png                # Snapchat logo texture
 │       ├── disk.png                # Record/vinyl texture
 │       ├── tennis.jpg              # Pong ball texture
 │       ├── unity.jpg               # Unity mini-game texture
@@ -43,9 +46,9 @@ website-main/
 │   ├── main.js                     # Entry point — cube specs & bootstrap
 │   ├── ui-intro.js                 # Intro overlay & enter button
 │   ├── core/
-│   │   ├── scene-setup.js          # Camera, renderer, CSS3DRenderer, controls
+│   │   ├── scene-setup.js          # Camera, renderer, CSS3DRenderer, controls, title gimmicks
 │   │   ├── scene.js                # Scene singleton
-│   │   ├── animation-loop.js       # RAF loop, title tracking, star rotation
+│   │   ├── animation-loop.js       # RAF loop, title tracking, star rotation, mobile scroll
 │   │   ├── animation.js            # GSAP animation helpers
 │   │   ├── controls.js             # OrbitControls setup
 │   │   ├── events.js               # Window event handlers
@@ -57,12 +60,15 @@ website-main/
 │   │   ├── chatbot-config.js       # Chatbot personality & responses
 │   │   └── iframe-display.js       # In-scene iframe overlay (CSS3DObject)
 │   └── geometry/
-│       ├── cube-logic.js           # Core: positions, expand/collapse, raycasting
+│       ├── cube-logic.js           # Core: positions, expand/collapse, raycasting, drag detection
 │       ├── geometryManager.js      # Re-exports all geometry factories
 │       ├── background-stars.js     # Star field skybox
 │       ├── mainpage.js             # "About Me" geometry
-│       ├── linkedin.js             # LinkedIn geometry
-│       ├── email.js                # Email "@" geometry (3D text)
+│       ├── linkedin.js             # LinkedIn rounded box with texture
+│       ├── email.js                # "Contact Me" @ geometry (3D text)
+│       ├── gmail.js                # Gmail rounded rectangle with texture
+│       ├── insta.js                # Instagram rounded square with texture
+│       ├── snap.js                 # Snapchat rounded square with texture
 │       ├── record.js               # Vinyl record geometry
 │       ├── gamepad.js              # Game controller geometry
 │       ├── pong.js                 # Pong ball geometry
@@ -70,10 +76,12 @@ website-main/
 │       └── mini-game.js            # Unity mini-game cube
 │
 ├── pages/                      # Sub-pages loaded in iframe
-│   ├── email.html
-│   ├── linkedin.html
-│   ├── spotify.html
-│   ├── pong.html
+│   ├── email.html                  # Contact form (EmailJS)
+│   ├── linkedin.html               # LinkedIn profile card
+│   ├── insta.html                  # Instagram profile card
+│   ├── snap.html                   # Snapchat profile card
+│   ├── spotify.html                # Spotify embed
+│   ├── pong.html                   # Pong game
 │   ├── pig-game/                   # Pig Game (standalone mini-app)
 │   │   ├── index.html
 │   │   ├── script.js
@@ -86,7 +94,6 @@ website-main/
 │
 └── scripts/                    # Dev/deploy shell scripts
     ├── localrun.sh                 # Local HTTP server
-    ├── localrun_mobile.sh          # Mobile emulator via Edge
     └── update.sh                   # Git push helper
 ```
 
