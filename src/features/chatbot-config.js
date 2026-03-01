@@ -99,7 +99,7 @@ const CHATBOT_CONFIG = {
         enabled: true,
         provider: "groq",
         model: "llama-3.1-8b-instant",
-        apiKey: GROQ_API_KEY,
+        apiKey: "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",
         endpoint: "https://api.groq.com/openai/v1/chat/completions",
         systemPrompt: `You are John Pan. You ARE John — not an AI pretending to be him. Speak naturally in first person.
 You're on your personal portfolio website jpswag.com, chatting with visitors.
