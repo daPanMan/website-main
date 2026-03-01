@@ -1,9 +1,9 @@
-// geometry/linkedin.js — LinkedIn logo rounded box with texture
-export function linkedInGeometry() {
+// geometry/insta.js — Instagram flat rounded square with texture (like LinkedIn card)
+export function instaGeometry() {
     const T = window.THREE;
 
-    // Load texture with blue background to fill transparent areas
-    const linkedinTexture = new T.Texture();
+    // Load texture with white background to fill transparent areas
+    const instaTexture = new T.Texture();
     const img = new Image();
     img.onload = () => {
         const canvas = document.createElement('canvas');
@@ -12,15 +12,14 @@ export function linkedInGeometry() {
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
-        linkedinTexture.image = canvas;
-        linkedinTexture.needsUpdate = true;
+        instaTexture.image = canvas;
+        instaTexture.needsUpdate = true;
     };
     img.crossOrigin = 'anonymous';
-    img.src = 'assets/textures/linkedin.png';
+    img.src = 'assets/textures/insta.png';
 
-    // RoundedBoxGeometry: width, height, depth, segments, radius
-    // We build it manually using ExtrudeGeometry with a rounded rectangle shape
-    const w = 1.5, h = 1.5, d = 0.3, r = 0.25;
+    // Flat rounded square — same approach as LinkedIn geometry
+    const w = 1.5, h = 1.5, d = 0.3, r = 0.5;
 
     const shape = new T.Shape();
     shape.moveTo(-w / 2 + r, -h / 2);
@@ -42,16 +41,14 @@ export function linkedInGeometry() {
     };
 
     const geometry = new T.ExtrudeGeometry(shape, extrudeSettings);
-    // Center the geometry (extrude goes from 0 to depth along z)
     geometry.center();
 
-    // Generate proper UVs for front/back faces to display the texture
+    // UV map front/back faces
     const pos = geometry.attributes.position;
     const nor = geometry.attributes.normal;
     const uv = geometry.attributes.uv;
     for (let i = 0; i < pos.count; i++) {
-        const nx = nor.getX(i), ny = nor.getY(i), nz = nor.getZ(i);
-        // Front and back faces (normal pointing mostly along z)
+        const nz = nor.getZ(i);
         if (Math.abs(nz) > 0.8) {
             const px = pos.getX(i);
             const py = pos.getY(i);
@@ -60,8 +57,8 @@ export function linkedInGeometry() {
     }
     uv.needsUpdate = true;
 
-    const sideMaterial = new T.MeshStandardMaterial({ color: 0x0077b5 }); // LinkedIn blue
-    const faceMaterial = new T.MeshStandardMaterial({ map: linkedinTexture });
+    const sideMaterial = new T.MeshStandardMaterial({ color: 0xc13584, roughness: 0.4 }); // Instagram gradient pink
+    const faceMaterial = new T.MeshStandardMaterial({ map: instaTexture });
 
     // Rebuild groups per-triangle using true face normals from vertex positions
     geometry.clearGroups();

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snapchat - galvatronuson</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Silkscreen', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .card-wrap {
+            padding: 3px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #FFFC00, #FFD600, #FFC107, #FFFC00);
+            background-size: 300% 300%;
+            animation: shimmer 3s ease infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .card {
+            background: #1a1a2e;
+            color: #fff;
+            text-align: center;
+            padding: 36px 44px;
+            border-radius: 20px;
+            min-width: 260px;
+            max-width: 90vw;
+        }
+        .icon {
+            width: 72px; height: 72px;
+            margin: 0 auto 18px;
+            border-radius: 18px;
+            background: #FFFC00;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .icon svg { width: 42px; height: 42px; fill: #1a1a2e; }
+        h2 {
+            font-size: 22px;
+            margin-bottom: 4px;
+            color: #FFFC00;
+        }
+        .handle {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 22px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 36px;
+            background: #FFFC00;
+            color: #1a1a2e;
+            text-decoration: none;
+            border-radius: 50px;
+            font-family: 'Silkscreen', sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 18px rgba(255, 252, 0, 0.3);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(255, 252, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="card-wrap">
+        <div class="card">
+            <div class="icon">
+                <svg viewBox="0 0 24 24"><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12 1.033-.301.165-.088.344-.104.464-.104.182 0 .299.04.37.092.224.17.313.474.157.735-.064.108-.18.282-.464.412-.356.165-.758.3-1.183.39-.105.023-.164.04-.195.055-.028.014-.065.042-.09.126-.025.082-.023.18-.018.296l.002.03c.141 1.602-.191 2.932-.615 3.863-.79 1.724-2.082 2.965-3.506 3.59-.753.332-1.53.532-2.28.627-.332.04-.65.062-.954.062h-.003c-.304 0-.622-.022-.954-.062-.75-.095-1.527-.295-2.28-.627-1.424-.625-2.716-1.866-3.506-3.59-.424-.931-.756-2.261-.615-3.863l.002-.03c.005-.116.007-.214-.018-.296-.025-.084-.062-.112-.09-.126-.031-.015-.09-.032-.195-.055-.425-.09-.827-.225-1.183-.39-.284-.13-.4-.304-.464-.412-.156-.261-.067-.565.157-.735.071-.052.188-.092.37-.092.12 0 .299.016.464.104.374.181.733.285 1.033.301.198 0 .326-.045.401-.09-.008-.165-.018-.33-.03-.51l-.003-.06c-.104-1.628-.23-3.654.3-4.847C5.447 1.069 8.804.793 9.794.793h2.412z"/></svg>
+            </div>
+            <h2>Snapchat</h2>
+            <p class="handle">@galvatronuson</p>
+            <a class="btn" href="https://www.snapchat.com/add/galvatronuson" target="_blank" rel="noopener">Add Me</a>
+        </div>
+    </div>
+</body>
+</html>

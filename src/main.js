@@ -8,6 +8,9 @@ import { gamepad } from './geometry/gamepad.js';
 import { linkedInGeometry } from './geometry/linkedin.js';
 import { mainPageGeometry } from './geometry/mainpage.js';
 import { emailGeometry } from './geometry/email.js';
+import { gmailGeometry } from './geometry/gmail.js';
+import { instaGeometry } from './geometry/insta.js';
+import { snapGeometry } from './geometry/snap.js';
 import { pongBall } from './geometry/pong.js';
 import { pigGameDice } from './geometry/pig-game.js';
 import { miniGameCube } from './geometry/mini-game.js';
@@ -22,7 +25,15 @@ window.bigTitle = bigTitle;
 const cubeSpecs = [
     { type: mainPageGeometry(), label: "About Me", url: './about.html', userData: { title: "About Me" } },
     { type: linkedInGeometry(), label: "LinkedIn", url: './pages/linkedin.html', userData: { title: "LinkedIn" } },
-    { type: emailGeometry(), label: "Email", url: './pages/email.html', userData: { title: "Email" } },
+    {
+        type: emailGeometry(), label: "Contact Me", url: './pages/email.html',
+        userData: { title: "Contact Me" },
+        subItems: [
+            { factory: () => gmailGeometry(),  label: "Email",     title: "Email",     url: './pages/email.html' },
+            { factory: () => instaGeometry(),   label: "Instagram", title: "Instagram", url: './pages/insta.html' },
+            { factory: () => snapGeometry(),    label: "Snapchat",  title: "Snapchat",  url: './pages/snap.html' },
+        ]
+    },
     { type: recordGeometry(), label: "My Tracks", url: './pages/spotify.html', userData: { title: "My Tracks" } },
     {
         type: gamepad(), label: "Games", url: './pages/pong.html',
