@@ -4,6 +4,8 @@ import { scene, camera, renderer, addBigTitle } from '../core/scene-setup.js';
 import { playSound, zoomInSound, zoomOutSound } from '../features/audio-controls.js';
 import { showIframe, hideIframe, isIframeVisible } from '../features/iframe-display.js';
 
+let savedScrollY = 0; // saved mobile scroll position before zoom/expand
+
 const raycaster = new window.THREE.Raycaster();
 const mouse = new window.THREE.Vector2();
 
@@ -148,6 +150,13 @@ function expandParent(parentObj) {
     if (expandedParent) return; // already expanded
     expandedParent = parentObj;
     const parentIdx = parentObj.userData.index;
+
+    // Save and reset mobile scroll so the expanded view starts centered
+    if (window.innerWidth < 768) {
+        savedScrollY = window.mobileScrollY || 0;
+        window.scrollMobileTo(0, true);
+        document.body.style.overflow = 'hidden'; // lock scroll during expand
+    }
 
     // 0. Zoom camera in a bit
     const defaultZ = window.innerWidth < 768 ? 18 : 14;
@@ -351,6 +360,12 @@ export function collapseToMain() {
     const defaultZ = window.innerWidth < 768 ? 18 : 14;
     gsap.to(camera.position, { z: defaultZ, duration: 0.8, delay: 0.4, ease: 'power2.out' });
 
+    // Restore mobile scroll position
+    if (window.innerWidth < 768) {
+        document.body.style.overflow = ''; // unlock scroll
+        window.scrollMobileTo(savedScrollY, true);
+    }
+
     expandedParent = null;
 }
 
@@ -373,6 +388,13 @@ function zoomCubeIn(obj) {
     zoomedCube = obj;
     activeCube = obj;
     const idx = obj.userData.index;
+
+    // Save and reset mobile scroll
+    if (window.innerWidth < 768) {
+        savedScrollY = window.mobileScrollY || 0;
+        window.scrollMobileTo(0, true);
+        document.body.style.overflow = 'hidden'; // lock scroll during zoom
+    }
 
     // Kill any ongoing GSAP tweens so the object snaps cleanly
     gsap.killTweensOf(obj.position);
@@ -473,6 +495,12 @@ function returnZoomedCube() {
     // Zoom camera back
     const defaultZ = window.innerWidth < 768 ? 18 : 14;
     gsap.to(camera.position, { z: defaultZ, duration: 0.8, delay: 0.3, ease: 'power2.out' });
+
+    // Restore mobile scroll position
+    if (window.innerWidth < 768) {
+        document.body.style.overflow = ''; // unlock scroll
+        window.scrollMobileTo(savedScrollY, true);
+    }
 
     zoomedCube = null;
     activeCube = null;
@@ -586,9 +614,26 @@ function showCloseButton(callback) {
     }
 }
 
+// --- Drag detection: ignore clicks that are actually drags ---
+let pointerDownX = 0, pointerDownY = 0;
+const DRAG_THRESHOLD = 5; // px — movement beyond this = drag, not a click
+window.addEventListener('mousedown', (e) => { pointerDownX = e.clientX; pointerDownY = e.clientY; });
+window.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) { pointerDownX = e.touches[0].clientX; pointerDownY = e.touches[0].clientY; }
+}, { passive: true });
+
+function isDrag(event) {
+    const x = event.touches ? event.touches[0].clientX : event.clientX;
+    const y = event.touches ? event.touches[0].clientY : event.clientY;
+    return Math.abs(x - pointerDownX) > DRAG_THRESHOLD || Math.abs(y - pointerDownY) > DRAG_THRESHOLD;
+}
+
 function onCubeClick(event) {
     const introPage = document.getElementById('intro-page');
     if (introPage && introPage.style.display !== 'none') return;
+
+    // Ignore drags — only respond to short, stationary clicks
+    if (isDrag(event)) return;
 
     getPointer(event);
     raycaster.setFromCamera(mouse, camera);

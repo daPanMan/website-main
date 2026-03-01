@@ -30,7 +30,19 @@ document.body.appendChild(renderer.domElement);
 document.body.appendChild(cssRenderer.domElement);
 
 // Prevent default touch gestures on the canvas (pull-to-refresh, scroll bounce)
-renderer.domElement.style.touchAction = 'none';
+// On mobile, allow pan-y so native scroll works
+if (window.innerWidth < 768) {
+    renderer.domElement.style.touchAction = 'pan-y';
+    renderer.domElement.style.position = 'fixed';
+    cssRenderer.domElement.style.position = 'fixed';
+    // Create scroll spacer for native vertical scroll
+    const spacer = document.createElement('div');
+    spacer.id = 'mobile-scroll-spacer';
+    spacer.style.cssText = 'width:1px; pointer-events:none; height:250vh;';
+    document.body.appendChild(spacer);
+} else {
+    renderer.domElement.style.touchAction = 'none';
+}
 
 export const controls = new window.THREE.OrbitControls(camera, renderer.domElement);
 Object.assign(controls, {
@@ -41,6 +53,8 @@ Object.assign(controls, {
   enableRotate: false,
   enablePan: false
 });
+// On mobile, disable OrbitControls entirely so it doesn't interfere with native scroll
+if (window.innerWidth < 768) controls.enabled = false;
 
 function onResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);

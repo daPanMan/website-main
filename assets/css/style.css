@@ -17,6 +17,15 @@ html {
     height: 100%;
 }
 
+/* Mobile: allow native vertical scrolling */
+@media (max-width: 768px) {
+    html {
+        overflow: visible;
+        overflow-x: hidden;
+        height: auto;
+    }
+}
+
 canvas {
     display: block;
     position: absolute;
@@ -24,6 +33,12 @@ canvas {
     left: 0;
     width: 100vw;
     height: 100vh;
+}
+
+@media (max-width: 768px) {
+    canvas {
+        position: fixed;
+    }
 }
 
 iframe {
@@ -44,9 +59,10 @@ iframe {
 
 @media (max-width: 768px) {
     body {
-        height: 100%;
-        overflow: hidden;
-        touch-action: none; /* prevent browser gestures on the 3D canvas */
+        height: auto;
+        overflow: visible;
+        overflow-x: hidden;
+        touch-action: pan-y; /* allow native vertical scroll, block horizontal/zoom */
     }
 
     #chatbox {

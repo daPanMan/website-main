@@ -3,6 +3,28 @@ import { scene, camera, renderer, cssRenderer, controls } from '../core/scene-se
 import { cubes, clickTargets, titleObjects, subObjects, subTitles, subClickTargets } from '../geometry/cube-logic.js';
 import { starField, stars } from '../geometry/background-stars.js';
 
+// --- Mobile vertical scroll (native-scroll driven) ---
+window.mobileScrollY = 0;        // current scroll offset (world units)
+const SCROLL_MAX = 14;           // total scrollable range in world units
+
+// Map native scroll position → world units
+function updateMobileScrollFromNative() {
+    const maxPx = document.body.scrollHeight - window.innerHeight;
+    if (maxPx <= 0) return;
+    window.mobileScrollY = (window.scrollY / maxPx) * SCROLL_MAX;
+}
+if (window.innerWidth < 768) {
+    window.addEventListener('scroll', updateMobileScrollFromNative, { passive: true });
+}
+
+// Utility: scroll the page to a target mobileScrollY value
+window.scrollMobileTo = function(targetY, smooth) {
+    const maxPx = document.body.scrollHeight - window.innerHeight;
+    if (maxPx <= 0) return;
+    const targetPx = (Math.max(0, Math.min(SCROLL_MAX, targetY)) / SCROLL_MAX) * maxPx;
+    window.scrollTo({ top: targetPx, behavior: smooth ? 'smooth' : 'instant' });
+};
+
 // --- Hover rotation tracking ---
 const hoverRaycaster = new window.THREE.Raycaster();
 const hoverMouse = new window.THREE.Vector2();
@@ -61,7 +83,7 @@ window.addEventListener('mousemove', (e) => {
     handlePointerMove(e.clientX, e.clientY);
 });
 
-// Touch-based rotation for mobile (single-finger drag on objects)
+// Touch-based rotation + vertical scroll for mobile
 let touchRotateActive = false;
 window.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) {
@@ -99,12 +121,18 @@ function updateStars() {
 export function animate() {
     requestAnimationFrame(animate);
 
+    // Mobile scroll: track camera Y to native scroll offset
+    if (window.innerWidth < 768) {
+        camera.position.y = -window.mobileScrollY;
+        camera.lookAt(0, -window.mobileScrollY, 0);
+    }
+
     // Big title always faces camera
     if (window.bigTitle) {
         window.bigTitle.lookAt(camera.position);
         if (window.innerWidth < 768) {
-            // Mobile: pin title at top of vertical list
-            window.bigTitle.position.set(0, 8, -5);
+            // Mobile: pin title at top of viewport (follows camera scroll)
+            window.bigTitle.position.set(0, 8 - window.mobileScrollY, -5);
         } else {
             window.bigTitle.position.set(0, 0, -5);
         }
