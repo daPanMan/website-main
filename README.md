@@ -140,6 +140,10 @@ When the user sends a goodbye-like message (`bye`, `cya`, `peace`, `gtg`, `ttyl`
 
 All personality, bio facts, and API settings live in `chatbot-config.js`. To swap providers, change `api.provider`, `api.model`, `api.apiKey`, and `api.endpoint` — the runtime code uses the standard OpenAI chat completions format.
 
+### API Keys
+
+API keys are **not** stored in this repo. For current keys and credentials, check the **Auth Keys** Google Doc.
+
 ---
 
 ### To-Do List
