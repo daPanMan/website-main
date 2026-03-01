@@ -2,8 +2,6 @@
 // Edit this file to customize how the chatbot behaves and responds.
 // No code changes needed elsewhere — just update the values below.
 
-import { GROQ_API_KEY } from './api-keys.js';
-
 const CHATBOT_CONFIG = {
 
     // ---------- IDENTITY ----------
