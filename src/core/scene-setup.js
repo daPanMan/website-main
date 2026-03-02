@@ -1,6 +1,23 @@
 // Scene, camera, renderer, controls, lighting, resize handling
 export const scene = new window.THREE.Scene();
-export const camera = new window.THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+// Mobile: orthographic camera for flat 2D-plane scrolling (no perspective distortion)
+// Desktop: perspective camera for immersive 3D experience
+function createCamera() {
+    const aspect = window.innerWidth / window.innerHeight;
+    if (window.innerWidth < 768) {
+        const frustumSize = 20; // visible height in world units
+        const cam = new window.THREE.OrthographicCamera(
+            -frustumSize * aspect / 2, frustumSize * aspect / 2,
+            frustumSize / 2, -frustumSize / 2,
+            0.1, 1000
+        );
+        cam.userData.frustumSize = frustumSize;
+        return cam;
+    }
+    return new window.THREE.PerspectiveCamera(80, aspect, 0.1, 1000);
+}
+export const camera = createCamera();
 export const renderer = new window.THREE.WebGLRenderer({ alpha: true, antialias: window.innerWidth > 768 });
 
 // Set pixel ratio (cap at 2 for performance on high-DPI mobile screens)
@@ -18,10 +35,13 @@ Object.assign(cssRenderer.domElement.style, {
 
 export function adjustCamera() {
     if (window.innerWidth < 768) {
-        camera.position.set(0, 0, 18);
+        // Ortho camera — just set position, no FOV
+        camera.position.set(0, 0, 24);
     } else {
+        camera.fov = 80;
         camera.position.set(0, 0, 14);
     }
+    camera.updateProjectionMatrix();
     camera.lookAt(0, 0, 0);
 }
 adjustCamera();
@@ -38,7 +58,7 @@ if (window.innerWidth < 768) {
     // Create scroll spacer for native vertical scroll
     const spacer = document.createElement('div');
     spacer.id = 'mobile-scroll-spacer';
-    spacer.style.cssText = 'width:1px; pointer-events:none; height:250vh;';
+    spacer.style.cssText = 'width:1px; pointer-events:none; height:350vh;';
     document.body.appendChild(spacer);
 } else {
     renderer.domElement.style.touchAction = 'none';
@@ -59,7 +79,16 @@ if (window.innerWidth < 768) controls.enabled = false;
 function onResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     cssRenderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
+    if (camera.isOrthographicCamera) {
+        const aspect = window.innerWidth / window.innerHeight;
+        const fs = camera.userData.frustumSize;
+        camera.left   = -fs * aspect / 2;
+        camera.right  =  fs * aspect / 2;
+        camera.top    =  fs / 2;
+        camera.bottom = -fs / 2;
+    } else {
+        camera.aspect = window.innerWidth / window.innerHeight;
+    }
     camera.updateProjectionMatrix();
     adjustCamera();
 }

@@ -5,7 +5,7 @@ import { starField, stars } from '../geometry/background-stars.js';
 
 // --- Mobile vertical scroll (native-scroll driven) ---
 window.mobileScrollY = 0;        // current scroll offset (world units)
-const SCROLL_MAX = 14;           // total scrollable range in world units
+const SCROLL_MAX = 18;           // total scrollable range in world units (flat 2D plane)
 
 // Map native scroll position → world units
 function updateMobileScrollFromNative() {
@@ -121,18 +121,23 @@ function updateStars() {
 export function animate() {
     requestAnimationFrame(animate);
 
-    // Mobile scroll: track camera Y to native scroll offset
-    if (window.innerWidth < 768) {
-        camera.position.y = -window.mobileScrollY;
-        camera.lookAt(0, -window.mobileScrollY, 0);
+    // Mobile scroll: shift ortho frustum to slide viewport over content (like a webpage)
+    if (window.innerWidth < 768 && camera.isOrthographicCamera) {
+        const fs = camera.userData.frustumSize;
+        const scrollOffset = window.mobileScrollY;
+        // Shift frustum DOWN as user scrolls (content appears to move UP)
+        camera.top    =  fs / 2 - scrollOffset;
+        camera.bottom = -fs / 2 - scrollOffset;
+        camera.updateProjectionMatrix();
     }
 
     // Big title always faces camera
     if (window.bigTitle) {
         window.bigTitle.lookAt(camera.position);
         if (window.innerWidth < 768) {
-            // Mobile: pin title at top of viewport (follows camera scroll)
-            window.bigTitle.position.set(0, 8 - window.mobileScrollY, -5);
+            // Mobile: pin title at top of visible area
+            const fs = camera.userData?.frustumSize || 20;
+            window.bigTitle.position.set(0, fs / 2 - window.mobileScrollY - 2, -5);
         } else {
             window.bigTitle.position.set(0, 0, -5);
         }

@@ -26,9 +26,9 @@ const subClickTargets = [];       // meshes for sub-geometry raycasting
 // Generate evenly-spaced circular positions for any number of objects
 function generatePositions(count) {
     if (window.innerWidth < 768) {
-        // Mobile: vertical column, title stays on top
+        // Mobile: vertical column on a flat 2D plane
         const startY = 4;
-        const spacing = 3.5;
+        const spacing = 4.5;
         const positions = [];
         for (let i = 0; i < count; i++) {
             positions.push({ x: 0, y: startY - i * spacing, z: 0 });
@@ -123,9 +123,9 @@ export function addFloatingTitle(obj, text) {
 function getSubPositions() {
     const isMobile = window.innerWidth < 768;
     if (isMobile) {
-        // Mobile: vertical column below the parent (which is at y=7)
+        // Mobile: vertical column below the parent on flat 2D plane
         const startY = 3;
-        const spacing = 3.5;
+        const spacing = 4.5;
         return [
             { x: 0, y: startY,                z: 0 },
             { x: 0, y: startY - spacing,      z: 0 },
@@ -159,7 +159,7 @@ function expandParent(parentObj) {
     }
 
     // 0. Zoom camera in a bit
-    const defaultZ = window.innerWidth < 768 ? 18 : 14;
+    const defaultZ = window.innerWidth < 768 ? 24 : 14;
     gsap.to(camera.position, { z: defaultZ - 4, duration: 0.9, ease: 'power2.inOut' });
 
     // 1. Hide the big title (desktop only — on mobile it stays pinned at top)
@@ -357,7 +357,7 @@ export function collapseToMain() {
     }
 
     // Zoom camera back out
-    const defaultZ = window.innerWidth < 768 ? 18 : 14;
+    const defaultZ = window.innerWidth < 768 ? 24 : 14;
     gsap.to(camera.position, { z: defaultZ, duration: 0.8, delay: 0.4, ease: 'power2.out' });
 
     // Restore mobile scroll position
@@ -438,7 +438,7 @@ function zoomCubeIn(obj) {
     gsap.to(obj.scale, { x: os.x * zoomFactor, y: os.y * zoomFactor, z: os.z * zoomFactor, duration: 0.8, ease: 'back.out(1.7)' });
 
     // Zoom camera in
-    const defaultZ = window.innerWidth < 768 ? 18 : 14;
+    const defaultZ = window.innerWidth < 768 ? 24 : 14;
     gsap.to(camera.position, { z: defaultZ - 5, duration: 0.9, ease: 'power2.inOut' });
 
     // Show iframe after zoom animation
@@ -493,7 +493,7 @@ function returnZoomedCube() {
     }
 
     // Zoom camera back
-    const defaultZ = window.innerWidth < 768 ? 18 : 14;
+    const defaultZ = window.innerWidth < 768 ? 24 : 14;
     gsap.to(camera.position, { z: defaultZ, duration: 0.8, delay: 0.3, ease: 'power2.out' });
 
     // Restore mobile scroll position
