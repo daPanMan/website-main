@@ -674,8 +674,9 @@ function returnZoomedSub() {
     if (expandedParent) {
         const origScale = originalScales[expandedParent.userData.index];
         gsap.to(expandedParent.scale, { x: origScale.x, y: origScale.y, z: origScale.z, duration: 0.5, delay: 0.3, ease: 'power2.out' });
-        const parentTitle = titleObjects.find(t => t.userData.cube === expandedParent);
-        if (parentTitle) gsap.to(parentTitle.element.style, { opacity: 1, duration: 0.4, delay: 0.4 });
+        // Intentionally do NOT restore the parent's floating title here.
+        // Keeping the central geometry title hidden when returning from an iframe
+        // preserves the expected visual state for subpage interactions.
     }
 
     // Revert close button to Back
