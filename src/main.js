@@ -14,6 +14,9 @@ import { snapGeometry } from './geometry/snap.js';
 import { pongBall } from './geometry/pong.js';
 import { pigGameDice } from './geometry/pig-game.js';
 import { miniGameCube } from './geometry/mini-game.js';
+import { snakeGeometry } from './geometry/snake.js';
+import { tictactoeGeometry } from './geometry/tictactoe.js';
+import { euchreGeometry } from './geometry/euchre.js';
 import { recordGeometry } from './geometry/record.js';
 import './ui-intro.js';
 
@@ -24,11 +27,11 @@ window.bigTitle = bigTitle;
 // Setup interactive 3D objects
 const cubeSpecs = [
     { type: mainPageGeometry(), label: "About Me", url: './about.html', userData: { title: "About Me" } },
-    { type: linkedInGeometry(), label: "LinkedIn", url: './pages/linkedin.html', userData: { title: "LinkedIn" } },
     {
         type: emailGeometry(), label: "Contact Me", url: './pages/email.html',
         userData: { title: "Contact Me" },
         subItems: [
+            { factory: () => linkedInGeometry(), label: "LinkedIn",  title: "LinkedIn",  url: './pages/linkedin.html' },
             { factory: () => gmailGeometry(),  label: "Email",     title: "Email",     url: './pages/email.html' },
             { factory: () => instaGeometry(),   label: "Instagram", title: "Instagram", url: './pages/insta.html' },
             { factory: () => snapGeometry(),    label: "Snapchat",  title: "Snapchat",  url: './pages/snap.html' },
@@ -42,6 +45,9 @@ const cubeSpecs = [
             { factory: () => pongBall(),     label: "PONG",              title: "PONG",              url: './pages/pong.html' },
             { factory: () => pigGameDice(),  label: "Pig Game with Dice", title: "Pig Game with Dice", url: './pages/pig-game/index.html' },
             { factory: () => miniGameCube(), label: "My 3D Mini Game",   title: "My 3D Mini Game",   url: './pages/unity/index.html' },
+            { factory: () => snakeGeometry(), label: "Snake",             title: "Snake",             url: './pages/snake.html' },
+            { factory: () => tictactoeGeometry(), label: "Tic Tac Toe",     title: "Tic Tac Toe",     url: './pages/tictactoe.html' },
+            { factory: () => euchreGeometry(), label: "Euchre",           title: "Euchre",           url: './pages/euchre.html' },
         ]
     }
 ];

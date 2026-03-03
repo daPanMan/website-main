@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        background: #1a1a2e;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #fff;
+        overflow: hidden;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    #hud {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: min(90vw, 600px);
+        margin-bottom: 10px;
+        padding: 0 4px;
+    }
+    #score {
+        font-size: clamp(16px, 3vw, 22px);
+        font-weight: 600;
+        color: #16e0bd;
+        text-shadow: 0 0 8px rgba(22, 224, 189, 0.4);
+    }
+    #high-score {
+        font-size: clamp(12px, 2.5vw, 16px);
+        color: #888;
+    }
+
+    canvas {
+        border: 2px solid #16e0bd;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(22, 224, 189, 0.15);
+        display: block;
+        background: #0f0f23;
+        touch-action: none;
+    }
+
+    #overlay {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    #overlay.visible {
+        pointer-events: auto;
+        opacity: 1;
+    }
+    #overlay h2 {
+        font-size: clamp(22px, 4vw, 32px);
+        color: #ff6b6b;
+        text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        margin: 0;
+    }
+    #overlay .final-score {
+        font-size: clamp(14px, 2.5vw, 20px);
+        color: #aaa;
+    }
+    #overlay button {
+        background: #16e0bd;
+        border: none;
+        color: #1a1a2e;
+        font-size: clamp(14px, 2.5vw, 18px);
+        font-weight: 700;
+        padding: 10px 28px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+    }
+    #overlay button:hover { background: #13c4a5; transform: scale(1.05); }
+    #overlay button:active { transform: scale(0.97); }
+
+    #start-overlay {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        pointer-events: auto;
+    }
+    #start-overlay h1 {
+        font-size: clamp(28px, 5vw, 42px);
+        color: #16e0bd;
+        text-shadow: 0 0 15px rgba(22, 224, 189, 0.5);
+        margin: 0;
+    }
+    #start-overlay p {
+        font-size: clamp(12px, 2vw, 16px);
+        color: #888;
+        margin: 0;
+    }
+    #start-overlay button {
+        background: #16e0bd;
+        border: none;
+        color: #1a1a2e;
+        font-size: clamp(16px, 3vw, 20px);
+        font-weight: 700;
+        padding: 12px 36px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: background 0.2s, transform 0.1s;
+    }
+    #start-overlay button:hover { background: #13c4a5; transform: scale(1.05); }
+    #start-overlay button:active { transform: scale(0.97); }
+
+    /* Mobile D-pad */
+    #dpad {
+        display: none;
+        margin-top: 14px;
+        position: relative;
+        width: 140px;
+        height: 140px;
+    }
+    #dpad button {
+        position: absolute;
+        width: 44px;
+        height: 44px;
+        background: rgba(22, 224, 189, 0.2);
+        border: 1.5px solid rgba(22, 224, 189, 0.5);
+        border-radius: 8px;
+        color: #16e0bd;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    #dpad button:active { background: rgba(22, 224, 189, 0.5); }
+    #dpad .up    { top: 0;   left: 48px; }
+    #dpad .down  { bottom: 0; left: 48px; }
+    #dpad .left  { top: 48px; left: 0; }
+    #dpad .right { top: 48px; right: 0; }
+
+    @media (max-width: 600px) or (pointer: coarse) {
+        #dpad { display: block; }
+    }
+</style>
+</head>
+<body>
+
+<div id="hud">
+    <span id="score">Score: 0</span>
+    <span id="high-score">Best: 0</span>
+</div>
+<div style="position:relative; display:flex; align-items:center; justify-content:center;">
+    <canvas id="game"></canvas>
+    <div id="overlay">
+        <h2>Game Over</h2>
+        <div class="final-score" id="final-score"></div>
+        <button id="restart-btn">Play Again</button>
+    </div>
+    <div id="start-overlay">
+        <h1>🐍 Snake</h1>
+        <p>Arrow keys or swipe to move</p>
+        <button id="start-btn">Start</button>
+    </div>
+</div>
+<div id="dpad">
+    <button class="up" data-dir="up">▲</button>
+    <button class="down" data-dir="down">▼</button>
+    <button class="left" data-dir="left">◀</button>
+    <button class="right" data-dir="right">▶</button>
+</div>
+
+<script>
+(function() {
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const highScoreEl = document.getElementById('high-score');
+    const overlay = document.getElementById('overlay');
+    const finalScoreEl = document.getElementById('final-score');
+    const restartBtn = document.getElementById('restart-btn');
+    const startOverlay = document.getElementById('start-overlay');
+    const startBtn = document.getElementById('start-btn');
+
+    // Grid config
+    const CELL = 20;
+    const COLS = 30;
+    const ROWS = 20;
+
+    // Responsive canvas sizing
+    function sizeCanvas() {
+        const maxW = Math.min(window.innerWidth * 0.9, 600);
+        const scale = maxW / (COLS * CELL);
+        canvas.style.width = (COLS * CELL * scale) + 'px';
+        canvas.style.height = (ROWS * CELL * scale) + 'px';
+        canvas.width = COLS * CELL;
+        canvas.height = ROWS * CELL;
+    }
+    sizeCanvas();
+    window.addEventListener('resize', sizeCanvas);
+
+    // Game state
+    let snake, direction, nextDirection, food, score, highScore, gameOver, started, timer;
+    highScore = parseInt(localStorage.getItem('snake_high') || '0', 10);
+    highScoreEl.textContent = 'Best: ' + highScore;
+
+    const OPPOSITES = { up: 'down', down: 'up', left: 'right', right: 'left' };
+    const SPEED = 100; // ms per tick
+
+    function init() {
+        snake = [{ x: 5, y: 10 }, { x: 4, y: 10 }, { x: 3, y: 10 }];
+        direction = 'right';
+        nextDirection = 'right';
+        score = 0;
+        gameOver = false;
+        scoreEl.textContent = 'Score: 0';
+        overlay.classList.remove('visible');
+        spawnFood();
+        draw();
+    }
+
+    function spawnFood() {
+        const occupied = new Set(snake.map(s => s.x + ',' + s.y));
+        let fx, fy;
+        do {
+            fx = Math.floor(Math.random() * COLS);
+            fy = Math.floor(Math.random() * ROWS);
+        } while (occupied.has(fx + ',' + fy));
+        food = { x: fx, y: fy };
+    }
+
+    function setDirection(dir) {
+        if (OPPOSITES[dir] !== direction) {
+            nextDirection = dir;
+        }
+    }
+
+    function tick() {
+        if (gameOver) return;
+        direction = nextDirection;
+
+        const head = { ...snake[0] };
+        switch (direction) {
+            case 'up':    head.y--; break;
+            case 'down':  head.y++; break;
+            case 'left':  head.x--; break;
+            case 'right': head.x++; break;
+        }
+
+        // Wall collision
+        if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) {
+            return die();
+        }
+        // Self collision
+        for (const seg of snake) {
+            if (seg.x === head.x && seg.y === head.y) return die();
+        }
+
+        snake.unshift(head);
+
+        // Eat food
+        if (head.x === food.x && head.y === food.y) {
+            score++;
+            scoreEl.textContent = 'Score: ' + score;
+            spawnFood();
+        } else {
+            snake.pop();
+        }
+
+        draw();
+    }
+
+    function die() {
+        gameOver = true;
+        clearInterval(timer);
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('snake_high', highScore);
+            highScoreEl.textContent = 'Best: ' + highScore;
+        }
+        finalScoreEl.textContent = 'Score: ' + score + (score >= highScore && score > 0 ? '  🏆 New Best!' : '');
+        overlay.classList.add('visible');
+    }
+
+    function draw() {
+        ctx.fillStyle = '#0f0f23';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Subtle grid
+        ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+        ctx.lineWidth = 0.5;
+        for (let x = 0; x <= COLS; x++) {
+            ctx.beginPath(); ctx.moveTo(x * CELL, 0); ctx.lineTo(x * CELL, ROWS * CELL); ctx.stroke();
+        }
+        for (let y = 0; y <= ROWS; y++) {
+            ctx.beginPath(); ctx.moveTo(0, y * CELL); ctx.lineTo(COLS * CELL, y * CELL); ctx.stroke();
+        }
+
+        // Food (glowing red circle)
+        const fx = food.x * CELL + CELL / 2;
+        const fy = food.y * CELL + CELL / 2;
+        const glow = ctx.createRadialGradient(fx, fy, 2, fx, fy, CELL);
+        glow.addColorStop(0, 'rgba(255, 80, 80, 0.6)');
+        glow.addColorStop(1, 'rgba(255, 80, 80, 0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(food.x * CELL - CELL / 2, food.y * CELL - CELL / 2, CELL * 2, CELL * 2);
+        ctx.fillStyle = '#ff5050';
+        ctx.beginPath();
+        ctx.arc(fx, fy, CELL * 0.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Snake
+        for (let i = snake.length - 1; i >= 0; i--) {
+            const s = snake[i];
+            const isHead = i === 0;
+            const t = i / Math.max(snake.length - 1, 1);
+            // Gradient from bright green (head) to teal (tail)
+            const r = Math.round(22 + (0 - 22) * t);
+            const g = Math.round(224 + (180 - 224) * t);
+            const b = Math.round(130 + (189 - 130) * t);
+            ctx.fillStyle = `rgb(${r},${g},${b})`;
+
+            const px = s.x * CELL + 1;
+            const py = s.y * CELL + 1;
+            const sz = CELL - 2;
+            const radius = isHead ? 5 : 3;
+
+            // Rounded rectangle
+            ctx.beginPath();
+            ctx.moveTo(px + radius, py);
+            ctx.lineTo(px + sz - radius, py);
+            ctx.quadraticCurveTo(px + sz, py, px + sz, py + radius);
+            ctx.lineTo(px + sz, py + sz - radius);
+            ctx.quadraticCurveTo(px + sz, py + sz, px + sz - radius, py + sz);
+            ctx.lineTo(px + radius, py + sz);
+            ctx.quadraticCurveTo(px, py + sz, px, py + sz - radius);
+            ctx.lineTo(px, py + radius);
+            ctx.quadraticCurveTo(px, py, px + radius, py);
+            ctx.fill();
+
+            // Eyes on head
+            if (isHead) {
+                ctx.fillStyle = '#fff';
+                let ex1, ey1, ex2, ey2;
+                const c = CELL / 2;
+                switch (direction) {
+                    case 'right': ex1 = 12; ey1 = 4;  ex2 = 12; ey2 = 14; break;
+                    case 'left':  ex1 = 6;  ey1 = 4;  ex2 = 6;  ey2 = 14; break;
+                    case 'up':    ex1 = 4;  ey1 = 6;  ex2 = 14; ey2 = 6;  break;
+                    case 'down':  ex1 = 4;  ey1 = 12; ex2 = 14; ey2 = 12; break;
+                }
+                ctx.beginPath(); ctx.arc(s.x * CELL + ex1, s.y * CELL + ey1, 2.5, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(s.x * CELL + ex2, s.y * CELL + ey2, 2.5, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+    }
+
+    function startGame() {
+        startOverlay.style.display = 'none';
+        started = true;
+        init();
+        timer = setInterval(tick, SPEED);
+    }
+
+    function restart() {
+        init();
+        timer = setInterval(tick, SPEED);
+    }
+
+    // --- Controls ---
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+        if (!started) { startGame(); return; }
+        const keyMap = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+                         w: 'up', s: 'down', a: 'left', d: 'right' };
+        const dir = keyMap[e.key];
+        if (dir) {
+            e.preventDefault();
+            if (gameOver) { restart(); return; }
+            setDirection(dir);
+        }
+    });
+
+    // D-pad buttons
+    document.querySelectorAll('#dpad button').forEach(btn => {
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!started) { startGame(); return; }
+            if (gameOver) { restart(); return; }
+            setDirection(btn.dataset.dir);
+        });
+        btn.addEventListener('click', () => {
+            if (!started) { startGame(); return; }
+            if (gameOver) { restart(); return; }
+            setDirection(btn.dataset.dir);
+        });
+    });
+
+    // Swipe detection on canvas
+    let touchStartX = 0, touchStartY = 0;
+    canvas.addEventListener('touchstart', (e) => {
+        if (!started) { startGame(); return; }
+        const t = e.touches[0];
+        touchStartX = t.clientX;
+        touchStartY = t.clientY;
+    }, { passive: true });
+    canvas.addEventListener('touchend', (e) => {
+        const t = e.changedTouches[0];
+        const dx = t.clientX - touchStartX;
+        const dy = t.clientY - touchStartY;
+        const absDx = Math.abs(dx), absDy = Math.abs(dy);
+        if (Math.max(absDx, absDy) < 20) return; // too small
+        if (gameOver) { restart(); return; }
+        if (absDx > absDy) {
+            setDirection(dx > 0 ? 'right' : 'left');
+        } else {
+            setDirection(dy > 0 ? 'down' : 'up');
+        }
+    }, { passive: true });
+
+    // Buttons
+    restartBtn.addEventListener('click', restart);
+    startBtn.addEventListener('click', startGame);
+
+    // Initial draw (behind start overlay)
+    init();
+})();
+</script>
+</body>
+</html>

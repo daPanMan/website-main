@@ -23,6 +23,44 @@ const subObjects = [];            // active sub-geometry objects in scene
 const subTitles = [];             // active sub-geometry title objects
 const subClickTargets = [];       // meshes for sub-geometry raycasting
 
+// Shared texture cache — prevents re-loading the same image each expand/collapse cycle
+// key = image src, value = THREE.Texture
+const _textureCache = new Map();
+const _origTextureLoaderLoad = window.THREE.TextureLoader.prototype.load;
+window.THREE.TextureLoader.prototype.load = function(url, onLoad, onProgress, onError) {
+    if (_textureCache.has(url)) {
+        const cached = _textureCache.get(url);
+        if (onLoad) setTimeout(() => onLoad(cached), 0);
+        return cached;
+    }
+    const tex = _origTextureLoaderLoad.call(this, url, (t) => {
+        _textureCache.set(url, t);
+        if (onLoad) onLoad(t);
+    }, onProgress, onError);
+    return tex;
+};
+
+/**
+ * Recursively dispose geometry, materials (but NOT cached textures) from an Object3D tree.
+ * Call after scene.remove(obj) to free GPU resources.
+ */
+function disposeObject(obj) {
+    if (!obj) return;
+    obj.traverse(child => {
+        if (child.geometry) {
+            child.geometry.dispose();
+        }
+        if (child.material) {
+            const mats = Array.isArray(child.material) ? child.material : [child.material];
+            mats.forEach(mat => {
+                // Don't dispose cached textures — they're shared and reused
+                // (The texture cache keeps them alive intentionally)
+                mat.dispose();
+            });
+        }
+    });
+}
+
 // Generate evenly-spaced circular positions for any number of objects
 function generatePositions(count) {
     if (window.innerWidth < 768) {
@@ -109,7 +147,7 @@ export function addFloatingTitle(obj, text) {
     const titleObject = new window.THREE.CSS3DObject(titleElement);
     titleObject.scale.set(0.005, 0.005, 0.005);
     titleObject.position.copy(obj.position);
-    titleObject.position.y += 2;
+    titleObject.position.y += 1.3;
     titleObject.userData.cube = obj;
     scene.add(titleObject);
     titleObjects.push(titleObject);
@@ -118,32 +156,42 @@ export function addFloatingTitle(obj, text) {
 
 // ==================== EXPAND / COLLAPSE ====================
 
-// Positions for sub-items arranged around the centered parent
-// Adjust spacing based on screen size
-function getSubPositions() {
+// Positions for sub-items arranged in a semi-circle fan around the parent
+// count = number of sub-items to place
+function getSubPositions(count) {
+    const n = count || 4;
     const isMobile = window.innerWidth < 768;
+    const positions = [];
+
     if (isMobile) {
-        // Mobile: vertical column below the parent on flat 2D plane
-        const startY = 3;
-        const spacing = 4.5;
-        return [
-            { x: 0, y: startY,                z: 0 },
-            { x: 0, y: startY - spacing,      z: 0 },
-            { x: 0, y: startY - spacing * 2,  z: 0 },
-            { x: 0, y: startY - spacing * 3,  z: 0 },
-            { x: 0, y: startY - spacing * 4,  z: 0 },
-        ];
+        // Mobile: semi-circle above the parent (upper half of circle)
+        const radius = 4;
+        // Sweep from left (π) to right (0) — upper semi-circle
+        for (let i = 0; i < n; i++) {
+            const angle = Math.PI - (i / (n - 1 || 1)) * Math.PI; // π → 0
+            positions.push({
+                x: Math.cos(angle) * radius,
+                y: Math.sin(angle) * radius + 1,  // shift up a bit from center
+                z: 0
+            });
+        }
+    } else {
+        // Desktop: semi-circle fan above center
+        const radius = 4;
+        // Sweep from ~170° to ~10° (wider upper arc), evenly spaced
+        const startAngle = Math.PI * 0.95;  // ~171°
+        const endAngle   = Math.PI * 0.05;  // ~9°
+        for (let i = 0; i < n; i++) {
+            const t = n === 1 ? 0.5 : i / (n - 1);
+            const angle = startAngle + (endAngle - startAngle) * t;
+            positions.push({
+                x: Math.cos(angle) * radius,
+                y: Math.sin(angle) * radius,
+                z: 0
+            });
+        }
     }
-    // Desktop: triangular formation (1 top, 2 bottom — or pyramid for more)
-    const sx = 4;  // horizontal spread
-    const sy = 2.5; // vertical spread
-    return [
-        { x:  0,  y:  sy, z: 0 },   // top center
-        { x: -sx, y: -sy, z: 0 },   // bottom-left
-        { x:  sx, y: -sy, z: 0 },   // bottom-right
-        { x: -sx, y:  sy, z: 0 },   // extra: top-left
-        { x:  sx, y:  sy, z: 0 },   // extra: top-right
-    ];
+    return positions;
 }
 
 function expandParent(parentObj) {
@@ -171,6 +219,9 @@ function expandParent(parentObj) {
     // 2. Animate other cubes + their titles out (deterministic directions from original positions)
     cubes.forEach((obj, i) => {
         if (i === parentIdx) return;
+        gsap.killTweensOf(obj.position);
+        gsap.killTweensOf(obj.scale);
+        gsap.killTweensOf(obj.rotation);
         const orig = originalPositions[i];
         // Fly out along a scaled version of their original offset from center
         const dx = orig.x !== 0 ? orig.x * 4 : (i % 2 === 0 ? -15 : 15);
@@ -185,15 +236,15 @@ function expandParent(parentObj) {
         gsap.to(title.position, { z: -15, duration: 0.8 });
     });
 
-    // 3. Move the clicked object to center, behind the sub-items so it doesn't block them
+    // 3. Move the clicked object to center of the fan (parent stays visible)
     if (window.innerWidth < 768) {
-        // Mobile: move to top where title is, hide the big title
+        // Mobile: center the parent
         if (window.bigTitle) {
             gsap.to(window.bigTitle.element.style, { opacity: 0, duration: 0.4 });
         }
-        gsap.to(parentObj.position, { x: 0, y: 7, z: -2, duration: 0.8, ease: 'power2.out' });
+        gsap.to(parentObj.position, { x: 0, y: 0, z: -1, duration: 0.8, ease: 'power2.out' });
     } else {
-        gsap.to(parentObj.position, { x: 0, y: -1.5, z: 2, duration: 0.8, ease: 'power2.out' });
+        gsap.to(parentObj.position, { x: 0, y: -1.8, z: 0, duration: 0.8, ease: 'power2.out' });
     }
     // Move its title above center, then hide it once subs appear
     const parentTitle = titleObjects.find(t => t.userData.cube === parentObj);
@@ -217,9 +268,9 @@ function expandParent(parentObj) {
 
             // Start at the parent's center position (behind it)
             if (window.innerWidth < 768) {
-                obj.position.set(0, 7, -2);
-            } else {
                 obj.position.set(0, 0, -2);
+            } else {
+                obj.position.set(0, -1.8, -2);
             }
             obj.scale.set(0.01, 0.01, 0.01);
             obj.frustumCulled = false;
@@ -238,8 +289,8 @@ function expandParent(parentObj) {
                 });
             }
 
-            // Animate to spread position
-            const subPositions = getSubPositions();
+            // Animate to spread position (semi-circle fan)
+            const subPositions = getSubPositions(subItems.length);
             const target = subPositions[si % subPositions.length];
             gsap.to(obj.position, { x: target.x, y: target.y, z: target.z, duration: 0.7, delay: si * 0.12, ease: 'back.out(1.4)' });
             gsap.to(obj.scale, { x: 1, y: 1, z: 1, duration: 0.6, delay: si * 0.12, ease: 'back.out(1.4)' });
@@ -280,7 +331,7 @@ function addSubTitle(obj, text) {
     const titleObj = new window.THREE.CSS3DObject(el);
     titleObj.scale.set(0.005, 0.005, 0.005);
     titleObj.position.copy(obj.position);
-    titleObj.position.y += 2;
+    titleObj.position.y += 1.3;
     titleObj.userData.cube = obj;
     scene.add(titleObj);
     // Fade in
@@ -288,8 +339,10 @@ function addSubTitle(obj, text) {
     return titleObj;
 }
 
-export function collapseToMain() {
+export function collapseToMain(restoreTitles = true) {
     if (!expandedParent) return;
+    // Cancel any pending showIframe timeout
+    if (_iframeShowTimeout) { clearTimeout(_iframeShowTimeout); _iframeShowTimeout = null; }
     const parentIdx = expandedParent.userData.index;
 
     // Hide iframe if it is showing a sub-item page
@@ -301,14 +354,19 @@ export function collapseToMain() {
 
     // 1. Animate sub-objects back to center and remove
     subObjects.forEach((obj, i) => {
+        gsap.killTweensOf(obj.position);
+        gsap.killTweensOf(obj.scale);
+        gsap.killTweensOf(obj.rotation);
         gsap.to(obj.position, { x: 0, y: 0, z: -2, duration: 0.5, ease: 'power2.in', onComplete: () => {
             scene.remove(obj);
+            disposeObject(obj);
         }});
         gsap.to(obj.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 0.5, ease: 'power2.in' });
     });
 
     // Remove sub-titles
     subTitles.forEach(t => {
+        gsap.killTweensOf(t.element?.style);
         gsap.to(t.element.style, { opacity: 0, duration: 0.3, onComplete: () => {
             scene.remove(t);
         }});
@@ -325,6 +383,9 @@ export function collapseToMain() {
     const origPos = originalPositions[parentIdx];
     const origRot = originalRotations[parentIdx];
     const origScale = originalScales[parentIdx];
+    gsap.killTweensOf(expandedParent.position);
+    gsap.killTweensOf(expandedParent.rotation);
+    gsap.killTweensOf(expandedParent.scale);
     gsap.to(expandedParent.position, { x: origPos.x, y: origPos.y, z: origPos.z, duration: 0.7, delay: 0.3, ease: 'power2.out' });
     gsap.to(expandedParent.rotation, { x: origRot.x, y: origRot.y, z: origRot.z, duration: 0.7, delay: 0.3, ease: 'power2.out' });
     gsap.to(expandedParent.scale, { x: origScale.x, y: origScale.y, z: origScale.z, duration: 0.6, delay: 0.3, ease: 'power2.out' });
@@ -335,16 +396,21 @@ export function collapseToMain() {
         const orig = originalPositions[i];
         const oRot = originalRotations[i];
         const oScale = originalScales[i];
+        gsap.killTweensOf(obj.position);
+        gsap.killTweensOf(obj.rotation);
+        gsap.killTweensOf(obj.scale);
         gsap.to(obj.position, { x: orig.x, y: orig.y, z: orig.z, duration: 0.7, delay: 0.4, ease: 'power2.out' });
         gsap.to(obj.rotation, { x: oRot.x, y: oRot.y, z: oRot.z, duration: 0.7, delay: 0.4, ease: 'power2.out' });
         gsap.to(obj.scale, { x: oScale.x, y: oScale.y, z: oScale.z, duration: 0.6, delay: 0.4, ease: 'power2.out' });
     });
 
-    // Restore titles
-    titleObjects.forEach(title => {
-        gsap.to(title.element.style, { opacity: 1, duration: 0.5, delay: 0.5 });
-        // Position will be updated by animation loop
-    });
+    // Restore titles only if requested
+    if (restoreTitles) {
+        titleObjects.forEach(title => {
+            gsap.to(title.element.style, { opacity: 1, duration: 0.5, delay: 0.5 });
+            // Position will be updated by animation loop
+        });
+    }
 
     // Bring back big title (desktop only — on mobile it never left)
     if (window.bigTitle && window.innerWidth >= 768) {
@@ -372,6 +438,7 @@ export function collapseToMain() {
 // ==================== CLICK HANDLER ====================
 
 let zoomedCube = null; // cube zoomed in for iframe (non-subItem objects)
+let _iframeShowTimeout = null; // tracked timeout so we can cancel stale showIframe calls
 
 function getPointer(event) {
     const x = event.touches ? event.touches[0].clientX : event.clientX;
@@ -441,8 +508,11 @@ function zoomCubeIn(obj) {
     const defaultZ = window.innerWidth < 768 ? 24 : 14;
     gsap.to(camera.position, { z: defaultZ - 5, duration: 0.9, ease: 'power2.inOut' });
 
-    // Show iframe after zoom animation
-    setTimeout(() => {
+    // Show iframe after zoom animation (tracked so we can cancel if user navigates away)
+    if (_iframeShowTimeout) { clearTimeout(_iframeShowTimeout); _iframeShowTimeout = null; }
+    _iframeShowTimeout = setTimeout(() => {
+        _iframeShowTimeout = null;
+        if (zoomedCube !== obj) return; // state changed, abort
         showIframe(obj.userData.url);
         showCloseButton(() => { playSound(zoomOutSound); returnZoomedCube(); });
     }, 500);
@@ -451,6 +521,8 @@ function zoomCubeIn(obj) {
 // Return a zoomed-in cube to its original formation
 function returnZoomedCube() {
     if (!zoomedCube) return;
+    // Cancel any pending showIframe timeout
+    if (_iframeShowTimeout) { clearTimeout(_iframeShowTimeout); _iframeShowTimeout = null; }
     const idx = zoomedCube.userData.index;
 
     hideIframe();
@@ -462,6 +534,9 @@ function returnZoomedCube() {
     const origPos = originalPositions[idx];
     const origRot = originalRotations[idx];
     const origScale = originalScales[idx];
+    gsap.killTweensOf(zoomedCube.position);
+    gsap.killTweensOf(zoomedCube.rotation);
+    gsap.killTweensOf(zoomedCube.scale);
     gsap.to(zoomedCube.position, { x: origPos.x, y: origPos.y, z: origPos.z, duration: 0.7, delay: 0.2, ease: 'power2.out' });
     gsap.to(zoomedCube.rotation, { x: origRot.x, y: origRot.y, z: origRot.z, duration: 0.7, delay: 0.2, ease: 'power2.out' });
     gsap.to(zoomedCube.scale, { x: origScale.x, y: origScale.y, z: origScale.z, duration: 0.7, delay: 0.2, ease: 'power2.out' });
@@ -472,6 +547,9 @@ function returnZoomedCube() {
         const orig = originalPositions[i];
         const oRot = originalRotations[i];
         const oScale = originalScales[i];
+        gsap.killTweensOf(c.position);
+        gsap.killTweensOf(c.rotation);
+        gsap.killTweensOf(c.scale);
         gsap.to(c.position, { x: orig.x, y: orig.y, z: orig.z, duration: 0.7, delay: 0.3, ease: 'power2.out' });
         gsap.to(c.rotation, { x: oRot.x, y: oRot.y, z: oRot.z, duration: 0.7, delay: 0.3, ease: 'power2.out' });
         gsap.to(c.scale,    { x: oScale.x, y: oScale.y, z: oScale.z, duration: 0.6, delay: 0.3, ease: 'power2.out' });
@@ -544,17 +622,20 @@ function zoomSubIn(subObj, url) {
         gsap.to(expandedParent.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 0.5, ease: 'power2.in' });
     }
 
-    // Center and scale up the clicked sub-object
+    // Center and scale up the clicked sub-object (slightly zoomed out & shifted up)
     if (window.innerWidth < 768) {
         // Mobile: move to top position as hanging object
-        gsap.to(subObj.position, { x: 0, y: 7, z: 2, duration: 0.7, ease: 'back.out(1.4)' });
+        gsap.to(subObj.position, { x: 0, y: 8, z: 2, duration: 0.7, ease: 'back.out(1.4)' });
     } else {
-        gsap.to(subObj.position, { x: 0, y: 0, z: 2, duration: 0.7, ease: 'back.out(1.4)' });
+        gsap.to(subObj.position, { x: 0, y: 1.5, z: 2, duration: 0.7, ease: 'back.out(1.4)' });
     }
-    gsap.to(subObj.scale, { x: 2, y: 2, z: 2, duration: 0.7, ease: 'back.out(1.4)' });
+    gsap.to(subObj.scale, { x: 1.5, y: 1.5, z: 1.5, duration: 0.7, ease: 'back.out(1.4)' });
 
-    // Show iframe after zoom
-    setTimeout(() => {
+    // Show iframe after zoom (tracked so we can cancel if user navigates away)
+    if (_iframeShowTimeout) { clearTimeout(_iframeShowTimeout); _iframeShowTimeout = null; }
+    _iframeShowTimeout = setTimeout(() => {
+        _iframeShowTimeout = null;
+        if (zoomedSub !== subObj) return; // state changed, abort
         showIframe(url);
         showCloseButton(() => { playSound(zoomOutSound); returnZoomedSub(); });
     }, 400);
@@ -562,17 +643,25 @@ function zoomSubIn(subObj, url) {
 
 function returnZoomedSub() {
     if (!zoomedSub) return;
+    // Cancel any pending showIframe timeout
+    if (_iframeShowTimeout) { clearTimeout(_iframeShowTimeout); _iframeShowTimeout = null; }
 
     hideIframe();
+
+    // Kill stale tweens before starting new ones
+    gsap.killTweensOf(zoomedSub.position);
+    gsap.killTweensOf(zoomedSub.scale);
 
     // Return zoomed sub to its spread position
     gsap.to(zoomedSub.position, { x: zoomedSubOrigPos.x, y: zoomedSubOrigPos.y, z: zoomedSubOrigPos.z, duration: 0.6, delay: 0.2, ease: 'power2.out' });
     gsap.to(zoomedSub.scale, { x: zoomedSubOrigScale.x, y: zoomedSubOrigScale.y, z: zoomedSubOrigScale.z, duration: 0.6, delay: 0.2, ease: 'power2.out' });
 
     // Bring back other sub-objects
-    const subPositions = getSubPositions();
+    const subPositions = getSubPositions(subObjects.length);
     subObjects.forEach((obj, i) => {
         if (obj === zoomedSub) return;
+        gsap.killTweensOf(obj.position);
+        gsap.killTweensOf(obj.scale);
         const target = subPositions[i % subPositions.length];
         gsap.to(obj.position, { x: target.x, y: target.y, z: target.z, duration: 0.6, delay: 0.3, ease: 'power2.out' });
         gsap.to(obj.scale, { x: 1, y: 1, z: 1, duration: 0.5, delay: 0.3, ease: 'power2.out' });
@@ -593,8 +682,8 @@ function returnZoomedSub() {
     const closeBtn = document.getElementById('reset-scale-button');
     if (closeBtn) {
         closeBtn.textContent = 'Back';
-        closeBtn.onclick = (e) => { e.stopPropagation(); playSound(zoomOutSound); collapseToMain(); };
-        closeBtn.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); playSound(zoomOutSound); collapseToMain(); };
+        closeBtn.onclick = (e) => { e.stopPropagation(); playSound(zoomOutSound); collapseToMain(false); };
+        closeBtn.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); playSound(zoomOutSound); collapseToMain(false); };
     }
 
     zoomedSub = null;
@@ -661,6 +750,9 @@ function onCubeClick(event) {
                         closeBtn.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); playSound(zoomOutSound); collapseToMain(); };
                     }
                 });
+            } else {
+                // Safety net: iframe is visible but no state variable owns it (stale state)
+                hideIframe();
             }
             return;
         }

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Euchre</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        background: #0c0c0c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        font-family: 'Consolas', 'Courier New', monospace;
+        overflow: hidden;
+    }
+    #terminal {
+        width: 100vw;
+        height: 100vh;
+        background: #1a1a2e;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    #titlebar {
+        background: #16162a;
+        padding: 8px 14px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        border-bottom: 1px solid #333;
+        flex-shrink: 0;
+    }
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot.r { background: #ff5f56; }
+    .dot.y { background: #ffbd2e; }
+    .dot.g { background: #27c93f; }
+    #titlebar span { color: #888; font-size: 12px; margin-left: 8px; }
+    #output {
+        flex: 1;
+        overflow-y: auto;
+        padding: 14px;
+        font-size: clamp(11px, 2.2vw, 14px);
+        line-height: 1.5;
+        color: #c8c8c8;
+        white-space: pre-wrap;
+        word-break: break-word;
+        scrollbar-width: thin;
+        scrollbar-color: #333 transparent;
+    }
+    #output::-webkit-scrollbar { width: 6px; }
+    #output::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    #output .prompt { color: #16e0bd; }
+    #output .info { color: #888; }
+    #output .result { color: #ffd43b; font-weight: bold; }
+    #output .card { color: #e8a0bf; }
+    #output .player-name { color: #74b9ff; }
+    #output .trump { color: #ff6b6b; font-weight: bold; }
+    #output .hand-header { color: #a29bfe; font-weight: bold; }
+    #output .score { color: #55efc4; }
+    #input-row {
+        display: flex;
+        align-items: center;
+        padding: 8px 14px 12px;
+        border-top: 1px solid #222;
+        flex-shrink: 0;
+        background: #16162a;
+    }
+    #input-row label {
+        color: #16e0bd;
+        font-size: clamp(11px, 2.2vw, 14px);
+        margin-right: 6px;
+        white-space: nowrap;
+    }
+    #input-row input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #fff;
+        font-family: inherit;
+        font-size: clamp(11px, 2.2vw, 14px);
+        caret-color: #16e0bd;
+    }
+</style>
+</head>
+<body>
+<div id="terminal">
+    <div id="titlebar">
+        <div class="dot r"></div>
+        <div class="dot y"></div>
+        <div class="dot g"></div>
+        <span>euchre.cpp — John Pan (UMich EECS 280)</span>
+    </div>
+    <div id="output"></div>
+    <div id="input-row">
+        <label>&gt;</label>
+        <input id="input" type="text" autocomplete="off" autofocus />
+    </div>
+</div>
+
+<script>
+(function() {
+// ============ Terminal I/O ============
+const out = document.getElementById('output');
+const inp = document.getElementById('input');
+let inputResolve = null;
+
+function print(text, cls) {
+    const span = document.createElement('span');
+    if (cls) span.className = cls;
+    span.textContent = text;
+    out.appendChild(span);
+    out.scrollTop = out.scrollHeight;
+}
+function println(text, cls) { print((text || '') + '\n', cls); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function waitInput() {
+    return new Promise(resolve => {
+        inputResolve = resolve;
+        inp.disabled = false;
+        inp.focus();
+    });
+}
+inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && inputResolve) {
+        const val = inp.value.trim();
+        inp.value = '';
+        inp.disabled = true;
+        println(val);
+        inputResolve(val);
+        inputResolve = null;
+    }
+});
+
+// ============ Card ============
+const SUITS = ['Spades', 'Hearts', 'Clubs', 'Diamonds'];
+const RANKS = ['Two','Three','Four','Five','Six','Seven','Eight',
+               'Nine','Ten','Jack','Queen','King','Ace'];
+
+function suitIndex(s) { return SUITS.indexOf(s); }
+function rankIndex(r) { return RANKS.indexOf(r); }
+
+function Suit_next(suit) {
+    const map = { Clubs:'Spades', Spades:'Clubs', Hearts:'Diamonds', Diamonds:'Hearts' };
+    return map[suit];
+}
+
+class Card {
+    constructor(rank, suit) {
+        this.rank = rank || 'Two';
+        this.suit = suit || 'Spades';
+    }
+    get_rank() { return this.rank; }
+    get_suit(trump) {
+        if (trump && this.is_left_bower(trump)) return trump;
+        return this.suit;
+    }
+    is_face() { return ['Jack','Queen','King','Ace'].includes(this.rank); }
+    is_right_bower(trump) { return this.rank === 'Jack' && this.suit === trump; }
+    is_left_bower(trump) { return this.rank === 'Jack' && this.suit === Suit_next(trump); }
+    is_trump(trump) { return this.suit === trump || this.is_left_bower(trump); }
+    toString() { return this.rank + ' of ' + this.suit; }
+    equals(other) { return this.rank === other.rank && this.suit === other.suit; }
+}
+
+function cardLess(a, b) {
+    const ar = rankIndex(a.rank), br = rankIndex(b.rank);
+    if (ar !== br) return ar < br;
+    return suitIndex(a.suit) < suitIndex(b.suit);
+}
+
+function Card_less_trump(a, b, trump) {
+    if (a.is_right_bower(trump)) return false;
+    if (b.is_right_bower(trump)) return true;
+    if (a.is_left_bower(trump)) return b.is_right_bower(trump);
+    if (b.is_left_bower(trump)) return !a.is_right_bower(trump);
+    if (a.is_trump(trump) && b.is_trump(trump)) return cardLess(a, b);
+    if (a.is_trump(trump)) return false;
+    if (b.is_trump(trump)) return true;
+    return cardLess(a, b);
+}
+
+function Card_less_led(a, b, led_card, trump) {
+    const less_no_led = Card_less_trump(a, b, trump);
+    if (led_card.get_suit(trump) === trump) return less_no_led;
+    const ledSuit = led_card.get_suit(trump);
+    const aSuit = a.get_suit(trump);
+    const bSuit = b.get_suit(trump);
+    if (aSuit === ledSuit) {
+        if (b.is_trump(trump)) return true;
+        if (bSuit === ledSuit) return cardLess(a, b);
+        return false;
+    }
+    if (bSuit === ledSuit) {
+        if (a.is_trump(trump)) return false;
+        return true;
+    }
+    return less_no_led;
+}
+
+// ============ Pack ============
+class Pack {
+    constructor() {
+        this.cards = [];
+        // Standard order: 9 through Ace of each suit in weight order
+        for (const suit of SUITS) {
+            for (let j = 7; j < RANKS.length; j++) { // Nine=index7
+                this.cards.push(new Card(RANKS[j], suit));
+            }
+        }
+        this.next = 0;
+    }
+    deal_one() { return this.cards[this.next++]; }
+    reset() { this.next = 0; }
+    empty() { return this.next >= this.cards.length; }
+    shuffle() {
+        // In-shuffle 7 times (matching the C++ implementation)
+        for (let iter = 0; iter < 7; iter++) {
+            const half1 = this.cards.slice(0, 12);
+            const half2 = this.cards.slice(12, 24);
+            const result = [];
+            for (let i = 0; i < 12; i++) {
+                result.push(half2[i]);
+                result.push(half1[i]);
+            }
+            this.cards = result;
+        }
+        this.next = 0;
+    }
+}
+
+// ============ Simple Player ============
+class SimplePlayer {
+    constructor(name) { this.name = name; this.hand = []; }
+    get_name() { return this.name; }
+
+    add_card(c) { this.hand.push(c); }
+
+    make_trump(upcard, is_dealer, round) {
+        if (round === 1) {
+            let count = 0;
+            for (const c of this.hand) {
+                if ((c.get_suit(upcard.get_suit()) === upcard.get_suit() && c.is_face()) ||
+                    c.is_left_bower(upcard.get_suit())) count++;
+            }
+            if (count >= 2) return upcard.get_suit();
+            return null;
+        }
+        // Round 2
+        const nextSuit = Suit_next(upcard.get_suit());
+        let count = 0;
+        for (const c of this.hand) {
+            if (c.get_suit(nextSuit) === nextSuit && c.is_face()) count++;
+        }
+        if (count >= 1 || is_dealer) return nextSuit;
+        return null;
+    }
+
+    add_and_discard(upcard, trump) {
+        let lowestIdx = 0;
+        for (let i = 1; i < this.hand.length; i++) {
+            if (Card_less_trump(this.hand[i], this.hand[lowestIdx], trump))
+                lowestIdx = i;
+        }
+        if (Card_less_trump(upcard, this.hand[lowestIdx], trump)) {
+            // upcard is lower, discard it (don't add)
+        } else {
+            this.hand[lowestIdx] = upcard;
+        }
+    }
+
+    lead_card(trump) {
+        let trumpCount = this.hand.filter(c => c.is_trump(trump)).length;
+        let bestIdx = -1;
+        if (trumpCount === this.hand.length) {
+            bestIdx = 0;
+            for (let i = 1; i < this.hand.length; i++) {
+                if (Card_less_trump(this.hand[bestIdx], this.hand[i], trump)) bestIdx = i;
+            }
+        } else {
+            for (let i = 0; i < this.hand.length; i++) {
+                if (!this.hand[i].is_trump(trump)) {
+                    if (bestIdx === -1 || Card_less_trump(this.hand[bestIdx], this.hand[i], trump))
+                        bestIdx = i;
+                }
+            }
+        }
+        return this.hand.splice(bestIdx, 1)[0];
+    }
+
+    play_card(led_card, trump) {
+        const ledSuit = led_card.get_suit(trump);
+        const follow = this.hand.filter(c => c.get_suit(trump) === ledSuit);
+        if (follow.length > 0) {
+            let bestIdx = 0;
+            for (let i = 0; i < this.hand.length; i++) {
+                if (this.hand[i].get_suit(trump) === ledSuit) {
+                    if (this.hand[bestIdx].get_suit(trump) !== ledSuit ||
+                        Card_less_led(this.hand[bestIdx], this.hand[i], led_card, trump))
+                        bestIdx = i;
+                }
+            }
+            return this.hand.splice(bestIdx, 1)[0];
+        }
+        // Play lowest card
+        let lowestIdx = 0;
+        for (let i = 1; i < this.hand.length; i++) {
+            if (Card_less_trump(this.hand[i], this.hand[lowestIdx], trump)) lowestIdx = i;
+        }
+        return this.hand.splice(lowestIdx, 1)[0];
+    }
+}
+
+// ============ Human Player ============
+class HumanPlayer {
+    constructor(name) { this.name = name; this.hand = []; }
+    get_name() { return this.name; }
+    add_card(c) {
+        this.hand.push(c);
+        if (this.hand.length === 5) this.hand.sort(cardLess_sort);
+    }
+
+    async make_trump(upcard, is_dealer, round) {
+        this.printHand();
+        const upcardSuit = upcard.get_suit();
+        if (is_dealer && round === 2) {
+            print('Screw the dealer! ' + this.name + ', you must order up.\n', 'prompt');
+            print('Enter a suit (not ' + upcardSuit + '): ', 'prompt');
+            let choice = await waitInput();
+            let suit = normalizeSuit(choice);
+            while (!suit || suit === upcardSuit) {
+                print('Invalid. Enter a valid suit other than ' + upcardSuit + ': ', 'prompt');
+                choice = await waitInput();
+                suit = normalizeSuit(choice);
+            }
+            return suit;
+        }
+        if (round === 2) {
+            print('Human player ' + this.name + ', enter a suit (not ' + upcardSuit + '), or "pass":\n', 'prompt');
+        } else {
+            print('Human player ' + this.name + ', please enter a suit, or "pass":\n', 'prompt');
+        }
+        let choice = await waitInput();
+        if (choice.trim().toLowerCase() === 'pass') return null;
+        let suit = normalizeSuit(choice);
+        while (!suit || (round === 2 && suit === upcardSuit)) {
+            if (round === 2) {
+                print('Invalid. Enter a suit (not ' + upcardSuit + '), or "pass": ', 'prompt');
+            } else {
+                print('Invalid. Enter a valid suit (e.g. Hearts, Spades), or "pass": ', 'prompt');
+            }
+            choice = await waitInput();
+            if (choice.trim().toLowerCase() === 'pass') return null;
+            suit = normalizeSuit(choice);
+        }
+        return suit;
+    }
+
+    async add_and_discard(upcard, trump) {
+        this.printHand();
+        println('Discard upcard: [-1]');
+        print('Human player ' + this.name + ', please select a card to discard:\n', 'prompt');
+        let choice = parseInt(await waitInput());
+        while (isNaN(choice) || choice < -1 || choice >= this.hand.length) {
+            print('Invalid. Enter -1 (discard upcard) or 0-' + (this.hand.length - 1) + ': ', 'prompt');
+            choice = parseInt(await waitInput());
+        }
+        if (choice === -1) return;
+        this.hand[choice] = upcard;
+        this.hand.sort(cardLess_sort);
+    }
+
+    async lead_card(trump) {
+        this.printHand();
+        print('Human player ' + this.name + ', please select a card:\n', 'prompt');
+        let choice = parseInt(await waitInput());
+        while (isNaN(choice) || choice < 0 || choice >= this.hand.length) {
+            print('Invalid. Enter 0-' + (this.hand.length - 1) + ': ', 'prompt');
+            choice = parseInt(await waitInput());
+        }
+        const card = this.hand.splice(choice, 1)[0];
+        this.hand.sort(cardLess_sort);
+        return card;
+    }
+
+    async play_card(led_card, trump) {
+        return this.lead_card(trump);
+    }
+
+    printHand() {
+        for (let i = 0; i < this.hand.length; i++) {
+            println('Human player ' + this.name + "'s hand: [" + i + '] ' + this.hand[i]);
+        }
+    }
+}
+
+function cardLess_sort(a, b) {
+    if (cardLess(a, b)) return -1;
+    if (cardLess(b, a)) return 1;
+    return 0;
+}
+
+function normalizeSuit(input) {
+    const s = (input || '').trim().toLowerCase();
+    const map = {
+        'spades': 'Spades', 'spade': 'Spades', 's': 'Spades',
+        'hearts': 'Hearts', 'heart': 'Hearts', 'h': 'Hearts',
+        'clubs': 'Clubs', 'club': 'Clubs', 'c': 'Clubs',
+        'diamonds': 'Diamonds', 'diamond': 'Diamonds', 'd': 'Diamonds',
+    };
+    return map[s] || null;
+}
+
+// ============ Game ============
+async function runGame() {
+    // Setup prompt — faithful to original CLI args
+    println('=== Euchre Game Setup ===', 'hand-header');
+    println('');
+    print('Shuffle or noshuffle? ', 'prompt');
+    let shuffleMode = (await waitInput()).trim().toLowerCase();
+    while (shuffleMode !== 'shuffle' && shuffleMode !== 'noshuffle') {
+        print('Invalid. Enter "shuffle" or "noshuffle": ', 'prompt');
+        shuffleMode = (await waitInput()).trim().toLowerCase();
+    }
+    print('Points to win (1-100): ', 'prompt');
+    let ptsStr = await waitInput();
+    let pointsToWin = parseInt(ptsStr);
+    while (isNaN(pointsToWin) || pointsToWin < 1 || pointsToWin > 100) {
+        print('Invalid. Points to win (1-100): ', 'prompt');
+        ptsStr = await waitInput();
+        pointsToWin = parseInt(ptsStr);
+    }
+
+    // Player setup
+    const players = [];
+    const types = [];
+    for (let i = 0; i < 4; i++) {
+        print('Player ' + (i+1) + ' name: ', 'prompt');
+        let name = await waitInput();
+        while (!name) {
+            print('Name cannot be empty. Player ' + (i+1) + ' name: ', 'prompt');
+            name = await waitInput();
+        }
+        print('Player ' + (i+1) + ' type (Simple or Human): ', 'prompt');
+        let typeIn = (await waitInput()).trim().toLowerCase();
+        let type = (typeIn === 'simple' || typeIn === 's') ? 'Simple'
+                 : (typeIn === 'human' || typeIn === 'h') ? 'Human' : null;
+        while (!type) {
+            print('Invalid. Enter "Simple" (or s) / "Human" (or h): ', 'prompt');
+            typeIn = (await waitInput()).trim().toLowerCase();
+            type = (typeIn === 'simple' || typeIn === 's') ? 'Simple'
+                 : (typeIn === 'human' || typeIn === 'h') ? 'Human' : null;
+        }
+        types.push(type);
+        players.push(type === 'Human' ? new HumanPlayer(name) : new SimplePlayer(name));
+    }
+
+    // Print the startup command (faithful to original output)
+    println('');
+    const cmdParts = ['./euchre.exe', 'pack.in', shuffleMode, String(pointsToWin)];
+    for (let i = 0; i < 4; i++) cmdParts.push(players[i].get_name(), types[i]);
+    println(cmdParts.join(' '), 'info');
+
+    const pack = new Pack();
+    let dealer = 0;
+    let groupOneScore = 0;
+    let groupTwoScore = 0;
+    let handCount = 0;
+
+    function inc(v) { return (v + 1) % 4; }
+    function dec(v) { return (v + 3) % 4; }
+
+    // ---- Main game loop ----
+    while (groupOneScore < pointsToWin && groupTwoScore < pointsToWin) {
+        pack.reset();
+        if (shuffleMode === 'shuffle') pack.shuffle();
+
+        // Clear hands
+        for (const p of players) p.hand = [];
+
+        println('Hand ' + handCount, 'hand-header');
+        print(players[dealer].get_name(), 'player-name');
+        println(' deals');
+
+        // Deal cards: 3-2-3-2, then 2-3-2-3 (faithful to original)
+        let idx = inc(dealer);
+        const dealPattern = [3, 2, 3, 2, 2, 3, 2, 3];
+        for (const count of dealPattern) {
+            for (let i = 0; i < count; i++) {
+                players[idx].add_card(pack.deal_one());
+            }
+            idx = inc(idx);
+        }
+
+        const upcard = pack.deal_one();
+        print(upcard.toString(), 'card');
+        println(' turned up');
+
+        // ---- Making trump ----
+        let trump = null;
+        let whoOrderedUp = -1;
+        let round = 1;
+        let passCount = 0;
+        idx = inc(dealer);
+
+        while (trump === null) {
+            const is_dealer = (idx === dealer);
+            let decision;
+            if (players[idx] instanceof HumanPlayer) {
+                decision = await players[idx].make_trump(upcard, is_dealer, round);
+            } else {
+                decision = players[idx].make_trump(upcard, is_dealer, round);
+            }
+
+            if (decision !== null) {
+                trump = decision;
+                whoOrderedUp = idx;
+                print(players[idx].get_name(), 'player-name');
+                print(' orders up ', '');
+                println(trump, 'trump');
+            } else {
+                print(players[idx].get_name(), 'player-name');
+                println(' passes');
+                passCount++;
+            }
+            idx = inc(idx);
+            if (passCount >= 4) round = 2;
+        }
+
+        // Dealer picks up / discards
+        if (round === 1) {
+            if (players[dealer] instanceof HumanPlayer) {
+                await players[dealer].add_and_discard(upcard, trump);
+            } else {
+                players[dealer].add_and_discard(upcard, trump);
+            }
+        }
+        println('');
+
+        // ---- Play 5 tricks ----
+        let points = [0, 0, 0, 0];
+        let leader = inc(dealer);
+
+        for (let trick = 0; trick < 5; trick++) {
+            let cardsPlayed = [];
+            let playerOrder = [];
+            let led_card = null;
+            let current = leader;
+
+            for (let p = 0; p < 4; p++) {
+                let cardPlayed;
+                if (p === 0) {
+                    if (players[current] instanceof HumanPlayer) {
+                        cardPlayed = await players[current].lead_card(trump);
+                    } else {
+                        cardPlayed = players[current].lead_card(trump);
+                    }
+                    led_card = cardPlayed;
+                    print(cardPlayed.toString(), 'card');
+                    print(' led by ', '');
+                    println(players[current].get_name(), 'player-name');
+                } else {
+                    if (players[current] instanceof HumanPlayer) {
+                        cardPlayed = await players[current].play_card(led_card, trump);
+                    } else {
+                        cardPlayed = players[current].play_card(led_card, trump);
+                    }
+                    print(cardPlayed.toString(), 'card');
+                    print(' played by ', '');
+                    println(players[current].get_name(), 'player-name');
+                }
+                cardsPlayed.push(cardPlayed);
+                playerOrder.push(current);
+                current = inc(current);
+            }
+
+            // Find trick winner
+            let winIdx = 0;
+            for (let i = 1; i < 4; i++) {
+                if (Card_less_led(cardsPlayed[winIdx], cardsPlayed[i], led_card, trump))
+                    winIdx = i;
+            }
+            const taker = playerOrder[winIdx];
+            points[taker]++;
+            print(players[taker].get_name(), 'player-name');
+            println(' takes the trick');
+            println('');
+            leader = taker;
+        }
+
+        // ---- Score the hand ----
+        const score1 = points[0] + points[2]; // team 0&2
+        const score2 = points[1] + points[3]; // team 1&3
+        let handPts1 = 0, handPts2 = 0;
+
+        if (score1 > score2) {
+            print(players[0].get_name(), 'player-name');
+            print(' and ', '');
+            print(players[2].get_name(), 'player-name');
+            println(' win the hand');
+            if (whoOrderedUp === 0 || whoOrderedUp === 2) {
+                if (score1 === 5) { handPts1 = 2; println('march!', 'result'); }
+                else handPts1 = 1;
+            } else {
+                println('euchred!', 'result');
+                handPts1 = 2;
+            }
+        } else {
+            print(players[1].get_name(), 'player-name');
+            print(' and ', '');
+            print(players[3].get_name(), 'player-name');
+            println(' win the hand');
+            if (whoOrderedUp === 1 || whoOrderedUp === 3) {
+                if (score2 === 5) { handPts2 = 2; println('march!', 'result'); }
+                else handPts2 = 1;
+            } else {
+                println('euchred!', 'result');
+                handPts2 = 2;
+            }
+        }
+
+        groupOneScore += handPts1;
+        groupTwoScore += handPts2;
+
+        print(players[0].get_name(), 'player-name');
+        print(' and ', '');
+        print(players[2].get_name(), 'player-name');
+        print(' have ', '');
+        println(groupOneScore + ' points', 'score');
+        print(players[1].get_name(), 'player-name');
+        print(' and ', '');
+        print(players[3].get_name(), 'player-name');
+        print(' have ', '');
+        println(groupTwoScore + ' points', 'score');
+        println('');
+
+        dealer = inc(dealer);
+        handCount++;
+    }
+
+    // ---- Winner ----
+    if (groupOneScore >= pointsToWin) {
+        print(players[0].get_name(), 'player-name');
+        print(' and ', '');
+        print(players[2].get_name(), 'player-name');
+        println(' win!', 'result');
+    } else {
+        print(players[1].get_name(), 'player-name');
+        print(' and ', '');
+        print(players[3].get_name(), 'player-name');
+        println(' win!', 'result');
+    }
+
+    println('');
+    print('Press Enter to play again.', 'prompt');
+    await waitInput();
+    out.innerHTML = '';
+    runGame();
+}
+
+inp.disabled = true;
+runGame();
+})();
+</script>
+</body>
+</html>

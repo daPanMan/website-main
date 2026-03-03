@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic Tac Toe</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        background: #0c0c0c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        font-family: 'Consolas', 'Courier New', monospace;
+        overflow: hidden;
+    }
+    #terminal {
+        width: 100vw;
+        height: 100vh;
+        background: #1a1a2e;
+        border: none;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: none;
+    }
+    #titlebar {
+        background: #16162a;
+        padding: 8px 14px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        border-bottom: 1px solid #333;
+        flex-shrink: 0;
+    }
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot.r { background: #ff5f56; }
+    .dot.y { background: #ffbd2e; }
+    .dot.g { background: #27c93f; }
+    #titlebar span {
+        color: #888;
+        font-size: 12px;
+        margin-left: 8px;
+    }
+    #output {
+        flex: 1;
+        overflow-y: auto;
+        padding: 14px;
+        font-size: clamp(12px, 2.5vw, 15px);
+        line-height: 1.5;
+        color: #c8c8c8;
+        white-space: pre-wrap;
+        word-break: break-word;
+        scrollbar-width: thin;
+        scrollbar-color: #333 transparent;
+    }
+    #output::-webkit-scrollbar { width: 6px; }
+    #output::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    #output .prompt { color: #16e0bd; }
+    #output .x-mark { color: #ff6b6b; font-weight: bold; }
+    #output .o-mark { color: #4dabf7; font-weight: bold; }
+    #output .info { color: #888; }
+    #output .result { color: #ffd43b; font-weight: bold; }
+    #output .board-line { color: #666; }
+    #output .cpu { color: #b197fc; font-style: italic; }
+    #input-row {
+        display: flex;
+        align-items: center;
+        padding: 8px 14px 12px;
+        border-top: 1px solid #222;
+        flex-shrink: 0;
+        background: #16162a;
+    }
+    #input-row label {
+        color: #16e0bd;
+        font-size: clamp(12px, 2.5vw, 15px);
+        margin-right: 6px;
+        white-space: nowrap;
+    }
+    #input-row input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #fff;
+        font-family: inherit;
+        font-size: clamp(12px, 2.5vw, 15px);
+        caret-color: #16e0bd;
+    }
+</style>
+</head>
+<body>
+
+<div id="terminal">
+    <div id="titlebar">
+        <div class="dot r"></div>
+        <div class="dot y"></div>
+        <div class="dot g"></div>
+        <span>TicTacToe.java — John Pan 2019</span>
+    </div>
+    <div id="output"></div>
+    <div id="input-row">
+        <label>&gt;</label>
+        <input id="input" type="text" autocomplete="off" autofocus />
+    </div>
+</div>
+
+<script>
+(function() {
+    const out = document.getElementById('output');
+    const inp = document.getElementById('input');
+    let inputResolve = null;
+
+    // --- Terminal helpers ---
+    function print(text, cls) {
+        const span = document.createElement('span');
+        if (cls) span.className = cls;
+        span.textContent = text;
+        out.appendChild(span);
+        out.scrollTop = out.scrollHeight;
+    }
+    function println(text, cls) { print((text || '') + '\n', cls); }
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    async function printDots(prefix, cls, count) {
+        print(prefix, cls);
+        for (let i = 0; i < (count || 6); i++) {
+            await sleep(200);
+            print(' .', cls);
+        }
+        println('', cls);
+    }
+
+    function waitInput() {
+        return new Promise(resolve => {
+            inputResolve = resolve;
+            inp.disabled = false;
+            inp.focus();
+        });
+    }
+
+    inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && inputResolve) {
+            const val = inp.value.trim();
+            inp.value = '';
+            inp.disabled = true;
+            println(val);
+            inputResolve(val);
+            inputResolve = null;
+        }
+    });
+
+    // --- Board ---
+    // Internal board: 3x3, values '1'-'9', 'X', 'O'
+    let board = [];
+    function initBoard() {
+        board = [];
+        let n = 1;
+        for (let r = 0; r < 3; r++) {
+            board[r] = [];
+            for (let c = 0; c < 3; c++) {
+                board[r][c] = String(n++);
+            }
+        }
+    }
+
+    function printBoard() {
+        for (let r = 0; r < 3; r++) {
+            // Number/marker row
+            let line = '';
+            for (let c = 0; c < 3; c++) {
+                const v = board[r][c];
+                if (c > 0) print(' | ', 'board-line');
+                else print(' ', '');
+                if (v === 'X') print(v, 'x-mark');
+                else if (v === 'O') print(v, 'o-mark');
+                else print(v, 'info');
+            }
+            println('');
+            // Separator
+            if (r < 2) println(' --+---+--', 'board-line');
+        }
+    }
+
+    function isFilled() {
+        return board.every(row => row.every(v => v === 'X' || v === 'O'));
+    }
+
+    function checkWin(marker) {
+        // Rows
+        for (let r = 0; r < 3; r++)
+            if (board[r][0] === marker && board[r][1] === marker && board[r][2] === marker) return true;
+        // Cols
+        for (let c = 0; c < 3; c++)
+            if (board[0][c] === marker && board[1][c] === marker && board[2][c] === marker) return true;
+        // Diags
+        if (board[0][0] === marker && board[1][1] === marker && board[2][2] === marker) return true;
+        if (board[0][2] === marker && board[1][1] === marker && board[2][0] === marker) return true;
+        return false;
+    }
+
+    function posToRC(pos) {
+        const p = pos - 1;
+        return [Math.floor(p / 3), p % 3];
+    }
+
+    // --- Place markers ---
+    async function placeMarker(marker) {
+        if (isFilled()) return;
+        print('\nPlace the marker position (1 to 9): ', 'prompt');
+        const ans = await waitInput();
+        const num = parseInt(ans);
+        if (num < 1 || num > 9 || isNaN(num)) {
+            println('Invalid, please try again.', 'info');
+            return placeMarker(marker);
+        }
+        const [r, c] = posToRC(num);
+        if (board[r][c] === 'X' || board[r][c] === 'O') {
+            await printDots('This is occupied, so', 'info');
+            return placeMarker(marker);
+        }
+        board[r][c] = marker;
+    }
+
+    async function cpuMove(marker) {
+        if (isFilled()) return;
+        const opp = marker === 'X' ? 'O' : 'X';
+
+        function getAvailable() {
+            const moves = [];
+            for (let r = 0; r < 3; r++)
+                for (let c = 0; c < 3; c++)
+                    if (board[r][c] !== 'X' && board[r][c] !== 'O') moves.push([r, c]);
+            return moves;
+        }
+
+        // Minimax with alpha-beta pruning
+        function minimax(isMaximizing, depth, alpha, beta) {
+            if (checkWin(marker))  return 10 - depth;
+            if (checkWin(opp))     return depth - 10;
+            const avail = getAvailable();
+            if (avail.length === 0) return 0;
+
+            if (isMaximizing) {
+                let best = -Infinity;
+                for (const [r, c] of avail) {
+                    const saved = board[r][c];
+                    board[r][c] = marker;
+                    const score = minimax(false, depth + 1, alpha, beta);
+                    board[r][c] = saved;
+                    best = Math.max(best, score);
+                    alpha = Math.max(alpha, score);
+                    if (beta <= alpha) break;
+                }
+                return best;
+            } else {
+                let best = Infinity;
+                for (const [r, c] of avail) {
+                    const saved = board[r][c];
+                    board[r][c] = opp;
+                    const score = minimax(true, depth + 1, alpha, beta);
+                    board[r][c] = saved;
+                    best = Math.min(best, score);
+                    beta = Math.min(beta, score);
+                    if (beta <= alpha) break;
+                }
+                return best;
+            }
+        }
+
+        const available = getAvailable();
+        let bestScore = -Infinity;
+        let bestMove = available[0];
+        for (const [r, c] of available) {
+            const saved = board[r][c];
+            board[r][c] = marker;
+            const score = minimax(false, 0, -Infinity, Infinity);
+            board[r][c] = saved;
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = [r, c];
+            }
+        }
+        board[bestMove[0]][bestMove[1]] = marker;
+        await printDots('CPU: Hmm .', 'cpu');
+    }
+
+    // --- Game loop ---
+    async function gameOver() {
+        await sleep(1000);
+        println('\nWe have a result!', 'result');
+        await sleep(1000);
+        if (checkWin('X')) println('X wins!', 'result');
+        else if (checkWin('O')) println('O wins!', 'result');
+        else println("It's a tie, how intense!", 'result');
+        await sleep(1000);
+        println('JOHN PAN 2019, 2026, ALL RIGHTS RESERVED', 'info');
+        println('');
+        println('Press Enter to play again.', 'prompt');
+        await waitInput();
+        out.innerHTML = '';
+        main();
+    }
+
+    function isDone() {
+        return checkWin('X') || checkWin('O') || isFilled();
+    }
+
+    async function main() {
+        println('Welcome to the tic tac toe game!');
+        print('Number of people playing (1 or 2): ', 'prompt');
+        let num = await waitInput();
+        while (num !== '1' && num !== '2') {
+            print('Not a valid number, please try again.\nNumber of people playing (1 or 2): ', 'prompt');
+            num = await waitInput();
+        }
+        const players = parseInt(num);
+        initBoard();
+        printBoard();
+
+        if (players === 1) {
+            // Choose marker
+            print('Which marker do you want? (X or O): ', 'prompt');
+            let mk = await waitInput();
+            while (mk !== 'X' && mk !== 'x' && mk !== 'O' && mk !== 'o') {
+                print('Invalid input, please try again. (X or O): ', 'prompt');
+                mk = await waitInput();
+            }
+            const isX = mk === 'X' || mk === 'x';
+            const playerMark = isX ? 'X' : 'O';
+            const cpuMark = isX ? 'O' : 'X';
+
+            print('Do you wanna go first or second? (first or second): ', 'prompt');
+            const order = await waitInput();
+            const goFirst = order.toLowerCase().includes('f');
+
+            while (!isDone()) {
+                if (goFirst) {
+                    await placeMarker(playerMark);
+                    printBoard();
+                    if (isDone()) break;
+                    await cpuMove(cpuMark);
+                    printBoard();
+                } else {
+                    await cpuMove(cpuMark);
+                    printBoard();
+                    if (isDone()) break;
+                    await placeMarker(playerMark);
+                    printBoard();
+                }
+            }
+        } else {
+            // 2 players
+            print('Which marker does the first player want? (X or O): ', 'prompt');
+            let mk = await waitInput();
+            while (mk !== 'X' && mk !== 'x' && mk !== 'O' && mk !== 'o') {
+                print('Invalid input, please try again. (X or O): ', 'prompt');
+                mk = await waitInput();
+            }
+            const isX = mk === 'X' || mk === 'x';
+            const p1 = isX ? 'X' : 'O';
+            const p2 = isX ? 'O' : 'X';
+
+            print('Do you wanna go first or second? (first or second): ', 'prompt');
+            const order = await waitInput();
+            const goFirst = order.toLowerCase().includes('f');
+            const first = goFirst ? p1 : p2;
+            const second = goFirst ? p2 : p1;
+
+            while (!isDone()) {
+                println('\n' + first + "'s turn:", 'prompt');
+                await placeMarker(first);
+                printBoard();
+                if (isDone()) break;
+                println('\n' + second + "'s turn:", 'prompt');
+                await placeMarker(second);
+                printBoard();
+            }
+        }
+        await gameOver();
+    }
+
+    inp.disabled = true;
+    main();
+})();
+</script>
+</body>
+</html>

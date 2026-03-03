@@ -6,16 +6,27 @@
     <title>Enlarged LinkedIn Profile Badge</title>
     <style>
         /* ✅ Center and Scale the LinkedIn Badge */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #f3f3f3;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
         #linkedin-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh; /* Full viewport height */
+            width: 100vw;
+            height: 100vh;
         }
 
         /* ✅ Scale up the LinkedIn badge */
         .LI-profile-badge {
-            transform: scale(3); /* Increases size */
+            transform: scale(2.2); /* Increases size */
             transform-origin: center; /* Ensures it scales from center */
         }
     </style>

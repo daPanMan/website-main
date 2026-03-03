@@ -1,9 +1,11 @@
 // geometry/linkedin.js — LinkedIn logo rounded box with texture
-export function linkedInGeometry() {
-    const T = window.THREE;
 
-    // Load texture with blue background to fill transparent areas
-    const linkedinTexture = new T.Texture();
+// Module-level texture cache — loaded once, reused across factory calls
+let _linkedinTexture = null;
+function getLinkedinTexture() {
+    if (_linkedinTexture) return _linkedinTexture;
+    const T = window.THREE;
+    _linkedinTexture = new T.Texture();
     const img = new Image();
     img.onload = () => {
         const canvas = document.createElement('canvas');
@@ -12,11 +14,17 @@ export function linkedInGeometry() {
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
-        linkedinTexture.image = canvas;
-        linkedinTexture.needsUpdate = true;
+        _linkedinTexture.image = canvas;
+        _linkedinTexture.needsUpdate = true;
     };
     img.crossOrigin = 'anonymous';
     img.src = 'assets/textures/linkedin.png';
+    return _linkedinTexture;
+}
+
+export function linkedInGeometry() {
+    const T = window.THREE;
+    const linkedinTexture = getLinkedinTexture();
 
     // RoundedBoxGeometry: width, height, depth, segments, radius
     // We build it manually using ExtrudeGeometry with a rounded rectangle shape

@@ -1,92 +1,113 @@
-// iframe-display.js — In-scene iframe overlay using CSS3DObject
-// Shows a page inside the 3D scene without opening a new browser tab.
-import { scene, camera } from '../core/scene-setup.js';
+// iframe-display.js — Plain DOM overlay iframe (no CSS3D transforms).
+// Switched from CSS3DObject to a regular fixed-position overlay so that
+// WebGL content inside the iframe (e.g. Unity) isn't broken by per-frame
+// CSS3D matrix transforms applied by CSS3DRenderer.
+
+// --- Create a wrapper div (for positioning/fading) ---
+const wrapper = document.createElement('div');
+Object.assign(wrapper.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100%',
+    height: '100%',
+    display: 'none',          // hidden by default
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: '1000',            // above both renderers
+    pointerEvents: 'none',
+    opacity: '0'
+});
 
 // --- Create the iframe element ---
-const isMobile = window.innerWidth < 768;
 const iframeEl = document.createElement('iframe');
-iframeEl.style.width = isMobile ? '900px' : '1024px';
-iframeEl.style.height = isMobile ? '1400px' : '768px';
-iframeEl.style.border = 'none';
-iframeEl.style.borderRadius = '10px';
-iframeEl.style.background = '#fff';
-iframeEl.style.backfaceVisibility = 'hidden';
-iframeEl.style.willChange = 'transform';
-iframeEl.style.opacity = '0';
-iframeEl.style.pointerEvents = 'none'; // start with no interaction
-iframeEl.style.overflowY = 'auto';
+const isMobile = window.innerWidth < 768;
+Object.assign(iframeEl.style, {
+    width:  isMobile ? '95vw' : '65vw',
+    height: isMobile ? '75vh' : '80vh',
+    maxWidth: '900px',
+    maxHeight: '850px',
+    border: 'none',
+    borderRadius: '10px',
+    background: '#fff',
+    opacity: '0.95',
+    pointerEvents: 'auto'      // clicks pass to iframe, not wrapper
+});
 iframeEl.setAttribute('scrolling', 'yes');
+// Allow features that Unity/games inside the iframe may need
+iframeEl.setAttribute('allow', 'autoplay; fullscreen; webgl; gamepad');
 
 // Allow scrolling inside the iframe on mobile
 iframeEl.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
 iframeEl.addEventListener('touchmove',  e => e.stopPropagation(), { passive: true });
 
-// --- Wrap in a CSS3DObject and add to scene (hidden) ---
-const cssObject = new window.THREE.CSS3DObject(iframeEl);
-cssObject.scale.set(0.01, 0.01, 0.01);
-cssObject.position.set(0, 0, 3);
-cssObject.visible = false;
-scene.add(cssObject);
+wrapper.appendChild(iframeEl);
+document.body.appendChild(wrapper);
 
-// Adjust scale and size for mobile / orientation changes
-function adjustIframeScale() {
+// Adjust size for mobile / orientation changes
+function adjustIframeSize() {
     const mobile = window.innerWidth < 768;
-    if (mobile) {
-        // Larger scale so content is readable on mobile
-        const scale = 0.008;
-        cssObject.scale.set(scale, scale, scale);
-        iframeEl.style.width = '900px';
-        iframeEl.style.height = '1400px';
-    } else {
-        cssObject.scale.set(0.01, 0.01, 0.01);
-        iframeEl.style.width = '1024px';
-        iframeEl.style.height = '768px';
-    }
+    iframeEl.style.width  = mobile ? '95vw' : '65vw';
+    iframeEl.style.height = mobile ? '75vh' : '80vh';
 }
-window.addEventListener('resize', adjustIframeScale);
-window.addEventListener('orientationchange', () => setTimeout(adjustIframeScale, 200));
-adjustIframeScale();
+window.addEventListener('resize', adjustIframeSize);
+window.addEventListener('orientationchange', () => setTimeout(adjustIframeSize, 200));
 
 let _isVisible = false;
+let _hidePromise = null; // track in-flight hide so show can wait for it
 
 /**
- * Show the in-scene iframe with the given URL.
+ * Show the overlay iframe with the given URL.
  * @param {string} url — page to load
  */
 export function showIframe(url) {
+    // Kill any in-flight tweens so we start from a clean state
+    gsap.killTweensOf(wrapper);
+
     iframeEl.src = url;
-    cssObject.visible = true;
+    wrapper.style.display = 'flex';
     _isVisible = true;
-    iframeEl.style.pointerEvents = 'auto'; // allow interaction
-    // On mobile, position iframe below the top-hanging geometry
+    _hidePromise = null;
+
+    // On mobile, shift iframe towards top so the hanging geometry stays visible
     if (window.innerWidth < 768) {
-        cssObject.position.set(0, -1, 3);
+        wrapper.style.alignItems = 'flex-start';
+        wrapper.style.paddingTop = '15vh';
     } else {
-        cssObject.position.set(0, 0, 3);
+        wrapper.style.alignItems = 'center';
+        wrapper.style.paddingTop = '0';
     }
-    gsap.to(iframeEl, { opacity: 0.85, duration: 0.5 });
+
+    // Fade in
+    wrapper.style.opacity = '0';
+    gsap.to(wrapper, { opacity: 1, duration: 0.5 });
 }
 
 /**
- * Hide the in-scene iframe (fade out then hide).
+ * Hide the overlay iframe (fade out then hide).
  * @returns {Promise} resolves when fade-out is complete
  */
 export function hideIframe() {
     if (!_isVisible) return Promise.resolve();
     _isVisible = false;
-    iframeEl.style.pointerEvents = 'none'; // block interaction while fading
-    return new Promise(resolve => {
-        gsap.to(iframeEl, {
+
+    // Kill any in-flight tweens to prevent conflicts
+    gsap.killTweensOf(wrapper);
+
+    _hidePromise = new Promise(resolve => {
+        gsap.to(wrapper, {
             opacity: 0,
             duration: 0.4,
             ease: 'power2.in',
             onComplete: () => {
-                cssObject.visible = false;
+                wrapper.style.display = 'none';
                 iframeEl.src = 'about:blank'; // free resources
+                _hidePromise = null;
                 resolve();
             }
         });
     });
+    return _hidePromise;
 }
 
 /** @returns {boolean} whether the iframe is currently displayed */

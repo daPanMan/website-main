@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pong Game</title>
 <style>
-    body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #333; color: white; font-family: Arial, sans-serif; }
-    #info { text-align: center; margin-bottom: 20px; font-size: 18px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw; margin: 0; background-color: #333; color: white; font-family: Arial, sans-serif; overflow: hidden; }
+    #info { text-align: center; margin-bottom: 10px; font-size: clamp(12px, 2vw, 18px); padding: 0 10px; }
     canvas { background: #000; display: block; }
 </style>
 </head>
@@ -15,10 +16,19 @@
     First player to reach 10 points wins the game. Move your paddle with the mouse to hit the ball back.<br>
     Move the bar using your mouse. Sorry if you are on mobile :&#40;
 </div>
-<canvas id="pong" width="800" height="400"></canvas>
+<canvas id="pong"></canvas>
 <script>
     const canvas = document.getElementById('pong');
     const context = canvas.getContext('2d');
+
+    // Dynamic canvas sizing to fill viewport
+    function resizeCanvas() {
+        const infoH = document.getElementById('info').offsetHeight + 10;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight - infoH;
+        // Update com paddle position on resize
+        com.x = canvas.width - 10;
+    }
 
     const ball = {
         x: canvas.width / 2,
@@ -47,6 +57,9 @@
         score: 0,
         color: 'WHITE'
     };
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
     const soundPaddle = new Audio('paddle_hit.mp3');
     const soundWall = new Audio('wall_hit.mp3');

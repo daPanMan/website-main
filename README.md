@@ -143,6 +143,79 @@ All personality, bio facts, and API settings live in `chatbot-config.js`. To swa
 
 ---
 
+## Pig Game
+
+A two-player dice game built with vanilla JavaScript, accessible from the **Games** sub-menu.
+
+### Rules
+
+- Players take turns rolling a single die.
+- On each turn the roll value is added to that player's **Current** score.
+- Rolling a **1** forfeits the entire current score and passes the turn.
+- Pressing **Hold** banks the current score into the player's **Total** and passes the turn.
+- First player to reach **100 total points** wins (🥳), and the game auto-resets after 2 seconds.
+- **New Game** resets everything immediately.
+
+### Tech
+
+| File | Role |
+|------|------|
+| `pages/pig-game/index.html` | Two-panel layout (Player 1 / Player 2), dice image, action buttons |
+| `pages/pig-game/script.js` | Game logic — roll, hold, switch, victory check |
+| `pages/pig-game/style.css` | Split-screen styling with active-player highlight |
+| `pages/pig-game/dice-[1-6].png` | Dice face images |
+
+### 3D Geometry
+
+Represented in the scene by a dice mesh (`src/geometry/pig-game.js`) that loads the six face textures onto a box.
+
+---
+
+## Euchre
+
+A terminal-style web port of a **C++ Euchre card game** originally written for UMich EECS 280, accessible from the **Games** sub-menu. The implementation is faithful to the original CLI program.
+
+### Game Overview
+
+Euchre is a 4-player trick-taking card game played in teams (players 0 & 2 vs players 1 & 3) with a 24-card pack (9 through Ace of each suit).
+
+### Features
+
+- **Interactive setup** — choose shuffle/noshuffle, points to win (1–100), and 4 player names with type (Simple AI or Human).
+- **Faithful card logic** — right bower, left bower, trump suit, and led-suit comparison all match the original C++ implementation.
+- **Simple AI strategy** — orders up trump with ≥ 2 face cards in suit (round 1) or ≥ 1 (round 2 / screw-the-dealer), leads highest non-trump, follows suit with highest card, and discards lowest.
+- **Human player support** — shows indexed hand, prompts for suit/pass, card selection, and dealer discard.
+- **Screw-the-dealer** — dealer in round 2 is forced to order up (cannot pass), preventing deadlocks.
+- **Scoring** — 1 point per hand won, 2 for a march (all 5 tricks), 2 for euchring the opposing team. First team to reach the target score wins.
+- **Deal pattern** — 3-2-3-2, then 2-3-2-3 with in-shuffle (7 iterations), matching the original Pack implementation.
+
+### Input Tolerance
+
+All text inputs are fault-tolerant:
+
+| Input | Accepted formats |
+|-------|-----------------|
+| Shuffle mode | `shuffle`, `Shuffle`, `SHUFFLE`, `noshuffle`, etc. (case-insensitive) |
+| Player type | `Simple`, `simple`, `s`, `Human`, `human`, `h` |
+| Suit | Full name (`Hearts`), singular (`heart`), initial (`h`) — all case-insensitive |
+| Pass | `pass`, `Pass`, `PASS`, etc. |
+| Card index | Re-prompts on NaN or out-of-range values with valid range hint |
+| Player name | Cannot be empty |
+| Round 2 suit | Upcard's suit is rejected (cannot re-pick the turned-down suit) |
+
+### Tech
+
+| File | Role |
+|------|------|
+| `pages/euchre.html` | Self-contained terminal UI + full game engine (~670 lines) |
+| `src/geometry/euchre.js` | 3D icon — fan of 5 playing cards with a gold trump gem |
+
+### Terminal UI
+
+Dark-themed fullscreen terminal (Consolas/Courier) with color-coded output: cyan prompts, pink cards, blue player names, red trump, yellow results, green scores. Input is accepted via a command-line-style text field at the bottom.
+
+---
+
 ### To-Do List
 1. ~~add nested geometries, namely new shapes show up after clicking a single shape~~
 2. ~~change title fonts, and maybe add some animations~~

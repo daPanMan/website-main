@@ -42,14 +42,110 @@
 </div>
 
     <canvas id="three-canvas"></canvas>
+
+    <!-- Loading indicator (shown if CDN deps fail) -->
+    <div id="dep-loader" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:999;color:#888;font-family:Consolas,monospace;font-size:13px;text-align:center;pointer-events:none;display:none;"></div>
+
+    <!-- CDN dependencies (static tags for reliability) -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/renderers/CSS3DRenderer.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/loaders/FontLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/geometries/TextGeometry.js"></script>
-    <!-- Use the new main.js entry point -->
+
+    <!-- Post-load check: if any dep failed, retry from fallback CDN -->
+    <script>
+    (function() {
+        var loaderEl = document.getElementById('dep-loader');
+        var missing = [];
+        var checks = [
+            { name: 'Three.js',       ok: function(){ return !!window.THREE; },
+              url: 'https://unpkg.com/three@0.136.0/build/three.min.js' },
+            { name: 'OrbitControls',   ok: function(){ return !!(window.THREE && window.THREE.OrbitControls); },
+              url: 'https://unpkg.com/three@0.136.0/examples/js/controls/OrbitControls.js' },
+            { name: 'GSAP',            ok: function(){ return !!window.gsap; },
+              url: 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js' },
+            { name: 'CSS3DRenderer',   ok: function(){ return !!(window.THREE && window.THREE.CSS3DRenderer); },
+              url: 'https://unpkg.com/three@0.136.0/examples/js/renderers/CSS3DRenderer.js' },
+            { name: 'FontLoader',      ok: function(){ return !!(window.THREE && window.THREE.FontLoader); },
+              url: 'https://unpkg.com/three@0.136.0/examples/js/loaders/FontLoader.js' },
+            { name: 'TextGeometry',    ok: function(){ return !!(window.THREE && window.THREE.TextGeometry); },
+              url: 'https://unpkg.com/three@0.136.0/examples/js/geometries/TextGeometry.js' }
+        ];
+
+        // Find which deps failed
+        for (var i = 0; i < checks.length; i++) {
+            if (!checks[i].ok()) missing.push(checks[i]);
+        }
+
+        if (missing.length === 0) return; // all loaded fine, proceed normally
+
+        // Show loading indicator and retry from fallback CDN
+        loaderEl.style.display = 'block';
+        loaderEl.textContent = 'Retrying ' + missing.length + ' failed dependency(s)...';
+
+        var loaded = 0;
+        var failed = [];
+
+        function tryLoad(dep) {
+            var s = document.createElement('script');
+            s.src = dep.url;
+            s.onload = function() {
+                loaded++;
+                if (dep.ok()) { checkDone(); }
+                else { failed.push(dep.name); checkDone(); }
+            };
+            s.onerror = function() {
+                loaded++;
+                failed.push(dep.name);
+                checkDone();
+            };
+            document.head.appendChild(s);
+        }
+
+        function checkDone() {
+            if (loaded < missing.length) return;
+            if (failed.length > 0) {
+                loaderEl.style.color = '#ff6b6b';
+                loaderEl.style.pointerEvents = 'auto';
+                loaderEl.innerHTML = 'Failed to load: ' + failed.join(', ') +
+                    '.<br><span style="cursor:pointer;text-decoration:underline;color:#74b9ff;" onclick="location.reload()">Click to retry</span>';
+            } else {
+                loaderEl.style.display = 'none';
+                // Deps recovered — now load the app
+                location.reload();
+            }
+        }
+
+        // Load missing deps sequentially (order matters for THREE addons)
+        function loadSequential(idx) {
+            if (idx >= missing.length) return;
+            var s = document.createElement('script');
+            s.src = missing[idx].url;
+            s.onload = function() {
+                if (!missing[idx].ok()) {
+                    failed.push(missing[idx].name);
+                }
+                loaded++;
+                if (loaded >= missing.length) checkDone();
+                else loadSequential(idx + 1);
+            };
+            s.onerror = function() {
+                failed.push(missing[idx].name);
+                loaded++;
+                if (loaded >= missing.length) checkDone();
+                else loadSequential(idx + 1);
+            };
+            document.head.appendChild(s);
+        }
+        loadSequential(0);
+    })();
+    </script>
+
+    <!-- App entry point (runs after all CDN deps above) -->
     <script type="module" src="src/main.js"></script>
+
     <!-- Hidden Display Box for Clicked Cube -->
     <div id="popup" hidden>
         <span id="close-popup">X</span>

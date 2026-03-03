@@ -13,14 +13,19 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.5);
+            background: #1a1a2e;
         }
         .card-wrap {
-            padding: 3px;
-            border-radius: 22px;
+            width: 100vw;
+            height: 100vh;
+            padding: 0;
+            border-radius: 0;
             background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888, #f09433);
             background-size: 300% 300%;
             animation: gradientShift 4s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         @keyframes gradientShift {
             0% { background-position: 0% 50%; }
@@ -32,9 +37,13 @@
             color: #fff;
             text-align: center;
             padding: 36px 44px;
-            border-radius: 20px;
-            min-width: 260px;
-            max-width: 90vw;
+            border-radius: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         .icon {
             width: 72px; height: 72px;

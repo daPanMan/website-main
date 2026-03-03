@@ -3,24 +3,43 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title style="color: white;">JP's Dodge Blocks</title>
+    <title>JP's Dodge Blocks</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #231f20; }
+      /* Override TemplateData/style.css centering transform so it fills the iframe */
+      .webgl-content { position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; transform: none !important; -webkit-transform: none !important; }
+      #unityContainer { width: 100% !important; height: calc(100% - 48px) !important; }
+      #unityContainer canvas { width: 100% !important; height: 100% !important; }
+      .footer { position: absolute; bottom: 0; left: 0; width: 100%; height: 48px; line-height: 48px; text-align: center; background: rgba(0,0,0,0.6); }
+    </style>
     <script src="TemplateData/UnityProgress.js"></script>
     <script src="Build/UnityLoader.js"></script>
-    <script>
-      var unityInstance = UnityLoader.instantiate("unityContainer", "Build/Dodge Blocks.json", {onProgress: UnityProgress});
-    </script>
   </head>
   <body>
     <div class="webgl-content">
-      <div id="unityContainer" style="width: 960px; height: 600px"></div>
+      <div id="unityContainer"></div>
       <div class="footer">
         <div class="webgl-logo"></div>
         <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
-        <div class="title" style="color: white; text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7); font-size: 24px; font-weight: bold; text-align: center;">
+        <div class="title" style="color: white; text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7); font-size: 18px; font-weight: bold; text-align: center;">
           WSAD to move da block<br>Sorry if you are on mobile :&#40;</div>
       </div>
     </div>
+    <script>
+      // Instantiate AFTER the DOM is ready so #unityContainer definitely exists
+      var unityInstance = null;
+      document.addEventListener('DOMContentLoaded', function() {
+        try {
+          unityInstance = UnityLoader.instantiate("unityContainer", "Build/Dodge Blocks.json", {onProgress: UnityProgress});
+        } catch(e) {
+          console.error('Unity load failed:', e);
+          document.getElementById('unityContainer').innerHTML =
+            '<div style="color:#ff6b6b;text-align:center;padding-top:30%;font-family:sans-serif;">' +
+            'Failed to load: ' + e.message + '</div>';
+        }
+      });
+    </script>
   </body>
 </html>
