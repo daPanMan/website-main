@@ -1,2 +1,14 @@
-# API keys (never commit these)
-src/features/api-keys.js
+# Node dependencies and lockfiles
+node_modules/
+package-lock.json
+
+# Local development artifacts
+.cache/
+dist/
+build/
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/

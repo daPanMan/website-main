@@ -14,13 +14,20 @@ function start_server() {
     fi
     python3 -c "
 import http.server
+# Use ThreadingHTTPServer when available so large asset downloads (e.g. Unity)
+# don't block other requests. The simple one-threaded HTTPServer will serve
+# one request at a time, which can make the server appear unresponsive if a
+# huge file is being transferred.
+ServerClass = getattr(http.server, 'ThreadingHTTPServer', http.server.HTTPServer)
+
 class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
         self.send_header('Pragma', 'no-cache')
         self.send_header('Expires', '0')
         super().end_headers()
-http.server.HTTPServer(('', $PORT), NoCacheHandler).serve_forever()
+
+ServerClass(('', $PORT), NoCacheHandler).serve_forever()
 " 2>/dev/null &
     SERVER_PID=$!
     sleep 1

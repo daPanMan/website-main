@@ -1,0 +1,12 @@
+{
+  "name": "website-main",
+  "version": "1.0.0",
+  "description": "Personal portfolio site built with Three.js",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/run-tests.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^22.1.0"
+  }
+}

@@ -101,7 +101,48 @@ website-main/
 ---
 
 ## AI Chatbot
+---
 
+## Testing
+
+A small Node‑based test harness exercises the `src/features/iframe-display.js`
+module. This is particularly useful for catching the issue where the Unity
+WebGL page would hang network requests and prevent subsequent iframe loads.
+
+Run the tests with:
+
+```bash
+node tests/run-tests.mjs
+```
+
+The tests cover:
+
+1. `showIframe` opening the overlay and setting the correct URL.
+2. `hideIframe` hiding the overlay and resetting/clearing the iframe source.
+3. Ensuring a *fresh* `<iframe>` element is created after each hide (important
+   for unloading Unity's heavy code).
+4. Interrupting a hide with a new show (simulates quick user navigation).
+
+---
+
+## Running locally
+
+The bundled `scripts/localrun.sh` spawns a simple Python HTTP server.  By
+default it uses a multi-threaded handler (`ThreadingHTTPServer` on Python
+3.7+) so that large asset downloads (the Unity build is hundreds of
+megabytes) don't block other requests.  If your environment falls back to the
+single-threaded server, you may observe exactly the problem you described –
+while Unity is downloading, the server will not respond to other pages, which
+appears as “iframe pages won’t load”.
+
+If you still see this behaviour, run another server that supports concurrency
+(e.g. `python -m http.server` on Python 3.7+, `npx http-server`, `live-server`,
+etc.) or wait for the Unity requests to complete before navigating away.  The
+issue is with the local server, not the website code itself.
+
+---
+
+### AI Chatbot
 The site features a fully AI-driven chatbot that lets visitors have real conversations with a digital version of you.
 
 ### Architecture

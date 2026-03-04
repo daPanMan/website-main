@@ -19,36 +19,44 @@ Object.assign(wrapper.style, {
     opacity: '0'
 });
 
-// --- Create the iframe element ---
-const iframeEl = document.createElement('iframe');
-const isMobile = window.innerWidth < 768;
-Object.assign(iframeEl.style, {
-    width:  isMobile ? '95vw' : '65vw',
-    height: isMobile ? '75vh' : '80vh',
-    maxWidth: '900px',
-    maxHeight: '850px',
-    border: 'none',
-    borderRadius: '10px',
-    background: '#fff',
-    opacity: '0.95',
-    pointerEvents: 'auto'      // clicks pass to iframe, not wrapper
-});
-iframeEl.setAttribute('scrolling', 'yes');
-// Allow features that Unity/games inside the iframe may need
-iframeEl.setAttribute('allow', 'autoplay; fullscreen; webgl; gamepad');
+// --- Helper: create a fresh iframe element ---
+function createIframe() {
+    const iframe = document.createElement('iframe');
+    const isMobile = window.innerWidth < 768;
+    Object.assign(iframe.style, {
+        width:  isMobile ? '95vw' : '65vw',
+        height: isMobile ? '75vh' : '80vh',
+        maxWidth: '900px',
+        maxHeight: '850px',
+        border: 'none',
+        borderRadius: '10px',
+        background: '#fff',
+        opacity: '0.95',
+        pointerEvents: 'auto'      // clicks pass to iframe, not wrapper
+    });
+    iframe.setAttribute('scrolling', 'yes');
+    // allow features that Unity/games inside the iframe may need
+    iframe.setAttribute('allow', 'autoplay; fullscreen; webgl; gamepad');
 
-// Allow scrolling inside the iframe on mobile
-iframeEl.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
-iframeEl.addEventListener('touchmove',  e => e.stopPropagation(), { passive: true });
+    // stop touch events from bubbling out of the iframe
+    iframe.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+    iframe.addEventListener('touchmove',  e => e.stopPropagation(), { passive: true });
 
+    return iframe;
+}
+
+// maintain a reference to the *current* iframe element
+let iframeEl = createIframe();
 wrapper.appendChild(iframeEl);
 document.body.appendChild(wrapper);
 
 // Adjust size for mobile / orientation changes
 function adjustIframeSize() {
     const mobile = window.innerWidth < 768;
-    iframeEl.style.width  = mobile ? '95vw' : '65vw';
-    iframeEl.style.height = mobile ? '75vh' : '80vh';
+    if (iframeEl) {
+        iframeEl.style.width  = mobile ? '95vw' : '65vw';
+        iframeEl.style.height = mobile ? '75vh' : '80vh';
+    }
 }
 window.addEventListener('resize', adjustIframeSize);
 window.addEventListener('orientationchange', () => setTimeout(adjustIframeSize, 200));
@@ -56,17 +64,40 @@ window.addEventListener('orientationchange', () => setTimeout(adjustIframeSize, 
 let _isVisible = false;
 let _hidePromise = null; // track in-flight hide so show can wait for it
 
+// Replace the existing iframe with a fresh one. Used when hiding
+// (to ensure heavyweight pages like Unity are torn down) and also at
+// the start of showIframe so we always start with a clean slate.
+function replaceIframe() {
+    if (iframeEl) {
+        // if there is an existing iframe, remove it from DOM; loading
+        // will be cancelled and all JS inside it is destroyed.
+        if (iframeEl.parentNode) iframeEl.parentNode.removeChild(iframeEl);
+    }
+    iframeEl = createIframe();
+    wrapper.appendChild(iframeEl);
+}
+
 /**
  * Show the overlay iframe with the given URL.
  * @param {string} url — page to load
  */
 export function showIframe(url) {
-    // Kill any in-flight tweens so we start from a clean state
-    gsap.killTweensOf(wrapper);
+    // Cancel any pending hide animation; we will show immediately.
+    if (_hidePromise) {
+        gsap.killTweensOf(wrapper);
+        _hidePromise = null;
+    }
+
+    // Always recreate the iframe for a fresh context. This is especially
+    // important after a Unity WebGL page has been shown because the engine
+    // tends to hold onto the WebGL context and memory, which can interfere
+    // with subsequent navigations.
+    replaceIframe();
 
     iframeEl.src = url;
     wrapper.style.display = 'flex';
     _isVisible = true;
+    // clear any leftover hide promise state
     _hidePromise = null;
 
     // On mobile, shift iframe towards top so the hanging geometry stays visible
@@ -91,9 +122,16 @@ export function hideIframe() {
     if (!_isVisible) return Promise.resolve();
     _isVisible = false;
 
-    // Kill any in-flight tweens to prevent conflicts
+    // Cancel any running animation on the wrapper (fade-in or fade-out)
     gsap.killTweensOf(wrapper);
 
+    // Immediately stop whatever the iframe is loading by clearing its src
+    // and replacing the element. This ensures that heavy pages like the
+    // Unity WebGL build are torn down without waiting for the fade animation.
+    iframeEl.src = 'about:blank';
+    replaceIframe();
+
+    // Fade the wrapper out; the promise resolves once the fade completes.
     _hidePromise = new Promise(resolve => {
         gsap.to(wrapper, {
             opacity: 0,
@@ -101,7 +139,6 @@ export function hideIframe() {
             ease: 'power2.in',
             onComplete: () => {
                 wrapper.style.display = 'none';
-                iframeEl.src = 'about:blank'; // free resources
                 _hidePromise = null;
                 resolve();
             }
