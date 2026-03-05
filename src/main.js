@@ -17,6 +17,8 @@ import { miniGameCube } from './geometry/mini-game.js';
 import { snakeGeometry } from './geometry/snake.js';
 import { tictactoeGeometry } from './geometry/tictactoe.js';
 import { euchreGeometry } from './geometry/euchre.js';
+import { combatSimulatorGeometry } from './geometry/combat-simulator.js';
+import { guessNumberGeometry } from './geometry/guess-number.js';
 import { recordGeometry } from './geometry/record.js';
 import './ui-intro.js';
 
@@ -48,6 +50,8 @@ const cubeSpecs = [
             { factory: () => snakeGeometry(), label: "Snake",             title: "Snake",             url: './pages/snake.html' },
             { factory: () => tictactoeGeometry(), label: "Tic Tac Toe",     title: "Tic Tac Toe",     url: './pages/tictactoe.html' },
             { factory: () => euchreGeometry(), label: "Euchre",           title: "Euchre",           url: './pages/euchre.html' },
+            { factory: () => combatSimulatorGeometry(), label: "1D Combat",    title: "1D Combat Simulator", url: './pages/1d-combat-simulator/index.html' },
+            { factory: () => guessNumberGeometry(), label: "Guess #",        title: "Guess My Number",    url: './pages/guess-my-number/index.html' },
         ]
     }
 ];

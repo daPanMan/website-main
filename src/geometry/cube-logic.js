@@ -73,16 +73,30 @@ function generatePositions(count) {
         }
         return positions;
     }
-    // Desktop: circular layout
-    const radius = 6;
+    // Desktop: circular layout, wider horizontally but keep vertical span limited
+    const radiusX = 8;   // bump outward to fan wider
+    const radiusY = 6;   // keep same vertical extent as before
     const positions = [];
+    // how much to nudge everything downward (except the bottom-most item)
+    const downwardShift = 1.5;
     for (let i = 0; i < count; i++) {
         const angle = -Math.PI / 2 + (i / count) * Math.PI * 2;
+        const y = Math.sin(angle) * radiusY;
+        let adjustedY = y + downwardShift;
+        // the first element (angle = -π/2) sits at the bottom; keep it unmoved
+        if (i === 0) {
+            adjustedY = y;
+        }
         positions.push({
-            x: Math.cos(angle) * radius,
-            y: Math.sin(angle) * radius,
+            x: Math.cos(angle) * radiusX,
+            y: adjustedY,
             z: 0
         });
+    }
+    // recenter vertically so the mean y is zero (keeps big title in center)
+    const meanY = positions.reduce((sum, p) => sum + p.y, 0) / positions.length;
+    if (meanY !== 0) {
+        positions.forEach(p => { p.y -= meanY; });
     }
     return positions;
 }
@@ -165,25 +179,28 @@ function getSubPositions(count) {
 
     if (isMobile) {
         // Mobile: semi-circle above the parent (upper half of circle)
-        const radius = 4;
-        // Sweep from left (π) to right (0) — upper semi-circle
+        const baseRadius = 6;
         for (let i = 0; i < n; i++) {
-            const angle = Math.PI - (i / (n - 1 || 1)) * Math.PI; // π → 0
+            const angle = n === 1 ? Math.PI / 2 : Math.PI - (i / (n - 1)) * Math.PI;
+            // dynamic radius: short when angle near π/2 (straight up), larger when angled down
+            const diff = Math.abs(angle - Math.PI / 2);
+            const radius = baseRadius + diff * 2;
             positions.push({
                 x: Math.cos(angle) * radius,
-                y: Math.sin(angle) * radius + 1,  // shift up a bit from center
+                y: Math.sin(angle) * radius + 1,
                 z: 0
             });
         }
     } else {
-        // Desktop: semi-circle fan above center
-        const radius = 4;
-        // Sweep from ~170° to ~10° (wider upper arc), evenly spaced
-        const startAngle = Math.PI * 0.95;  // ~171°
-        const endAngle   = Math.PI * 0.05;  // ~9°
+        // Desktop: semi-circle fan above center with variable distance
+        const baseRadius = 3.5;
+        const startAngle = Math.PI;  // 180° (left)
+        const endAngle   = 0;        // 0° (right)
         for (let i = 0; i < n; i++) {
             const t = n === 1 ? 0.5 : i / (n - 1);
             const angle = startAngle + (endAngle - startAngle) * t;
+            const diff = Math.abs(angle - Math.PI / 2);
+            const radius = baseRadius + diff * 2;
             positions.push({
                 x: Math.cos(angle) * radius,
                 y: Math.sin(angle) * radius,

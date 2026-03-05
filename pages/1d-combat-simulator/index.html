@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1D Combat Simulator</title>
+<style>
+    /* reuse style from accessible terminal games */
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#0c0c0c;display:flex;align-items:center;justify-content:center;height:100vh;font-family:'Consolas',monospace;overflow:hidden;}
+    #terminal{width:100vw;height:100vh;background:#1a1a2e;display:flex;flex-direction:column;overflow:hidden;}
+    #titlebar{background:#16162a;padding:8px 14px;display:flex;align-items:center;gap:7px;border-bottom:1px solid #333;flex-shrink:0;}
+    .dot{width:11px;height:11px;border-radius:50%;}.dot.r{background:#ff5f56;}.dot.y{background:#ffbd2e;}.dot.g{background:#27c93f;}#titlebar span{color:#888;font-size:12px;margin-left:8px;}
+    #output{flex:1;overflow-y:auto;padding:14px;font-size:clamp(11px,2.2vw,14px);line-height:1.5;color:#c8c8c8;white-space:pre-wrap;word-break:break-word;scrollbar-width:thin;scrollbar-color:#333 transparent;}
+    #output::-webkit-scrollbar{width:6px;}#output::-webkit-scrollbar-thumb{background:#333;border-radius:3px;}
+    #output .prompt{color:#16e0bd;}
+    #input-row{display:flex;align-items:center;padding:8px 14px 12px;border-top:1px solid #222;flex-shrink:0;background:#16162a;}
+    #input-row label{color:#16e0bd;font-size:clamp(11px,2.2vw,14px);margin-right:6px;white-space:nowrap;}
+    #input-row input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-family:inherit;font-size:clamp(11px,2.2vw,14px);caret-color:#16e0bd;}
+</style>
+</head>
+<body>
+<div id="terminal">
+    <div id="titlebar">
+        <div class="dot r"></div>
+        <div class="dot y"></div>
+        <div class="dot g"></div>
+        <span>1D Combat Simulator</span>
+    </div>
+    <div id="output"></div>
+    <div id="input-row"><label>&gt;</label><input id="input" type="text" autocomplete="off" autofocus /></div>
+</div>
+<script>
+(function(){
+const out=document.getElementById('output');const inp=document.getElementById('input');let inputResolve=null;
+function print(t,cls){const s=document.createElement('span');if(cls)s.className=cls;s.textContent=t;out.appendChild(s);out.scrollTop=out.scrollHeight;}
+function println(t,cls){print((t||'')+"\n",cls);}function waitInput(){return new Promise(r=>{inputResolve=r;inp.disabled=false;inp.focus();});}
+inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&inputResolve){const v=inp.value.trim();inp.value='';inp.disabled=true;println(v);inputResolve(v);inputResolve=null;}});
+// click to focus
+document.body.addEventListener('click',()=>{inp.disabled=false;inp.focus();});document.body.addEventListener('touchstart',()=>{inp.disabled=false;inp.focus();},{passive:true});
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function runBattle(){
+    println('SPARTAN VS. ATHENIAN!');
+    let numA = Number(await getNumber('Athenians'));
+    let numS = Number(await getNumber('Spartans'));
+    let startA = numA, startS = numS;
+    const result = await simulateBattle(numA,numS);
+    printResult(result.numA, result.numS, startA, startS);
+} 
+async function getNumber(who){print('Enter the number of '+who+': ' ,'prompt');let v=await waitInput();while(isNaN(Number(v))){print('Invalid entry. Try again: ','prompt');v=await waitInput();}return v;}
+function printResult(a,s,sa,ss){
+    println('\nThe battle is over.');
+    if(a>0&&s==0){
+        println('Athenians won!');
+        println('There are '+a+' Athenians left.');
+    }
+    if(s>0&&a==0){
+        println('Spartans won!');
+        println('There are '+s+' Spartans left.');
+    }
+    // pluralize properly
+    const lostS = ss - s;
+    const lostA = sa - a;
+    const spWord = lostS === 1 ? 'Spartan' : 'Spartans';
+    const atWord = lostA === 1 ? 'Athenian' : 'Athenians';
+    println(`${lostS} ${spWord} and ${lostA} ${atWord} lost ${
+        (lostS+lostA) === 1 ? 'its life.' : 'their lives.'
+    }`);
+} 
+async function simulateBattle(numA,numS){
+            let turn='A';
+            const rand=Math.random;
+            println('FIGHT!!!!!!!\n');
+            // track last printed values to avoid spamming unchanged counts
+            let lastA = numA, lastS = numS;
+            while(numA>0&&numS>0){
+                let attackResult = rand();
+                if(turn==='A'){
+                    if(animSpan) out.appendChild(animSpan);
+                    await anim('A','S');
+                    if(attackResult<=0.12){ numS--; }
+                } else {
+                    if(animSpan) out.appendChild(animSpan);
+                    await anim('S','A',true); // reverse direction when Spartan attacks
+                    if(attackResult<=0.16){ numA--; }
+                }
+                turn = turn==='A'?'S':'A';
+                if(numA!==lastA || numS!==lastS){
+                    println(numA+' A --------- '+numS+' S');
+                    lastA = numA;
+                    lastS = numS;
+                }
+            }
+            // return remaining counts so caller can report them
+            return { numA, numS };
+        }
+// Animation uses a single reusable span and a simple progress bar to
+// indicate the attack sweeping across from attacker to defender.  The bar
+// resets automatically each turn and does not disturb the rest of the log.
+let animSpan = null;
+async function anim(a,b,reverse=false){
+            const length = 12;          // number of steps in the bar
+            const delay = 150;          // ms between steps
+            if(!animSpan){
+                animSpan = document.createElement('span');
+                animSpan.style.display = 'block';
+                out.appendChild(animSpan);
+            }
+            for(let i=0;i<=length;i++){
+                // build bar: ‘=’ indicates progress, arrow shows direction
+                let bar;
+                if(reverse){
+                    // attacker is on the right, arrow points left
+                    bar = ' '.repeat(length-i) + '<' + '='.repeat(i);
+                } else {
+                    // attacker on left, arrow points right
+                    bar = '='.repeat(i) + '>' + ' '.repeat(length-i);
+                }
+                animSpan.textContent = `${a} ${bar} ${b}`;
+                await sleep(delay);
+            }
+            // leave final state briefly before control returns
+        }
+
+inp.disabled=true;runBattle();
+})();
+</script>
+</body>
+</html>

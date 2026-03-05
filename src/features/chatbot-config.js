@@ -51,7 +51,7 @@ const CHATBOT_CONFIG = {
         siteDetails: {
             techStack: "Three.js, GSAP, CSS3DRenderer, vanilla JavaScript (ES modules)",
             features: ["3D floating geometries", "sub-page expansion system", "iframe overlays", "mobile native scroll", "interactive title gimmicks", "AI chatbot", "volume controls"],
-            games: ["Pong", "Pig Game (dice)", "Dodge Blocks (Unity WebGL)"],
+            games: ["Pong", "Pig Game (dice)", "1D Combat Simulator", "Guess My Number", "Dodge Blocks (Unity WebGL)"],
         },
     },
 
@@ -69,7 +69,7 @@ const CHATBOT_CONFIG = {
         "I'm still working on this site, so expect more cool stuff soon!",
         "Thanks for visiting jpswag.com! Poke around and have fun. 🚀",
         "Try clicking on 'This is John Pan' at the top — there's a hidden gimmick! ✨",
-        "I made a few mini-games on this site — Pong, Pig Game, and a Unity game called Dodge Blocks.",
+        "I made a few mini-games on this site — Pong, Pig Game, 1D Combat Simulator, Guess My Number, and a Unity game called Dodge Blocks.",
         "My Instagram is @zegroopepe if you wanna see what I'm up to.",
         "Add me on Snapchat — @galvatronuson 👻",
         "I designed every 3D shape on this site by hand in code. No Blender, no 3D tools — just math.",

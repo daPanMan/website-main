@@ -274,6 +274,21 @@ Dark-themed fullscreen terminal (Consolas/Courier) with color-coded output: cyan
 
 ---
 
+### 1D Combat Simulator & Guess My Number
+
+Two additional games were added under the Games submenu.
+
+* **1D Combat Simulator** is a text-based Spartan vs. Athenian battle
+  simulator. Enter army sizes and watch an ASCII fight play out with
+  casualty tracking. Ported from the original C++ project in
+  `1D-Combat-Simulator-main`.
+* **Guess My Number** is a browser-based guessing game (1–20) including
+  score/highscore logic. This mirrors the original `Guess-My-Number-main`
+  page and stylesheet exactly.
+
+Both appear as new sub-items in the gamepad cube and use simple cube
+icons with invisible hit spheres for easy clicking.
+
 ### To-Do List
 1. ~~add nested geometries, namely new shapes show up after clicking a single shape~~
 2. ~~change title fonts, and maybe add some animations~~
