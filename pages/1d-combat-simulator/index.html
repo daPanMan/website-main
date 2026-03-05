@@ -79,11 +79,11 @@ async function simulateBattle(numA,numS){
                 let attackResult = rand();
                 if(turn==='A'){
                     if(animSpan) out.appendChild(animSpan);
-                    await anim('A','S');
+                    await anim(true); // attacker is A
                     if(attackResult<=0.12){ numS--; }
                 } else {
                     if(animSpan) out.appendChild(animSpan);
-                    await anim('S','A',true); // reverse direction when Spartan attacks
+                    await anim(false); // attacker is S
                     if(attackResult<=0.16){ numA--; }
                 }
                 turn = turn==='A'?'S':'A';
@@ -97,10 +97,10 @@ async function simulateBattle(numA,numS){
             return { numA, numS };
         }
 // Animation uses a single reusable span and a simple progress bar to
-// indicate the attack sweeping across from attacker to defender.  The bar
-// resets automatically each turn and does not disturb the rest of the log.
+// indicate the attack sweeping across from attacker to defender.  A and S
+// always occupy the same positions on the left/right; only the bar moves.
 let animSpan = null;
-async function anim(a,b,reverse=false){
+async function anim(attackerIsA){
             const length = 12;          // number of steps in the bar
             const delay = 150;          // ms between steps
             if(!animSpan){
@@ -109,16 +109,13 @@ async function anim(a,b,reverse=false){
                 out.appendChild(animSpan);
             }
             for(let i=0;i<=length;i++){
-                // build bar: ‘=’ indicates progress, arrow shows direction
                 let bar;
-                if(reverse){
-                    // attacker is on the right, arrow points left
-                    bar = ' '.repeat(length-i) + '<' + '='.repeat(i);
-                } else {
-                    // attacker on left, arrow points right
+                if(attackerIsA){
                     bar = '='.repeat(i) + '>' + ' '.repeat(length-i);
+                } else {
+                    bar = ' '.repeat(length-i) + '<' + '='.repeat(i);
                 }
-                animSpan.textContent = `${a} ${bar} ${b}`;
+                animSpan.textContent = `A ${bar} S`;
                 await sleep(delay);
             }
             // leave final state briefly before control returns
