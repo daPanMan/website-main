@@ -79,12 +79,64 @@ async function testInterruptHide() {
     console.log('✓ interrupting hide with show cancels hide');
 }
 
+// geometry tests ------------------------------------------------------------
+async function testSnakeHitbox() {
+    // ensure THREE is available on the fake window used by geometry
+    // we lazily require it so it only installs when tests run
+    const THREE = await import('three');
+    // dynamic import returns module namespace
+    global.window.THREE = THREE;
+
+    // import geometry factory and create object
+    const { snakeGeometry } = await import('../src/geometry/snake.js');
+    const obj = snakeGeometry();
+    // traverse looking for an invisible mesh
+    let found = false;
+    obj.traverse(child => {
+        if (child.isMesh && child.material && child.material.visible === false) {
+            found = true;
+        }
+    });
+    if (!found) {
+        throw new Error('snake geometry missing invisible hitbox mesh');
+    }
+    console.log('✓ snake geometry includes invisible hitbox mesh');
+}
+
+// ---------- CLI page focus tests ----------
+import fs from 'fs';
+
+/**
+ * Ensure the HTML contains listeners that bring focus back to the input when
+ * the page is clicked or touched. We avoid executing the full script because
+ * the games contain modern JS that jsdom sometimes refuses to parse.
+ */
+function testPageContainsFocusCode(path) {
+    const html = fs.readFileSync(path, 'utf-8');
+    if (!/body\.addEventListener\(['"]click['"]/.test(html)) {
+        throw new Error(`no click listener in ${path}`);
+    }
+    if (!/addEventListener\(['"]touchstart['"]/.test(html)) {
+        throw new Error(`no touchstart listener in ${path}`);
+    }
+    // also check for disabled reset in handler
+    if (!/inp\.disabled\s*=\s*false/.test(html)) {
+        throw new Error(`click handler does not re-enable input in ${path}`);
+    }
+    console.log(`✓ ${path} contains click/touch handlers for focusing input`);
+}
+
 (async () => {
     try {
         await testShowAndVisibility();
         await testHideAndClear();
         await testReplacement();
         await testInterruptHide();
+        // run geometry tests
+        await testSnakeHitbox();
+        // run focus tests on the CLI pages
+        testPageContainsFocusCode('pages/euchre.html');
+        testPageContainsFocusCode('pages/tictactoe.html');
         console.log('All tests passed.');
     } catch (err) {
         console.error('Test failure:', err);

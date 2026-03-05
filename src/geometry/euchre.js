@@ -60,12 +60,19 @@ export function euchreGeometry() {
     trumpGem.rotation.z = Math.PI / 4;
     group.add(trumpGem);
 
-    // Invisible click plane behind everything
+    // Invisible click geometry behind everything: both a plane and a
+    // fat sphere ensure hits even when cursor is slightly off the fan.
     const hitMat = new T.MeshBasicMaterial({ visible: false });
-    const hitBox = new T.Mesh(new T.PlaneGeometry(1.8, 1.6), hitMat);
-    hitBox.position.z = -0.03;
-    group.add(hitBox);
+    const scaleFactor = 1.3;
+    const hitPlane = new T.Mesh(new T.PlaneGeometry(1.8 * scaleFactor, 1.6 * scaleFactor), hitMat);
+    hitPlane.position.z = -0.03;
+    group.add(hitPlane);
+    const sphereRadius = Math.hypot(1.8, 1.6) * 0.5 * scaleFactor; // cover diagonal
+    const hitSphere = new T.Mesh(new T.SphereGeometry(sphereRadius, 8, 8), hitMat);
+    hitSphere.position.set(0, 0, 0);
+    group.add(hitSphere);
 
-    group.scale.setScalar(2.25);
+    // scale up by 1.3× to make the entire shape larger
+    group.scale.setScalar(2.25 * scaleFactor);
     return group;
 }

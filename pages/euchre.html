@@ -101,6 +101,29 @@
 </div>
 
 <script>
+// preliminary checks must run in their own script block so that the entire
+// subsequent code need not be parsed in old engines.
+// give a warning if user opened via file:// since the site expects
+// to be hosted over HTTP (iframe navigation and some engines behave weirdly)
+if (location.protocol === 'file:') {
+    document.body.innerHTML = '<div style="color:#fff;background:#000;padding:20px;font-family:monospace;">' +
+        'This game must be served over HTTP. Please run the local server (e.g. scripts/localrun.sh) ' +
+        'or use any static file server, then open via http://localhost.</div>';
+    throw new Error('served via file protocol');
+}
+
+// feature test for modern JS (classes, const) so that clients know why the
+// page might be blank in ancient browsers like IE11.
+try {
+    new Function('class Test{}');
+} catch (e) {
+    document.body.innerHTML = '<div style="color:#fff;background:#000;padding:20px;font-family:monospace;">' +
+        'Euchre game requires a modern browser. Please upgrade or use Chrome/Firefox/Edge.' +
+        '</div>';
+    throw e;
+}
+</script>
+<script type="text/template" id="euchre-code">
 (function() {
 // ============ Terminal I/O ============
 const out = document.getElementById('output');
@@ -135,18 +158,10 @@ inp.addEventListener('keydown', (e) => {
     }
 });
 
-// ============ Card ============
-const SUITS = ['Spades', 'Hearts', 'Clubs', 'Diamonds'];
-const RANKS = ['Two','Three','Four','Five','Six','Seven','Eight',
-               'Nine','Ten','Jack','Queen','King','Ace'];
-
-function suitIndex(s) { return SUITS.indexOf(s); }
-function rankIndex(r) { return RANKS.indexOf(r); }
-
-function Suit_next(suit) {
-    const map = { Clubs:'Spades', Spades:'Clubs', Hearts:'Diamonds', Diamonds:'Hearts' };
-    return map[suit];
-}
+// clicking anywhere should bring focus back to the text input so the caret
+// appears. if the input was disabled (after submitting) we also re-enable it.
+document.body.addEventListener('click', () => { inp.disabled = false; inp.focus(); });
+document.body.addEventListener('touchstart', () => { inp.disabled = false; inp.focus(); }, { passive: true });
 
 class Card {
     constructor(rank, suit) {
@@ -663,6 +678,22 @@ async function runGame() {
 
 inp.disabled = true;
 runGame();
+})();
+</script>
+<script>
+// after template-defined game code, evaluate it directly. using eval avoids
+// any quirks of dynamic module loaders in older browsers; the earlier
+// compatibility tests ensure class syntax is safe.
+(function() {
+    if (location.protocol === 'file:') return;
+    const tmpl = document.getElementById('euchre-code');
+    if (!tmpl) return;
+    try {
+        const code = tmpl.textContent;
+        eval(code);
+    } catch (err) {
+        console.error('Failed to load game code:', err);
+    }
 })();
 </script>
 </body>

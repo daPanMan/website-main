@@ -153,6 +153,11 @@
         }
     });
 
+    // Make the input get focus if the user clicks or taps anywhere in the iframe.
+    // Also re-enable the field in case it was disabled after a submit.
+    document.body.addEventListener('click', () => { inp.disabled = false; inp.focus(); });
+    document.body.addEventListener('touchstart', () => { inp.disabled = false; inp.focus(); }, { passive: true });
+
     // --- Board ---
     // Internal board: 3x3, values '1'-'9', 'X', 'O'
     let board = [];

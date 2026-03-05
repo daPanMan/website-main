@@ -142,6 +142,23 @@ issue is with the local server, not the website code itself.
 
 ---
 
+### Browser compatibility
+
+The CLI games (Euchre, Tic‑Tac‑Toe) are written using modern JavaScript
+features such as `class`, `async/await`, and `const`. Older browsers (Internet
+Explorer, some embedded browsers) will throw a syntax error and the page will
+remain blank.  A simple feature test is run at the top of `pages/euchre.html`
+which displays a warning message if the browser is too old.  Additionally, the
+page must be served over HTTP — opening it directly via `file://` will show a
+notice asking you to run the local server (`scripts/localrun.sh` or similar).
+(The game logic itself is stored in a `<script type="text/template">` and
+is injected/evaluated only after the checks complete; this prevents any
+syntax errors during the initial HTML parse.)  If you encounter "game doesn't
+load" errors, try again with a current Chrome, Firefox, Safari, or Edge build
+and ensure you're accessing the site via `http://` rather than `file://`.
+
+---
+
 ### AI Chatbot
 The site features a fully AI-driven chatbot that lets visitors have real conversations with a digital version of you.
 

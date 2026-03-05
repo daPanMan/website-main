@@ -151,6 +151,19 @@ export function snakeGeometry() {
     leaf.rotation.z = -0.5;
     group.add(leaf);
 
+    // --- invisible halo for easier clicking ---
+    // compute a rough bounding sphere around the assembled snake and add a
+    // larger, fully transparent mesh. The raycaster will hit this instead of
+    // the thin tube when the user clicks near the body.
+    const bbox = new T.Box3().setFromObject(group);
+    const center = bbox.getCenter(new T.Vector3());
+    const size = bbox.getSize(new T.Vector3()).length();
+    const radius = size * 0.6; // a bit larger than the diagonal length
+    const hitMat = new T.MeshBasicMaterial({ visible: false });
+    const hitSphere = new T.Mesh(new T.SphereGeometry(radius, 8, 8), hitMat);
+    hitSphere.position.copy(center);
+    group.add(hitSphere);
+
     group.scale.setScalar(1.2);
     return group;
 }
