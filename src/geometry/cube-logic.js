@@ -452,6 +452,18 @@ export function collapseToMain(restoreTitles = true) {
     expandedParent = null;
 }
 
+// -----------------------------------------------------------------------------
+// Demo helper: expand "My Projects" then show URL in iframe
+export function demoProject(url) {
+    const parent = cubes.find(c => c.userData.label === "My Projects");
+    if (!parent) return;
+    if (!expandedParent) expandParent(parent);
+    // delay to let sub-geometries appear
+    setTimeout(() => {
+        showIframe(url);
+    }, 1200);
+}
+
 // ==================== CLICK HANDLER ====================
 
 let zoomedCube = null; // cube zoomed in for iframe (non-subItem objects)

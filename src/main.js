@@ -41,7 +41,9 @@ const cubeSpecs = [
         ]
     },
     { type: recordGeometry(), label: "My Tracks", url: './pages/spotify.html', userData: { title: "My Tracks" } },
-    { type: projectsGeometry(), label: "My Projects", url: './pages/projects/', userData: { title: "My Projects" } },
+    // projects cube now opens the projects subpage (which contains a CV iframe)
+    { type: projectsGeometry(), label: "My Projects", url: './pages/projects/index.html', userData: { title: "My Projects" } },
+
     {
         type: gamepad(), label: "Games", url: './pages/pong.html',
         userData: { title: "Games" },
@@ -62,4 +64,5 @@ setupCubes(cubeSpecs);
 // Start animation loop
 animate();
 
+// demo query handling removed – projects now all in one page.
 // Additional UI, event, and iframe logic can be imported and initialized here
