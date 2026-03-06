@@ -197,6 +197,8 @@ function testSimplePageContent(path, substring) {
         // verify new game pages exist and contain expected text
         testSimplePageContent('pages/1d-combat-simulator/index.html', 'SPARTAN VS. ATHENIAN');
         testSimplePageContent('pages/guess-my-number/index.html', 'Guess My Number');
+        testSimplePageContent('pages/projects.html', 'My Projects');
+        testSimplePageContent('pages/projects.html', 'Dithering & Quantization');
         console.log('All tests passed.');
     } catch (err) {
         console.error('Test failure:', err);

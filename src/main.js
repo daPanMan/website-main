@@ -20,6 +20,7 @@ import { euchreGeometry } from './geometry/euchre.js';
 import { combatSimulatorGeometry } from './geometry/combat-simulator.js';
 import { guessNumberGeometry } from './geometry/guess-number.js';
 import { recordGeometry } from './geometry/record.js';
+import { projectsGeometry } from './geometry/projects.js';
 import './ui-intro.js';
 
 // Setup big title
@@ -40,6 +41,7 @@ const cubeSpecs = [
         ]
     },
     { type: recordGeometry(), label: "My Tracks", url: './pages/spotify.html', userData: { title: "My Tracks" } },
+    { type: projectsGeometry(), label: "My Projects", url: './pages/projects/', userData: { title: "My Projects" } },
     {
         type: gamepad(), label: "Games", url: './pages/pong.html',
         userData: { title: "Games" },
