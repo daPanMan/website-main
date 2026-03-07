@@ -178,18 +178,17 @@ function getSubPositions(count) {
     const positions = [];
 
     if (isMobile) {
-        // Mobile: semi-circle above the parent (upper half of circle)
-        const baseRadius = 6;
+        // Mobile: instead of a fan, arrange subs in two vertical columns below
+        // the theme geometry.  This puts the parent icon on top and then
+        // children in a simple grid for easier tapping on small screens.
+        const spacingX = 3;
+        const spacingY = 2.5;
         for (let i = 0; i < n; i++) {
-            const angle = n === 1 ? Math.PI / 2 : Math.PI - (i / (n - 1)) * Math.PI;
-            // dynamic radius: short when angle near π/2 (straight up), larger when angled down
-            const diff = Math.abs(angle - Math.PI / 2);
-            const radius = baseRadius + diff * 2;
-            positions.push({
-                x: Math.cos(angle) * radius,
-                y: Math.sin(angle) * radius + 1,
-                z: 0
-            });
+            const col = i % 2;              // 0=left, 1=right
+            const row = Math.floor(i / 2);
+            const x = col === 0 ? -spacingX : spacingX;
+            const y = 1 - row * spacingY;    // start just below parent, go downward
+            positions.push({ x, y, z: 0 });
         }
     } else {
         // Desktop: semi-circle fan above center with variable distance
@@ -255,11 +254,12 @@ function expandParent(parentObj) {
 
     // 3. Move the clicked object to center of the fan (parent stays visible)
     if (window.innerWidth < 768) {
-        // Mobile: center the parent
+        // Mobile: lift the parent higher so it clearly sits above the
+        // two-column children grid.
         if (window.bigTitle) {
             gsap.to(window.bigTitle.element.style, { opacity: 0, duration: 0.4 });
         }
-        gsap.to(parentObj.position, { x: 0, y: 0, z: -1, duration: 0.8, ease: 'power2.out' });
+        gsap.to(parentObj.position, { x: 0, y: 5.5, z: -1, duration: 0.8, ease: 'power2.out' });
     } else {
         gsap.to(parentObj.position, { x: 0, y: -1.8, z: 0, duration: 0.8, ease: 'power2.out' });
     }

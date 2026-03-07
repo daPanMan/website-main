@@ -5,6 +5,7 @@ let total1 = document.querySelector('#score--0');
 let total2 = document.querySelector('#score--1');
 let player1 = document.querySelector('.player--0');
 let player2 = document.querySelector('.player--1');
+let btnSwap = document.querySelector('.btn--swap');
 let btnRenew = document.querySelector('.btn--new');
 let btnRoll = document.querySelector('.btn--roll');
 let btnHold = document.querySelector('.btn--hold');
@@ -27,6 +28,9 @@ function initialize() {
   total1.textContent = 0;
   total2.textContent = 0;
   dice.classList.add('hidden');
+  // reveal both panels when starting a new game
+  player1.classList.remove('hidden-mobile');
+  player2.classList.remove('hidden-mobile');
 }
 
 function switchPlayer() {
@@ -84,3 +88,11 @@ btnRoll.addEventListener('click', function () {
 });
 
 btnHold.addEventListener('click', switchPlayer);
+
+// mobile swap logic: hide inactive panel
+if (btnSwap) {
+    btnSwap.addEventListener('click', () => {
+        player1.classList.toggle('hidden-mobile');
+        player2.classList.toggle('hidden-mobile');
+    });
+}

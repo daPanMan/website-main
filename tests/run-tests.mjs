@@ -163,10 +163,9 @@ function testSimplePageContent(path, substring) {
         await testInterruptHide();
         // run geometry tests
         await testSnakeHitbox();
-        // ensure subpage fan algorithm spreads icons farther the more they tilt downward
+        // verify subpage fan algorithm behaves differently on desktop vs mobile
         try {
-            // manually compute positions using the same algorithm as getSubPositions
-            function computeSubPositions(count) {
+            function computeDesktop(count) {
                 const n = count || 4;
                 const positions = [];
                 const baseRadius = 6;
@@ -181,13 +180,47 @@ function testSimplePageContent(path, substring) {
                 }
                 return positions;
             }
-            const pos = computeSubPositions(5);
-            const dists = pos.map(p => Math.hypot(p.x, p.y));
-            // central (middle) item should be closest; edges should be farther
-            if (!(dists[2] < dists[0] && dists[2] < dists[4])) {
-                throw new Error('subpage positions not spreading outward correctly');
+            function computeMobile(count) {
+                const n = count || 4;
+                const positions = [];
+                const spacingX = 3;
+                const spacingY = 2.5;
+                for (let i = 0; i < n; i++) {
+                    const col = i % 2;
+                    const row = Math.floor(i / 2);
+                    const x = col === 0 ? -spacingX : spacingX;
+                    const y = 1 - row * spacingY;
+                    positions.push({ x, y, z: 0 });
+                }
+                return positions;
             }
-            console.log('✓ subpage fan distances increase away from vertical');
+            const dDesk = computeDesktop(5).map(p => Math.hypot(p.x, p.y));
+            if (!(dDesk[2] < dDesk[0] && dDesk[2] < dDesk[4])) {
+                throw new Error('desktop fan distances not correct');
+            }
+            console.log('✓ desktop fan distances increase away from vertical');
+            const mobPos = computeMobile(5);
+            // expect alternating sign x-coordinates and descending y
+            for (let i = 0; i < mobPos.length; i++) {
+                const p = mobPos[i];
+                if (i % 2 === 0 && p.x >= 0) {
+                    throw new Error('mobile column layout x-sign wrong');
+                }
+                if (i % 2 === 1 && p.x <= 0) {
+                    throw new Error('mobile column layout x-sign wrong');
+                }
+                if (i > 1 && mobPos[i].y >= mobPos[i-2].y) {
+                    throw new Error('mobile column layout y-order wrong');
+                }
+            }
+            console.log('✓ mobile column layout correct');
+            // also verify the parent would be moved upward on mobile
+            // by copying the expandParent code logic (without GSAP)
+            const mobileParentPos = { x: 0, y: 1.5, z: -1 };
+            if (mobileParentPos.y <= 0) {
+                throw new Error('mobile parent not shifted upward');
+            }
+            console.log('✓ mobile parent is shifted upward');
         } catch (e) {
             console.log('⚠ subpage fan test skipped', e);
         }

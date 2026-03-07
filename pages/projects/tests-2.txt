@@ -1,0 +1,22 @@
+
+> website-main@1.0.0 test
+> node tests/run-tests.mjs
+
+✓ showIframe sets display and src
+✓ hideIframe hides and replaces iframe immediately
+✓ iframe element recreated after hide
+✓ interrupting hide with show cancels hide
+✓ ../src/geometry/snake.js has invisible hitbox
+✓ ../src/geometry/combat-simulator.js has invisible hitbox
+⚠ guess-number geometry test skipped (font/canvas unavailable)
+✓ desktop fan distances increase away from vertical
+✓ mobile fan distances reverse logic
+✓ pages/euchre.html contains click/touch handlers for focusing input
+✓ pages/tictactoe.html contains click/touch handlers for focusing input
+✓ pages/1d-combat-simulator/index.html contains "SPARTAN VS. ATHENIAN"
+✓ pages/guess-my-number/index.html contains "Guess My Number"
+✓ pages/projects/index.html contains "UofM Dining AI Advisor"
+✓ projects index embeds showcase iframe
+✓ pages/projects/showcase.html contains "UofM Dining AI Advisor"
+✓ showcase page includes click-to-open-image script
+All tests passed.
