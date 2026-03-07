@@ -122,6 +122,8 @@ async function testSnakeHitbox() {
             console.log('⚠ guess-number geometry test skipped (font/canvas unavailable)');
         }
     })();
+    // ensure new fork-knife geometry has hitbox
+    await check('../src/geometry/fork-knife.js');
 }
 
 // ---------- CLI page focus tests ----------
@@ -224,6 +226,14 @@ function testSimplePageContent(path, substring) {
         } catch (e) {
             console.log('⚠ subpage fan test skipped', e);
         }
+        // verify GitHub link uses _top to escape iframe
+        {
+            const html = fs.readFileSync('pages/projects/showcase.html','utf-8');
+            if (!/target="_top"/.test(html)) {
+                throw new Error('GitHub link not top-level');
+            }
+            console.log('✓ GitHub link uses _top target');
+        }
         // run focus tests on the CLI pages
         testPageContainsFocusCode('pages/euchre.html');
         testPageContainsFocusCode('pages/tictactoe.html');
@@ -231,7 +241,7 @@ function testSimplePageContent(path, substring) {
         testSimplePageContent('pages/1d-combat-simulator/index.html', 'SPARTAN VS. ATHENIAN');
         testSimplePageContent('pages/guess-my-number/index.html', 'Guess My Number');
         // projects subpage should simply embed the CV showcase via iframe
-        testSimplePageContent('pages/projects/index.html', 'UofM Dining AI Advisor');
+        testSimplePageContent('pages/projects/index.html', 'Recipes & Ratings');
         {
             const html = fs.readFileSync('pages/projects/index.html', 'utf-8');
             if (!/<iframe\s+src="showcase\.html"/.test(html)) {
@@ -239,7 +249,7 @@ function testSimplePageContent(path, substring) {
             }
             console.log('✓ projects index embeds showcase iframe');
         }
-        testSimplePageContent('pages/projects/showcase.html', 'UofM Dining AI Advisor');
+        testSimplePageContent('pages/projects/showcase.html', 'Recipes & Ratings');
 
 // confirm the showcase script exists and handles image clicks
 {

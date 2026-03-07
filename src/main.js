@@ -21,7 +21,7 @@ import { combatSimulatorGeometry } from './geometry/combat-simulator.js';
 import { guessNumberGeometry } from './geometry/guess-number.js';
 import { recordGeometry } from './geometry/record.js';
 import { projectsGeometry } from './geometry/projects.js';
-import { aiDiningGeometry } from './geometry/ai-dining.js';
+import { forkKnifeGeometry } from './geometry/fork-knife.js';
 import './ui-intro.js';
 
 // Setup big title
@@ -45,7 +45,7 @@ const cubeSpecs = [
     // projects cube now behaves like the games cube: clicking reveals subitems
     { type: projectsGeometry(), label: "My Projects", url: './pages/projects/index.html', userData: { title: "My Projects" },
       subItems: [
-          { factory: () => aiDiningGeometry(), label: "AI Dining", title: "AI Dining Advisor", url: './pages/projects/index.html' }
+          { factory: () => forkKnifeGeometry(), label: "Recipes", title: "Recipes & Ratings", url: 'https://jpswag.github.io/recipes-and-ratings/' }
       ]
     },
 
