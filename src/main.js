@@ -21,6 +21,7 @@ import { combatSimulatorGeometry } from './geometry/combat-simulator.js';
 import { guessNumberGeometry } from './geometry/guess-number.js';
 import { recordGeometry } from './geometry/record.js';
 import { projectsGeometry } from './geometry/projects.js';
+import { aiDiningGeometry } from './geometry/ai-dining.js';
 import './ui-intro.js';
 
 // Setup big title
@@ -41,8 +42,12 @@ const cubeSpecs = [
         ]
     },
     { type: recordGeometry(), label: "My Tracks", url: './pages/spotify.html', userData: { title: "My Tracks" } },
-    // projects cube now opens the projects subpage (which contains a CV iframe)
-    { type: projectsGeometry(), label: "My Projects", url: './pages/projects/index.html', userData: { title: "My Projects" } },
+    // projects cube now behaves like the games cube: clicking reveals subitems
+    { type: projectsGeometry(), label: "My Projects", url: './pages/projects/index.html', userData: { title: "My Projects" },
+      subItems: [
+          { factory: () => aiDiningGeometry(), label: "AI Dining", title: "AI Dining Advisor", url: './pages/projects/index.html' }
+      ]
+    },
 
     {
         type: gamepad(), label: "Games", url: './pages/pong.html',
