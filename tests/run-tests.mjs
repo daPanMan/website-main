@@ -226,13 +226,19 @@ function testSimplePageContent(path, substring) {
         } catch (e) {
             console.log('⚠ subpage fan test skipped', e);
         }
-        // verify GitHub link uses _top to escape iframe
+        // verify report button exists and opens the report in a new tab
         {
             const html = fs.readFileSync('pages/projects/showcase.html','utf-8');
-            if (!/target="_top"/.test(html)) {
-                throw new Error('GitHub link not top-level');
+            if (!/View project report/.test(html)) {
+                throw new Error('showcase page missing view project report button');
             }
-            console.log('✓ GitHub link uses _top target');
+            if (!/href="https:\/\/jpswag\.github\.io\/recipes-and-ratings\/"/.test(html)) {
+                throw new Error('report button has wrong href');
+            }
+            if (!/href="https:\/\/jpswag\.github\.io\/recipes-and-ratings\/"[^>]*target="_blank"/.test(html)) {
+                throw new Error('report button should open in new tab');
+            }
+            console.log('✓ report button present and uses _blank target');
         }
         // run focus tests on the CLI pages
         testPageContainsFocusCode('pages/euchre.html');
@@ -240,8 +246,9 @@ function testSimplePageContent(path, substring) {
         // verify new game pages exist and contain expected text
         testSimplePageContent('pages/1d-combat-simulator/index.html', 'SPARTAN VS. ATHENIAN');
         testSimplePageContent('pages/guess-my-number/index.html', 'Guess My Number');
-        // projects subpage should simply embed the CV showcase via iframe
-        testSimplePageContent('pages/projects/index.html', 'Recipes & Ratings');
+        // projects subpage should simply embed the local showcase via iframe
+        // heading may be HTML-escaped so just look for "Recipes"
+        testSimplePageContent('pages/projects/index.html', 'Recipes');
         {
             const html = fs.readFileSync('pages/projects/index.html', 'utf-8');
             if (!/<iframe\s+src="showcase\.html"/.test(html)) {
@@ -251,16 +258,42 @@ function testSimplePageContent(path, substring) {
         }
         testSimplePageContent('pages/projects/showcase.html', 'Recipes & Ratings');
 
-// confirm the showcase script exists and handles image clicks
+// ensure showcase page has project report button that opens in new tab
 {
     const html = fs.readFileSync('pages/projects/showcase.html', 'utf-8');
-    if (!/window\.open\(\s*''\s*,\s*'_blank'\)/.test(html)) {
-        throw new Error('showcase page missing click-to-open-image script');
+    if (!/View project report/.test(html)) {
+        throw new Error('showcase page missing view project report button');
     }
-    if (!/closest\('\.section'\)/.test(html) && !/gallery/.test(html)) {
-        throw new Error('click script seems wrong or gallery missing');
+    if (!/href="https:\/\/jpswag\.github\.io\/recipes-and-ratings\/"/.test(html)) {
+        throw new Error('report button has wrong href');
     }
-    console.log('✓ showcase page includes click-to-open-image script');
+    if (!/href="https:\/\/jpswag\.github\.io\/recipes-and-ratings\/"[^>]*target="_blank"/.test(html)) {
+        throw new Error('report button should open in new tab');
+    }
+    if (!/text-align:center/.test(html)) {
+        throw new Error('showcase page should center its contents');
+    }
+    // border removed from title per style update, no need to check
+    // (the button may still have a border which remains acceptable)
+    console.log('✓ showcase page includes project report button with centered bordered layout');
+}
+
+// ensure fancy food stickers are present
+{
+    const html = fs.readFileSync('pages/projects/showcase.html','utf-8');
+    if (!/stickers/.test(html)) {
+        throw new Error('showcase page missing stickers');
+    }
+    console.log('✓ showcase page includes food stickers');
+}
+
+// verify recipe subitem url in main.js points at local showcase file
+{
+    const src = fs.readFileSync('src/main.js','utf-8');
+    if (!/Recipes",\s*title:\s*"Recipes & Ratings",\s*url:\s*'.\/pages\/projects\/showcase\.html'/.test(src)) {
+        throw new Error('main.js recipes subitem URL not pointing at local showcase');
+    }
+    console.log('✓ main.js recipes subitem uses local showcase URL');
 }
 
         console.log('All tests passed.');

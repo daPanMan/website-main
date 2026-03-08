@@ -45,7 +45,7 @@ const cubeSpecs = [
     // projects cube now behaves like the games cube: clicking reveals subitems
     { type: projectsGeometry(), label: "My Projects", url: './pages/projects/index.html', userData: { title: "My Projects" },
       subItems: [
-          { factory: () => forkKnifeGeometry(), label: "Recipes", title: "Recipes & Ratings", url: 'https://jpswag.github.io/recipes-and-ratings/' }
+          { factory: () => forkKnifeGeometry(), label: "Recipes", title: "Recipes & Ratings", url: './pages/projects/showcase.html' }
       ]
     },
 

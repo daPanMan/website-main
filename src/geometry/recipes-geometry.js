@@ -1,5 +1,5 @@
-// Simple icon for the AI Dining project: a plate with a spoon
-export function aiDiningGeometry() {
+// Simple icon for the Recipes & Ratings project: a plate with a spoon
+export function recipesGeometry() {
     const T = window.THREE;
     const group = new T.Group();
 
