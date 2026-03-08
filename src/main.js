@@ -21,7 +21,7 @@ import { combatSimulatorGeometry } from './geometry/combat-simulator.js';
 import { guessNumberGeometry } from './geometry/guess-number.js';
 import { recordGeometry } from './geometry/record.js';
 import { projectsGeometry } from './geometry/projects.js';
-import { forkKnifeGeometry } from './geometry/fork-knife.js';
+import { chefHatGeometry } from './geometry/chef-hat.js';
 import './ui-intro.js';
 
 // Setup big title
@@ -45,7 +45,7 @@ const cubeSpecs = [
     // projects cube now behaves like the games cube: clicking reveals subitems
     { type: projectsGeometry(), label: "My Projects", url: './pages/projects/index.html', userData: { title: "My Projects" },
       subItems: [
-          { factory: () => forkKnifeGeometry(), label: "Recipes", title: "Recipes & Ratings", url: './pages/projects/showcase.html' }
+          { factory: () => chefHatGeometry(), label: "Recipes", title: "Recipes & Ratings", url: './pages/projects/showcase.html' }
       ]
     },
 

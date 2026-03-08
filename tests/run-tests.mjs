@@ -122,8 +122,14 @@ async function testSnakeHitbox() {
             console.log('⚠ guess-number geometry test skipped (font/canvas unavailable)');
         }
     })();
-    // ensure new fork-knife geometry has hitbox
-    await check('../src/geometry/fork-knife.js');
+    // test the new chef-hat recipes geometry
+    await check('../src/geometry/chef-hat.js', (obj) => {
+        const realChildren = obj.children.filter(c => c.material.type !== 'MeshBasicMaterial');
+        const hashes = realChildren.map(c => c.geometry?.type || '');
+        if (!hashes.includes('CylinderGeometry') || !hashes.includes('SphereGeometry') || !hashes.includes('BoxGeometry')) {
+            throw new Error('chef-hat geometry missing expected base shapes');
+        }
+    });
 }
 
 // ---------- CLI page focus tests ----------
