@@ -207,12 +207,26 @@ A two-player dice game built with vanilla JavaScript, accessible from the **Game
 
 ### Rules
 
-- Players take turns rolling a single die.
-- On each turn the roll value is added to that player's **Current** score.
-- Rolling a **1** forfeits the entire current score and passes the turn.
-- Pressing **Hold** banks the current score into the player's **Total** and passes the turn.
-- First player to reach **100 total points** wins (🥳), and the game auto-resets after 2 seconds.
-- **New Game** resets everything immediately.
+This game follows the standard “Pig” turn‑based dice logic, as depicted in the
+`pig-game-flowchart.png` flowchart.
+
+- Players alternate turns. Only the active player's panel is highlighted.
+- During a turn the active player may **Roll** or **Hold**.
+  * **Roll**: a six‑sided die is thrown and the face value is added to the
+    player's **Current** score.
+  * **Hold**: the current score is added to the player's **Total**, the
+    current score resets to zero, and the turn switches to the other player.
+- If a **1** is rolled, the player's current score is wiped out immediately and
+  the turn switches (no holding option after a 1).
+- At any time the **Swap** button (visible on narrow/mobile screens) hides the
+  inactive player's panel to make room; hitting it again reveals the other
+  side.  This ties in with the mobile branch of the flowchart.
+- The first player whose **Total** score reaches or exceeds **100 points**
+  wins — a 🎉 appears in place of their score and the game auto‑resets after 2 s.
+- The **New Game** button resets all scores and panels instantly.
+
+(The chart in `pages/pig-game/pig-game-flowchart.png` illustrates the decision
+points: roll‑1‑switch, roll‑>1‑add‑or‑hold, hold‑bank‑switch, victory check.)
 
 ### Tech
 
