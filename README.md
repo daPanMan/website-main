@@ -159,7 +159,7 @@ and ensure you're accessing the site via `http://` rather than `file://`.
 
 ---
 
-### AI Chatbot
+## AI Chatbot
 The site features a fully AI-driven chatbot that lets visitors have real conversations with a digital version of you.
 
 ### Architecture
