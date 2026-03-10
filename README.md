@@ -100,9 +100,6 @@ website-main/
 
 ---
 
-## AI Chatbot
----
-
 ## Testing
 
 A small Node‑based test harness exercises the `src/features/iframe-display.js`
