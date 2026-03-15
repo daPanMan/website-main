@@ -108,34 +108,35 @@ const pointLight = new window.THREE.PointLight(0xfff0e5, 0.7, 50);
 pointLight.position.set(0, 5, 5);
 scene.add(pointLight);
 
+// Precomputed once — avoids recalculating stars.length * 0.3 every frame
+let _starUpdateCount = 0;
 function updateStars() {
-    for (let i = 0; i < stars.length * 0.3; i++) {
-        let star = stars[Math.floor(Math.random() * stars.length)];
+    if (!_starUpdateCount) _starUpdateCount = Math.floor(stars.length * 0.3);
+    for (let i = 0; i < _starUpdateCount; i++) {
+        const star = stars[Math.floor(Math.random() * stars.length)];
         star.position.z += 0.05;
-        if (star.position.z > 50) {
-            star.position.z = -50;
-        }
+        if (star.position.z > 50) star.position.z = -50;
     }
 }
 
 export function animate() {
     requestAnimationFrame(animate);
 
+    // Cache once per frame — avoids repeated DOM width reads throughout the loop
+    const isMobile = window.innerWidth < 768;
+
     // Mobile scroll: shift ortho frustum to slide viewport over content (like a webpage)
-    if (window.innerWidth < 768 && camera.isOrthographicCamera) {
+    if (isMobile && camera.isOrthographicCamera) {
         const fs = camera.userData.frustumSize;
-        const scrollOffset = window.mobileScrollY;
-        // Shift frustum DOWN as user scrolls (content appears to move UP)
-        camera.top    =  fs / 2 - scrollOffset;
-        camera.bottom = -fs / 2 - scrollOffset;
+        camera.top    =  fs / 2 - window.mobileScrollY;
+        camera.bottom = -fs / 2 - window.mobileScrollY;
         camera.updateProjectionMatrix();
     }
 
     // Big title always faces camera
     if (window.bigTitle) {
         window.bigTitle.lookAt(camera.position);
-        if (window.innerWidth < 768) {
-            // Mobile: pin title at top of visible area
+        if (isMobile) {
             const fs = camera.userData?.frustumSize || 20;
             window.bigTitle.position.set(0, fs / 2 - window.mobileScrollY - 2, -5);
         } else {
@@ -143,16 +144,10 @@ export function animate() {
         }
     }
 
-    // Floating titles follow their parent objects
-    const isMobile = window.innerWidth < 768;
+    // Floating titles: hide on mobile; update position + visibility in a single pass on desktop
     if (isMobile) {
-        // Hide per-geometry titles on mobile
-        titleObjects.forEach(title => {
-            if (title.element) title.element.style.display = 'none';
-        });
-        subTitles.forEach(title => {
-            if (title.element) title.element.style.display = 'none';
-        });
+        titleObjects.forEach(title => { if (title.element) title.element.style.display = 'none'; });
+        subTitles.forEach(title => { if (title.element) title.element.style.display = 'none'; });
     } else {
         titleObjects.forEach(title => {
             if (title.element) title.element.style.display = 'block';
@@ -163,6 +158,7 @@ export function animate() {
                 title.lookAt(camera.position);
             }
         });
+        // Single pass covers both show/hide AND position update (was duplicated before)
         subTitles.forEach(title => {
             if (title.element) title.element.style.display = 'block';
             const obj = title.userData.cube;
@@ -182,9 +178,7 @@ export function animate() {
     cubes.forEach((obj, i) => {
         const vx = hoverVelX.get(i) || 0;
         const vy = hoverVelY.get(i) || 0;
-        const hasVel = Math.abs(vx) > 0.0001 || Math.abs(vy) > 0.0001;
-
-        if (hasVel) {
+        if (Math.abs(vx) > 0.0001 || Math.abs(vy) > 0.0001) {
             obj.rotation.x += vx;
             obj.rotation.y += vy;
             hoverVelX.set(i, vx * DAMPING);
@@ -207,9 +201,7 @@ export function animate() {
         const key = 'sub_' + i;
         const vx = hoverVelX.get(key) || 0;
         const vy = hoverVelY.get(key) || 0;
-        const hasVel = Math.abs(vx) > 0.0001 || Math.abs(vy) > 0.0001;
-
-        if (hasVel) {
+        if (Math.abs(vx) > 0.0001 || Math.abs(vy) > 0.0001) {
             obj.rotation.x += vx;
             obj.rotation.y += vy;
             hoverVelX.set(key, vx * DAMPING);
@@ -221,17 +213,9 @@ export function animate() {
             hoverVelY.delete(key);
         }
     });
-    subTitles.forEach(title => {
-        const obj = title.userData.cube;
-        if (obj) {
-            title.position.copy(obj.position);
-            title.position.y += 1.8;
-            title.lookAt(camera.position);
-        }
-    });
 
     controls.update();
     renderer.render(scene, camera);
     cssRenderer.render(scene, camera);
 }
-animate();
+// animate() is started by main.js — intentionally NOT self-invoked here to prevent a double loop.

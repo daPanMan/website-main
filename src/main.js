@@ -1,7 +1,7 @@
 // Main entry point for the website
 import { scene, camera, renderer, controls, addBigTitle } from './core/scene-setup.js';
 import { playSound, bgm, zoomInSound, zoomOutSound } from './features/audio-controls.js';
-import { setupCubes } from './geometry/cube-logic.js';
+import { setupCubes, titleObjects, cubes } from './geometry/cube-logic.js';
 import { starField, createStars } from './geometry/background-stars.js';
 import { animate } from './core/animation-loop.js';
 import { gamepad } from './geometry/gamepad.js';
@@ -22,45 +22,59 @@ import { guessNumberGeometry } from './geometry/guess-number.js';
 import { recordGeometry } from './geometry/record.js';
 import { projectsGeometry } from './geometry/projects.js';
 import { chefHatGeometry } from './geometry/chef-hat.js';
+import { t } from './i18n.js';
 import './ui-intro.js';
 
 // Setup big title
-const bigTitle = addBigTitle("This is\nJohn Pan");
+const bigTitle = addBigTitle(t('bigTitle'));
 window.bigTitle = bigTitle;
 
 // Setup interactive 3D objects
+// _labelKey / _titleKey store the i18n keys so the langchange handler can
+// retranslate everything in-place without a page reload.
 const cubeSpecs = [
-    { type: mainPageGeometry(), label: "About Me", url: './about.html', userData: { title: "About Me" } },
     {
-        type: emailGeometry(), label: "Contact Me", url: './pages/email.html',
-        userData: { title: "Contact Me" },
+        _labelKey: 'aboutMe',
+        type: mainPageGeometry(), label: t('aboutMe'), url: './about.html',
+        userData: { title: t('aboutMe'), _titleKey: 'aboutMe' }
+    },
+    {
+        _labelKey: 'contactMe',
+        type: emailGeometry(), label: t('contactMe'), url: './pages/email.html',
+        userData: { title: t('contactMe'), _titleKey: 'contactMe' },
         subItems: [
-            { factory: () => linkedInGeometry(), label: "LinkedIn",  title: "LinkedIn",  url: './pages/linkedin.html' },
-            { factory: () => gmailGeometry(),  label: "Email",     title: "Email",     url: './pages/email.html' },
-            { factory: () => instaGeometry(),   label: "Instagram", title: "Instagram", url: './pages/insta.html' },
-            { factory: () => snapGeometry(),    label: "Snapchat",  title: "Snapchat",  url: './pages/snap.html' },
+            { _labelKey: 'linkedin',  _titleKey: 'linkedin',  factory: () => linkedInGeometry(), label: t('linkedin'),   title: t('linkedin'),   url: './pages/linkedin.html' },
+            { _labelKey: 'email',     _titleKey: 'email',     factory: () => gmailGeometry(),    label: t('email'),      title: t('email'),      url: './pages/email.html' },
+            { _labelKey: 'instagram', _titleKey: 'instagram', factory: () => instaGeometry(),    label: t('instagram'),  title: t('instagram'),  url: './pages/insta.html' },
+            { _labelKey: 'snapchat',  _titleKey: 'snapchat',  factory: () => snapGeometry(),     label: t('snapchat'),   title: t('snapchat'),   url: './pages/snap.html' },
         ]
     },
-    { type: recordGeometry(), label: "My Tracks", url: './pages/spotify.html', userData: { title: "My Tracks" } },
-    // projects cube now behaves like the games cube: clicking reveals subitems
-    { type: projectsGeometry(), label: "My Projects", url: './pages/projects/index.html', userData: { title: "My Projects" },
-      subItems: [
-          { factory: () => chefHatGeometry(), label: "Recipes", title: "Recipes & Ratings", url: './pages/projects/showcase.html' }
-      ]
-    },
-
     {
-        type: gamepad(), label: "Games", url: './pages/pong.html',
-        userData: { title: "Games" },
+        _labelKey: 'myTracks',
+        type: recordGeometry(), label: t('myTracks'), url: './pages/spotify.html',
+        userData: { title: t('myTracks'), _titleKey: 'myTracks' }
+    },
+    {
+        _labelKey: 'myProjects',
+        type: projectsGeometry(), label: t('myProjects'), url: './pages/projects/index.html',
+        userData: { title: t('myProjects'), _titleKey: 'myProjects' },
         subItems: [
-            { factory: () => pongBall(),     label: "PONG",              title: "PONG",              url: './pages/pong.html' },
-            { factory: () => pigGameDice(),  label: "Pig Game with Dice", title: "Pig Game with Dice", url: './pages/pig-game/index.html' },
-            { factory: () => miniGameCube(), label: "My 3D Mini Game",   title: "My 3D Mini Game",   url: './pages/unity/index.html' },
-            { factory: () => snakeGeometry(), label: "Snake",             title: "Snake",             url: './pages/snake.html' },
-            { factory: () => tictactoeGeometry(), label: "Tic Tac Toe",     title: "Tic Tac Toe",     url: './pages/tictactoe.html' },
-            { factory: () => euchreGeometry(), label: "Euchre",           title: "Euchre",           url: './pages/euchre.html' },
-            { factory: () => combatSimulatorGeometry(), label: "1D Combat",    title: "1D Combat Simulator", url: './pages/1d-combat-simulator/index.html' },
-            { factory: () => guessNumberGeometry(), label: "Guess #",        title: "Guess My Number",    url: './pages/guess-my-number/index.html' },
+            { _labelKey: 'recipes', _titleKey: 'recipesTitle', factory: () => chefHatGeometry(), label: t('recipes'), title: t('recipesTitle'), url: './pages/projects/showcase.html' }
+        ]
+    },
+    {
+        _labelKey: 'games',
+        type: gamepad(), label: t('games'), url: './pages/pong.html',
+        userData: { title: t('games'), _titleKey: 'games' },
+        subItems: [
+            { _labelKey: 'pong',        _titleKey: 'pong',             factory: () => pongBall(),                label: t('pong'),        title: t('pong'),             url: './pages/pong.html' },
+            { _labelKey: 'pigGame',     _titleKey: 'pigGame',          factory: () => pigGameDice(),             label: t('pigGame'),     title: t('pigGame'),          url: './pages/pig-game/index.html' },
+            { _labelKey: 'miniGame',    _titleKey: 'miniGame',         factory: () => miniGameCube(),            label: t('miniGame'),    title: t('miniGame'),         url: './pages/unity/index.html' },
+            { _labelKey: 'snake',       _titleKey: 'snake',            factory: () => snakeGeometry(),           label: t('snake'),       title: t('snake'),            url: './pages/snake.html' },
+            { _labelKey: 'tictactoe',   _titleKey: 'tictactoe',        factory: () => tictactoeGeometry(),       label: t('tictactoe'),   title: t('tictactoe'),        url: './pages/tictactoe.html' },
+            { _labelKey: 'euchre',      _titleKey: 'euchre',           factory: () => euchreGeometry(),          label: t('euchre'),      title: t('euchre'),           url: './pages/euchre.html' },
+            { _labelKey: 'combat',      _titleKey: 'combatTitle',      factory: () => combatSimulatorGeometry(), label: t('combat'),      title: t('combatTitle'),      url: './pages/1d-combat-simulator/index.html' },
+            { _labelKey: 'guessNumber', _titleKey: 'guessNumberTitle', factory: () => guessNumberGeometry(),     label: t('guessNumber'), title: t('guessNumberTitle'), url: './pages/guess-my-number/index.html' },
         ]
     }
 ];
@@ -68,6 +82,39 @@ setupCubes(cubeSpecs);
 
 // Start animation loop
 animate();
+
+// ── Hot language switch ──────────────────────────────────────────────────────
+// Fires whenever setPageLang() dispatches 'langchange' (no page reload needed).
+window.addEventListener('langchange', () => {
+    // 1. Big title
+    if (window.bigTitle?.updateText) window.bigTitle.updateText(t('bigTitle'));
+
+    // 2. Floating labels on the main 3D cubes
+    titleObjects.forEach(titleObj => {
+        const key = titleObj.userData.cube?.userData?._titleKey;
+        if (key) titleObj.element.innerText = t(key);
+    });
+
+    // 3. Retranslate cubeSpec objects so sub-items spawn with the new language
+    cubeSpecs.forEach((spec, i) => {
+        if (spec._labelKey) {
+            spec.label = t(spec._labelKey);
+            if (cubes[i]) cubes[i].userData.label = spec.label;
+        }
+        if (spec.userData?._titleKey) {
+            spec.userData.title = t(spec.userData._titleKey);
+            if (cubes[i]) cubes[i].userData.title = spec.userData.title;
+        }
+        (spec.subItems || []).forEach(sub => {
+            if (sub._labelKey) sub.label = t(sub._labelKey);
+            if (sub._titleKey) sub.title = t(sub._titleKey);
+        });
+    });
+
+    // 4. Intro enter button (visible on intro screen)
+    const enterBtn = document.getElementById('enter-button');
+    if (enterBtn) enterBtn.textContent = t('enterButton');
+});
 
 // demo query handling removed – projects now all in one page.
 // Additional UI, event, and iframe logic can be imported and initialized here

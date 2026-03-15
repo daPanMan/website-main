@@ -192,6 +192,7 @@ iframe {
 #chatbox-messages {
     flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* smooth momentum scroll on iOS */
     padding: 12px;
     max-height: 280px;
     display: flex;
@@ -279,11 +280,6 @@ iframe {
 #chatbox-messages::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 4px;
-}
-
-/* Enable smooth momentum scrolling on iOS for chatbox messages */
-#chatbox-messages {
-    -webkit-overflow-scrolling: touch;
 }
 
 /* Ensure chatbox touch events work independently */

@@ -1,5 +1,9 @@
 // AI Chatbox - fully AI-driven via Groq API
 import CONFIG from './chatbot-config.js';
+import { t } from '../i18n.js';
+
+// Pre-compiled once at module load — avoids recompiling the regex on every message send
+const GOODBYE_RE = /\b(bye|goodbye|good bye|see ya|later|cya|peace|gotta go|gtg|ttyl|talk later|farewell|adios|take care|night|goodnight|gn|im out|i'm out)\b/i;
 
 const chatbox = document.getElementById('chatbox');
 const header = document.getElementById('chatbox-header');
@@ -131,8 +135,7 @@ async function handleSend() {
     addMessage(result.text, 'bot', result.fromAI);
 
     // Auto-close chatbox on goodbye-like messages
-    const goodbyePattern = /\b(bye|goodbye|good bye|see ya|later|cya|peace|gotta go|gtg|ttyl|talk later|farewell|adios|take care|night|goodnight|gn|im out|i'm out)\b/i;
-    if (goodbyePattern.test(text)) {
+    if (GOODBYE_RE.test(text)) {
         setTimeout(() => {
             if (!collapsed) toggleChatbox();
         }, 2000);
@@ -173,3 +176,9 @@ input.addEventListener('keydown', (e) => {
 // Prevent clicks on chatbox from propagating to the 3D scene
 chatbox.addEventListener('click', (e) => e.stopPropagation());
 chatbox.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: false });
+
+// Hot language switch — update chatbox UI strings without a page reload
+window.addEventListener('langchange', () => {
+    document.getElementById('chatbox-title').textContent = t('chatTitle');
+    input.placeholder = t('chatPlaceholder');
+});

@@ -3,11 +3,43 @@
 import { scene, camera, renderer, addBigTitle } from '../core/scene-setup.js';
 import { playSound, zoomInSound, zoomOutSound, volumeDragging } from '../features/audio-controls.js';
 import { showIframe, hideIframe, isIframeVisible } from '../features/iframe-display.js';
+import { t } from '../i18n.js';
 
 let savedScrollY = 0; // saved mobile scroll position before zoom/expand
 
 const raycaster = new window.THREE.Raycaster();
 const mouse = new window.THREE.Vector2();
+
+// --- Shared helpers ---
+
+/** Default camera Z based on viewport (mobile vs desktop) */
+const getDefaultCameraZ = () => window.innerWidth < 768 ? 24 : 14;
+
+/**
+ * Kill all pending GSAP tweens on an object's transform properties.
+ * Call before starting new tweens to prevent blending artefacts.
+ */
+function killObjectTweens(obj) {
+    gsap.killTweensOf(obj.position);
+    gsap.killTweensOf(obj.rotation);
+    gsap.killTweensOf(obj.scale);
+}
+
+/**
+ * Animate an object back to its stored original transform.
+ * @param {Object3D} obj
+ * @param {{ x, y, z }} pos
+ * @param {{ x, y, z }} rot
+ * @param {{ x, y, z }} scl
+ * @param {number} duration
+ * @param {number} delay
+ */
+function restoreObject(obj, pos, rot, scl, duration, delay) {
+    killObjectTweens(obj);
+    gsap.to(obj.position, { x: pos.x, y: pos.y, z: pos.z, duration, delay, ease: 'power2.out' });
+    gsap.to(obj.rotation, { x: rot.x, y: rot.y, z: rot.z, duration, delay, ease: 'power2.out' });
+    gsap.to(obj.scale,    { x: scl.x, y: scl.y, z: scl.z, duration: duration - 0.1, delay, ease: 'power2.out' });
+}
 
 export const cubes = [];          // top-level objects (Group or Mesh)
 export const clickTargets = [];   // all meshes (for raycasting into groups)
@@ -223,7 +255,7 @@ function expandParent(parentObj) {
     }
 
     // 0. Zoom camera in a bit
-    const defaultZ = window.innerWidth < 768 ? 24 : 14;
+    const defaultZ = getDefaultCameraZ();
     gsap.to(camera.position, { z: defaultZ - 4, duration: 0.9, ease: 'power2.inOut' });
 
     // 1. Hide the big title (desktop only — on mobile it stays pinned at top)
@@ -235,9 +267,7 @@ function expandParent(parentObj) {
     // 2. Animate other cubes + their titles out (deterministic directions from original positions)
     cubes.forEach((obj, i) => {
         if (i === parentIdx) return;
-        gsap.killTweensOf(obj.position);
-        gsap.killTweensOf(obj.scale);
-        gsap.killTweensOf(obj.rotation);
+        killObjectTweens(obj);
         const orig = originalPositions[i];
         // Fly out along a scaled version of their original offset from center
         const dx = orig.x !== 0 ? orig.x * 4 : (i % 2 === 0 ? -15 : 15);
@@ -280,6 +310,7 @@ function expandParent(parentObj) {
                 label: sub.label,
                 url: sub.url || '',
                 title: sub.title || sub.label,
+                _titleKey: sub._titleKey || null,
                 isSubItem: true
             };
 
@@ -321,7 +352,7 @@ function expandParent(parentObj) {
         const closeBtn = document.getElementById('reset-scale-button');
         if (closeBtn) {
             closeBtn.style.display = 'block';
-            closeBtn.textContent = 'Back';
+            closeBtn.textContent = t('back');
             closeBtn.onclick = (e) => { e.stopPropagation(); playSound(zoomOutSound); collapseToMain(); };
             closeBtn.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); playSound(zoomOutSound); collapseToMain(); };
         }
@@ -397,28 +428,14 @@ export function collapseToMain(restoreTitles = true) {
     }, 600);
 
     // 2. Move parent back to original position
-    const origPos = originalPositions[parentIdx];
-    const origRot = originalRotations[parentIdx];
-    const origScale = originalScales[parentIdx];
-    gsap.killTweensOf(expandedParent.position);
-    gsap.killTweensOf(expandedParent.rotation);
-    gsap.killTweensOf(expandedParent.scale);
-    gsap.to(expandedParent.position, { x: origPos.x, y: origPos.y, z: origPos.z, duration: 0.7, delay: 0.3, ease: 'power2.out' });
-    gsap.to(expandedParent.rotation, { x: origRot.x, y: origRot.y, z: origRot.z, duration: 0.7, delay: 0.3, ease: 'power2.out' });
-    gsap.to(expandedParent.scale, { x: origScale.x, y: origScale.y, z: origScale.z, duration: 0.6, delay: 0.3, ease: 'power2.out' });
+    restoreObject(expandedParent,
+        originalPositions[parentIdx], originalRotations[parentIdx], originalScales[parentIdx],
+        0.7, 0.3);
 
     // 3. Bring back other cubes at exact original positions, rotations, and scales
     cubes.forEach((obj, i) => {
         if (i === parentIdx) return;
-        const orig = originalPositions[i];
-        const oRot = originalRotations[i];
-        const oScale = originalScales[i];
-        gsap.killTweensOf(obj.position);
-        gsap.killTweensOf(obj.rotation);
-        gsap.killTweensOf(obj.scale);
-        gsap.to(obj.position, { x: orig.x, y: orig.y, z: orig.z, duration: 0.7, delay: 0.4, ease: 'power2.out' });
-        gsap.to(obj.rotation, { x: oRot.x, y: oRot.y, z: oRot.z, duration: 0.7, delay: 0.4, ease: 'power2.out' });
-        gsap.to(obj.scale, { x: oScale.x, y: oScale.y, z: oScale.z, duration: 0.6, delay: 0.4, ease: 'power2.out' });
+        restoreObject(obj, originalPositions[i], originalRotations[i], originalScales[i], 0.7, 0.4);
     });
 
     // Restore titles only if requested
@@ -440,8 +457,7 @@ export function collapseToMain(restoreTitles = true) {
     }
 
     // Zoom camera back out
-    const defaultZ = window.innerWidth < 768 ? 24 : 14;
-    gsap.to(camera.position, { z: defaultZ, duration: 0.8, delay: 0.4, ease: 'power2.out' });
+    gsap.to(camera.position, { z: getDefaultCameraZ(), duration: 0.8, delay: 0.4, ease: 'power2.out' });
 
     // Restore mobile scroll position
     if (window.innerWidth < 768) {
@@ -508,6 +524,7 @@ function zoomCubeIn(obj) {
     }
 
     // Move other cubes out (same deterministic directions as expand)
+    const isMobile = window.innerWidth < 768;
     cubes.forEach((c, i) => {
         if (i === idx) return;
         const orig = originalPositions[i];
@@ -525,17 +542,11 @@ function zoomCubeIn(obj) {
     // Center the clicked object (scale up proportionally from its original size)
     const os = originalScales[idx];
     const zoomFactor = 1.8;
-    if (window.innerWidth < 768) {
-        // Mobile: move geometry to top position as hanging object
-        gsap.to(obj.position, { x: 0, y: 7, z: 2, duration: 0.8, ease: 'back.out(1.7)' });
-    } else {
-        gsap.to(obj.position, { x: 0, y: 0, z: 2, duration: 0.8, ease: 'back.out(1.7)' });
-    }
+    gsap.to(obj.position, { x: 0, y: isMobile ? 7 : 0, z: 2, duration: 0.8, ease: 'back.out(1.7)' });
     gsap.to(obj.scale, { x: os.x * zoomFactor, y: os.y * zoomFactor, z: os.z * zoomFactor, duration: 0.8, ease: 'back.out(1.7)' });
 
     // Zoom camera in
-    const defaultZ = window.innerWidth < 768 ? 24 : 14;
-    gsap.to(camera.position, { z: defaultZ - 5, duration: 0.9, ease: 'power2.inOut' });
+    gsap.to(camera.position, { z: getDefaultCameraZ() - 5, duration: 0.9, ease: 'power2.inOut' });
 
     // Show iframe after zoom animation (tracked so we can cancel if user navigates away)
     if (_iframeShowTimeout) { clearTimeout(_iframeShowTimeout); _iframeShowTimeout = null; }
@@ -560,28 +571,14 @@ function returnZoomedCube() {
     if (closeBtn) closeBtn.style.display = 'none';
 
     // Return zoomed cube to original
-    const origPos = originalPositions[idx];
-    const origRot = originalRotations[idx];
-    const origScale = originalScales[idx];
-    gsap.killTweensOf(zoomedCube.position);
-    gsap.killTweensOf(zoomedCube.rotation);
-    gsap.killTweensOf(zoomedCube.scale);
-    gsap.to(zoomedCube.position, { x: origPos.x, y: origPos.y, z: origPos.z, duration: 0.7, delay: 0.2, ease: 'power2.out' });
-    gsap.to(zoomedCube.rotation, { x: origRot.x, y: origRot.y, z: origRot.z, duration: 0.7, delay: 0.2, ease: 'power2.out' });
-    gsap.to(zoomedCube.scale, { x: origScale.x, y: origScale.y, z: origScale.z, duration: 0.7, delay: 0.2, ease: 'power2.out' });
+    restoreObject(zoomedCube,
+        originalPositions[idx], originalRotations[idx], originalScales[idx],
+        0.7, 0.2);
 
     // Bring back all other cubes
     cubes.forEach((c, i) => {
         if (i === idx) return;
-        const orig = originalPositions[i];
-        const oRot = originalRotations[i];
-        const oScale = originalScales[i];
-        gsap.killTweensOf(c.position);
-        gsap.killTweensOf(c.rotation);
-        gsap.killTweensOf(c.scale);
-        gsap.to(c.position, { x: orig.x, y: orig.y, z: orig.z, duration: 0.7, delay: 0.3, ease: 'power2.out' });
-        gsap.to(c.rotation, { x: oRot.x, y: oRot.y, z: oRot.z, duration: 0.7, delay: 0.3, ease: 'power2.out' });
-        gsap.to(c.scale,    { x: oScale.x, y: oScale.y, z: oScale.z, duration: 0.6, delay: 0.3, ease: 'power2.out' });
+        restoreObject(c, originalPositions[i], originalRotations[i], originalScales[i], 0.7, 0.3);
     });
 
     // Restore titles
@@ -600,8 +597,7 @@ function returnZoomedCube() {
     }
 
     // Zoom camera back
-    const defaultZ = window.innerWidth < 768 ? 24 : 14;
-    gsap.to(camera.position, { z: defaultZ, duration: 0.8, delay: 0.3, ease: 'power2.out' });
+    gsap.to(camera.position, { z: getDefaultCameraZ(), duration: 0.8, delay: 0.3, ease: 'power2.out' });
 
     // Restore mobile scroll position
     if (window.innerWidth < 768) {
@@ -711,7 +707,7 @@ function returnZoomedSub() {
     // Revert close button to Back
     const closeBtn = document.getElementById('reset-scale-button');
     if (closeBtn) {
-        closeBtn.textContent = 'Back';
+        closeBtn.textContent = t('back');
         closeBtn.onclick = (e) => { e.stopPropagation(); playSound(zoomOutSound); collapseToMain(false); };
         closeBtn.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); playSound(zoomOutSound); collapseToMain(false); };
     }
@@ -726,7 +722,7 @@ function showCloseButton(callback) {
     const closeBtn = document.getElementById('reset-scale-button');
     if (closeBtn) {
         closeBtn.style.display = 'block';
-        closeBtn.textContent = 'Close Page';
+        closeBtn.textContent = t('closeButton');
         closeBtn.onclick = (e) => { e.stopPropagation(); callback(); };
         // Add touchstart for instant response on mobile (no 300ms delay)
         closeBtn.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); callback(); };
@@ -797,7 +793,6 @@ function onCubeClick(event) {
             const subObj = subIdx !== undefined ? subObjects[subIdx] : hit;
             const url = subObj.userData.url || hit.userData.url;
             if (url) {
-                console.log('Sub-item clicked:', subObj.userData);
                 playSound(zoomInSound);
                 zoomSubIn(subObj, url);
             }
@@ -810,7 +805,6 @@ function onCubeClick(event) {
         const hit = intersects[0].object;
         const parentIndex = hit.userData._parentIndex;
         const clickedObj = parentIndex !== undefined ? cubes[parentIndex] : hit;
-        console.log('Clicked:', clickedObj.userData);
 
         // If this object has sub-items, expand it
         if (clickedObj.userData.subItems && !expandedParent) {
@@ -856,6 +850,25 @@ window.removeEventListener('click', onCubeClick);
 window.addEventListener('click', (event) => {
     if (touchHandled) return; // skip — already handled by touchstart
     origOnCubeClick(event);
+});
+
+// ── Hot language switch ──────────────────────────────────────────────────────
+// Retranslate sub-item floating titles and the Close Page / Back button.
+window.addEventListener('langchange', () => {
+    // Update visible sub-item floating titles (spawned when a parent expands)
+    subTitles.forEach(titleObj => {
+        const key = titleObj.userData.cube?.userData?._titleKey;
+        if (key) titleObj.element.innerText = t(key);
+    });
+
+    // Retranslate the close/back button if it is currently visible
+    const closeBtn = document.getElementById('reset-scale-button');
+    if (!closeBtn || closeBtn.style.display === 'none') return;
+    if (zoomedCube || zoomedSub) {
+        closeBtn.textContent = t('closeButton');
+    } else if (expandedParent) {
+        closeBtn.textContent = t('back');
+    }
 });
 
 // Export for animation loop to update sub-titles and hover detection

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -13,7 +13,16 @@
 </audio>
 <!-- ✅ Fullscreen Intro Page -->
 <div id="intro-page" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; display: flex; justify-content: center; align-items: center; z-index: 300;">
+
     <button id="enter-button" style="background: rgba(255, 255, 255, 0.9); border: none; padding: 20px 40px; font-size: 24px; font-weight: bold; cursor: pointer; border-radius: 10px; transition: transform 0.3s ease, opacity 0.3s ease; max-width: 85vw; text-align: center; line-height: 1.4; -webkit-tap-highlight-color: transparent;">Click Me and You'll Find Out Who I Am!!!</button>
+</div>
+<!-- Language toggle — always visible top-right -->
+<!-- stopPropagation prevents clicks from bubbling to the 3D scene's window click handler -->
+<div id="lang-toggle" style="position: fixed; top: 22px; right: 24px; display: flex; align-items: center; gap: 4px; z-index: 400;"
+     onclick="event.stopPropagation()" ontouchstart="event.stopPropagation()">
+    <button id="lang-en" onclick="setPageLang('en')" style="background: none; border: none; color: white; font-size: 15px; font-weight: bold; cursor: pointer; padding: 6px 12px; border-radius: 6px; letter-spacing: 0.5px; transition: opacity 0.2s, background 0.2s; -webkit-tap-highlight-color: transparent;">EN</button>
+    <span style="color: rgba(255,255,255,0.35); font-size: 14px; user-select: none;">|</span>
+    <button id="lang-zh" onclick="setPageLang('zh')" style="background: none; border: none; color: white; font-size: 15px; font-weight: bold; cursor: pointer; padding: 6px 12px; border-radius: 6px; letter-spacing: 0.5px; transition: opacity 0.2s, background 0.2s; -webkit-tap-highlight-color: transparent;">中文</button>
 </div>
 <div id="volume-control" style="position: fixed; top: 20px; left: 20px; z-index: 100; cursor: pointer;">
     <span id="music-icon" style="font-size: 44px; filter: brightness(5); user-select: none; display: inline-block;">🎵</span>
@@ -22,7 +31,7 @@
     </div>
     <button id="mute-button" style="background: none; display: none; border: none; top: 100%; color: white; font-size: 30px; margin-top: 17px; margin-left: 9px; cursor: pointer;">🔊</button>
 </div>
-<div id="reset-scale-button" style="position: fixed; top: 20px; right: 20px; z-index: 200; cursor: pointer; background: rgba(0, 0, 0, 0.8); color: white; padding: 10px 15px; border-radius: 5px; font-size: 14px; user-select: none; display: none;">Close Page</div>
+<div id="reset-scale-button" style="position: fixed; top: 65px; right: 20px; z-index: 200; cursor: pointer; background: rgba(0, 0, 0, 0.8); color: white; padding: 10px 15px; border-radius: 5px; font-size: 14px; user-select: none; display: none;">Close Page</div>
 
 <!-- AI Chatbox -->
 <div id="chatbox" class="chatbox-collapsed">
@@ -140,6 +149,49 @@
             document.head.appendChild(s);
         }
         loadSequential(0);
+    })();
+    </script>
+
+    <!-- Language bootstrap — runs before ES modules so getLang() is ready -->
+    <script>
+    // Expose setPageLang globally so onclick handlers in HTML can call it
+    // Hot-switches language in-place without reloading the page.
+    function setPageLang(lang) {
+        if (localStorage.getItem('lang') === lang) return;
+        localStorage.setItem('lang', lang);
+        var isZh = lang === 'zh';
+        document.getElementById('html-root').lang = lang;
+        var enBtn = document.getElementById('lang-en');
+        var zhBtn = document.getElementById('lang-zh');
+        if (enBtn) enBtn.style.opacity = isZh ? '0.4' : '1';
+        if (zhBtn) zhBtn.style.opacity = isZh ? '1' : '0.4';
+        window.dispatchEvent(new CustomEvent('langchange', { detail: { lang: lang } }));
+    }
+
+    (function () {
+        var lang = localStorage.getItem('lang') || 'en';
+        var isZh = lang === 'zh';
+
+        // Set <html lang> attribute
+        document.getElementById('html-root').lang = lang;
+
+        // Localised strings for DOM elements set before modules load
+        var enterText   = isZh ? '点击，探索我的世界！！！'           : "Click Me and You'll Find Out Who I Am!!!";
+        var closeText   = isZh ? '关闭页面'                           : 'Close Page';
+
+        // Update enter button (already in DOM at this point)
+        var enterBtn = document.getElementById('enter-button');
+        if (enterBtn) enterBtn.textContent = enterText;
+
+        // Update close-page button
+        var closeBtn = document.getElementById('reset-scale-button');
+        if (closeBtn) closeBtn.textContent = closeText;
+
+        // Style the active language button
+        var enBtn = document.getElementById('lang-en');
+        var zhBtn = document.getElementById('lang-zh');
+        if (enBtn) { enBtn.style.opacity = isZh ? '0.4' : '1'; }
+        if (zhBtn) { zhBtn.style.opacity = isZh ? '1' : '0.4'; }
     })();
     </script>
 

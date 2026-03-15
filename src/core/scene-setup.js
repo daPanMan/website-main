@@ -123,7 +123,7 @@ export function addBigTitle(text) {
     let resetTimer = null;
     let spans = [];
     let drifts = [];
-    const originalText = text;
+    let originalText = text;
 
     const GLOW_SHADOW = [
         '0 0 20px rgba(100,160,255,1)',
@@ -268,5 +268,15 @@ export function addBigTitle(text) {
     bigTitleObject.scale.set(0.01, 0.01, 0.01);
     bigTitleObject.position.set(0, 0, 0);
     scene.add(bigTitleObject);
+
+    /** Hot-swap displayed text and the explode-reset target without rebuilding the object */
+    bigTitleObject.updateText = function (newText) {
+        originalText = newText;
+        if (!exploded) {
+            titleElement.innerText = newText;
+        }
+        // if currently exploded, new text will apply when the animation resets
+    };
+
     return bigTitleObject;
 }
