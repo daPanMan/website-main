@@ -161,7 +161,7 @@
         localStorage.setItem('lang', lang);
         var isZh = lang === 'zh';
         document.getElementById('html-root').lang = lang;
-        document.title = isZh ? '这是潘栋' : 'This is John Pan';
+        document.title = isZh ? '我是潘栋' : 'This is John Pan';
         var enBtn = document.getElementById('lang-en');
         var zhBtn = document.getElementById('lang-zh');
         if (enBtn) enBtn.style.opacity = isZh ? '0.4' : '1';
@@ -177,7 +177,7 @@
         document.getElementById('html-root').lang = lang;
 
         // Localised strings for DOM elements set before modules load
-        document.title  = isZh ? '这是潘栋'                           : 'This is John Pan';
+        document.title  = isZh ? '我是潘栋'                           : 'This is John Pan';
         var enterText   = isZh ? '点击，探索我的世界！！！'           : "Click Me and You'll Find Out Who I Am!!!";
         var closeText   = isZh ? '关闭页面'                           : 'Close Page';
 
