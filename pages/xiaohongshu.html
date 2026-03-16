@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小红书 - 潘栋</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Silkscreen', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #1a1a2e;
+        }
+        .card-wrap {
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #FF2442, #cc1a33);
+            background-size: 300% 300%;
+            animation: gradientShift 4s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .card {
+            background: #1a1a2e;
+            color: #fff;
+            text-align: center;
+            padding: 36px 44px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon {
+            width: 72px; height: 72px;
+            margin: 0 auto 18px;
+            border-radius: 18px;
+            background: #FF2442;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px;
+            line-height: 1;
+        }
+        h2 {
+            font-size: 22px;
+            margin-bottom: 4px;
+            color: #FF2442;
+        }
+        .handle {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 22px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 36px;
+            background: #FF2442;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-family: 'Silkscreen', sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 18px rgba(255, 36, 66, 0.35);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(255, 36, 66, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="card-wrap">
+        <div class="card">
+            <div class="icon">📕</div>
+            <h2>小红书</h2>
+            <p class="handle">@YOUR_XHS_HANDLE</p>
+            <a class="btn" href="https://www.xiaohongshu.com/user/profile/YOUR_XHS_ID" target="_blank" rel="noopener">查看主页</a>
+        </div>
+    </div>
+</body>
+</html>

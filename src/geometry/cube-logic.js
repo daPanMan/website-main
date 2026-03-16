@@ -3,7 +3,7 @@
 import { scene, camera, renderer, addBigTitle } from '../core/scene-setup.js';
 import { playSound, zoomInSound, zoomOutSound, volumeDragging } from '../features/audio-controls.js';
 import { showIframe, hideIframe, isIframeVisible } from '../features/iframe-display.js';
-import { t } from '../i18n.js';
+import { t, getLang } from '../i18n.js';
 
 let savedScrollY = 0; // saved mobile scroll position before zoom/expand
 
@@ -300,8 +300,11 @@ function expandParent(parentObj) {
     }
 
     // 4. After centering, spawn sub-geometries from behind the parent
-    const subItems = parentObj.userData.subItems;
-    if (!subItems || subItems.length === 0) return;
+    // Filter subItems by langOnly — e.g. langOnly: 'zh' only shows in Chinese mode
+    const subItems = (parentObj.userData.subItems || []).filter(sub =>
+        !sub.langOnly || sub.langOnly === getLang()
+    );
+    if (subItems.length === 0) return;
 
     setTimeout(() => {
         subItems.forEach((sub, si) => {
@@ -870,6 +873,78 @@ window.addEventListener('langchange', () => {
         closeBtn.textContent = t('back');
     }
 });
+
+// Tear down current sub-items and respawn with the new language filter.
+// Called from main.js langchange handler when a parent is expanded.
+export function reloadSubItems() {
+    if (!expandedParent) return;
+    const parentObj = expandedParent;
+
+    // 1. Animate current sub-items back to parent center and remove
+    subObjects.forEach(obj => {
+        gsap.killTweensOf(obj.position);
+        gsap.killTweensOf(obj.scale);
+        const center = window.innerWidth < 768 ? { x: 0, y: 0, z: -2 } : { x: 0, y: -1.8, z: -2 };
+        gsap.to(obj.position, { ...center, duration: 0.45, ease: 'power2.in' });
+        gsap.to(obj.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 0.4, ease: 'power2.in' });
+    });
+    subTitles.forEach(t => {
+        gsap.killTweensOf(t.element?.style);
+        if (t.element) gsap.to(t.element.style, { opacity: 0, duration: 0.25 });
+    });
+
+    // 2. After collapse, clean up and respawn with new lang filter
+    setTimeout(() => {
+        subObjects.forEach(obj => scene.remove(obj));
+        subTitles.forEach(t => scene.remove(t));
+        subObjects.length = 0;
+        subTitles.length = 0;
+        subClickTargets.length = 0;
+
+        // Re-filter for current language
+        const subItems = (parentObj.userData.subItems || []).filter(sub =>
+            !sub.langOnly || sub.langOnly === getLang()
+        );
+        if (subItems.length === 0) return;
+
+        subItems.forEach((sub, si) => {
+            const obj = sub.factory();
+            obj.userData = {
+                label: sub.label,
+                url: sub.url || '',
+                title: sub.title || sub.label,
+                _titleKey: sub._titleKey || null,
+                isSubItem: true
+            };
+            const center = window.innerWidth < 768 ? { x: 0, y: 0, z: -2 } : { x: 0, y: -1.8, z: -2 };
+            obj.position.set(center.x, center.y, center.z);
+            obj.scale.set(0.01, 0.01, 0.01);
+            obj.frustumCulled = false;
+            scene.add(obj);
+            subObjects.push(obj);
+
+            if (obj.isMesh) {
+                subClickTargets.push(obj);
+            } else {
+                obj.traverse(child => {
+                    if (child.isMesh) {
+                        child.userData._subIndex = si;
+                        subClickTargets.push(child);
+                    }
+                });
+            }
+
+            // Animate out to spread positions
+            const subPositions = getSubPositions(subItems.length);
+            const target = subPositions[si % subPositions.length];
+            gsap.to(obj.position, { x: target.x, y: target.y, z: target.z, duration: 0.7, delay: si * 0.12, ease: 'back.out(1.4)' });
+            gsap.to(obj.scale, { x: 1, y: 1, z: 1, duration: 0.6, delay: si * 0.12, ease: 'back.out(1.4)' });
+
+            const title = addSubTitle(obj, sub.title || sub.label);
+            if (title) subTitles.push(title);
+        });
+    }, 500);
+}
 
 // Export for animation loop to update sub-titles and hover detection
 export { subObjects, subTitles, subClickTargets, expandedParent };

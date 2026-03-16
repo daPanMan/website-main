@@ -1,0 +1,85 @@
+// geometry/wechat.js — WeChat rounded square with texture
+
+let _wechatTexture = null;
+function getWechatTexture() {
+    if (_wechatTexture) return _wechatTexture;
+    const T = window.THREE;
+    _wechatTexture = new T.Texture();
+    const img = new Image();
+    img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width; canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#07C160'; // brand green — no white bezel if texture has transparency
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        _wechatTexture.image = canvas;
+        _wechatTexture.needsUpdate = true;
+    };
+    img.crossOrigin = 'anonymous';
+    img.src = 'assets/textures/wechat.png';
+    return _wechatTexture;
+}
+
+export function wechatGeometry() {
+    const T = window.THREE;
+    const wechatTexture = getWechatTexture();
+
+    const w = 1.5, h = 1.5, d = 0.3, r = 0.5;
+
+    const shape = new T.Shape();
+    shape.moveTo(-w / 2 + r, -h / 2);
+    shape.lineTo(w / 2 - r, -h / 2);
+    shape.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+    shape.lineTo(w / 2, h / 2 - r);
+    shape.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
+    shape.lineTo(-w / 2 + r, h / 2);
+    shape.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+    shape.lineTo(-w / 2, -h / 2 + r);
+    shape.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+
+    const extrudeSettings = {
+        depth: d,
+        bevelEnabled: true,
+        bevelThickness: 0.05,
+        bevelSize: 0.05,
+        bevelSegments: 4
+    };
+
+    const geometry = new T.ExtrudeGeometry(shape, extrudeSettings);
+    geometry.center();
+
+    // UV map front/back faces
+    const pos = geometry.attributes.position;
+    const nor = geometry.attributes.normal;
+    const uv  = geometry.attributes.uv;
+    for (let i = 0; i < pos.count; i++) {
+        const nz = nor.getZ(i);
+        if (Math.abs(nz) > 0.8) {
+            const px = pos.getX(i);
+            const py = pos.getY(i);
+            uv.setXY(i, (px + w / 2) / w, (py + h / 2) / h);
+        }
+    }
+    uv.needsUpdate = true;
+
+    const sideMaterial = new T.MeshStandardMaterial({ color: 0x07C160, roughness: 0.4 });
+    const faceMaterial = new T.MeshStandardMaterial({ map: wechatTexture });
+
+    // Group triangles by face direction
+    geometry.clearGroups();
+    const posA = geometry.attributes.position, idxA = geometry.index;
+    const _v0 = new T.Vector3(), _v1 = new T.Vector3(), _v2 = new T.Vector3();
+    const _e1 = new T.Vector3(), _e2 = new T.Vector3(), _fn = new T.Vector3();
+    const triCount = idxA ? idxA.count / 3 : posA.count / 3;
+    for (let tri = 0; tri < triCount; tri++) {
+        const a = idxA ? idxA.getX(tri*3) : tri*3;
+        const b = idxA ? idxA.getX(tri*3+1) : tri*3+1;
+        const c = idxA ? idxA.getX(tri*3+2) : tri*3+2;
+        _v0.fromBufferAttribute(posA, a); _v1.fromBufferAttribute(posA, b); _v2.fromBufferAttribute(posA, c);
+        _fn.crossVectors(_e1.subVectors(_v1, _v0), _e2.subVectors(_v2, _v0)).normalize();
+        geometry.addGroup(tri * 3, 3, Math.abs(_fn.z) > 0.9 ? 0 : 1);
+    }
+
+    return new T.Mesh(geometry, [faceMaterial, sideMaterial]);
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信 - 潘栋</title>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Silkscreen', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #1a1a2e;
+        }
+        .card-wrap {
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #07C160, #0a9a4e);
+            background-size: 300% 300%;
+            animation: gradientShift 4s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .card {
+            background: #1a1a2e;
+            color: #fff;
+            text-align: center;
+            padding: 36px 44px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon {
+            width: 72px; height: 72px;
+            margin: 0 auto 18px;
+            border-radius: 18px;
+            background: #07C160;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .icon svg { width: 44px; height: 44px; fill: #fff; }
+        h2 {
+            font-size: 22px;
+            margin-bottom: 4px;
+            color: #07C160;
+        }
+        .handle {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 22px;
+        }
+        .note {
+            font-size: 12px;
+            color: #888;
+            max-width: 260px;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-wrap">
+        <div class="card">
+            <div class="icon">
+                <!-- WeChat icon -->
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 4.882-2.405 8.02-1.028C18.91 4.555 14.09 2.188 8.69 2.188zm-2.336 3.666c.598 0 1.083.485 1.083 1.083 0 .599-.485 1.083-1.083 1.083-.599 0-1.084-.484-1.084-1.083 0-.598.485-1.083 1.084-1.083zm4.85 0c.598 0 1.082.485 1.082 1.083 0 .599-.484 1.083-1.082 1.083-.599 0-1.083-.484-1.083-1.083 0-.598.484-1.083 1.083-1.083zm6.142 3.517c-4.084 0-7.398 2.763-7.398 6.168 0 3.405 3.314 6.168 7.398 6.168.859 0 1.684-.122 2.455-.337a.722.722 0 01.595.082l1.584.927a.272.272 0 00.14.047c.134 0 .24-.108.24-.243 0-.06-.023-.119-.039-.177l-.325-1.233a.493.493 0 01.178-.554C23.001 18.671 24 17.03 24 15.539c0-3.405-3.315-6.168-7.653-6.168zm-2.541 3.027c.498 0 .902.404.902.902 0 .499-.404.902-.902.902a.902.902 0 010-1.804zm4.85 0c.498 0 .902.404.902.902 0 .499-.404.902-.902.902a.902.902 0 010-1.804z"/>
+                </svg>
+            </div>
+            <h2>微信</h2>
+            <p class="handle">YOUR_WECHAT_ID</p>
+            <p class="note">扫描下方二维码或搜索微信号添加好友 👋</p>
+        </div>
+    </div>
+</body>
+</html>
