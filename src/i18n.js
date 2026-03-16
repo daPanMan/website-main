@@ -4,6 +4,7 @@
 const STRINGS = {
     en: {
         // Intro / page chrome
+        pageTitle:      "This is John Pan",
         enterButton:    "Click Me and You'll Find Out Who I Am!!!",
         bigTitle:       "This is\nJohn Pan",
         closeButton:    "Close Page",
@@ -39,6 +40,7 @@ const STRINGS = {
     },
     zh: {
         // Intro / page chrome
+        pageTitle:      "我是潘栋",
         enterButton:    "点击，探索我的世界！！！",
         bigTitle:       "我是\n潘栋",
         closeButton:    "关闭页面",
