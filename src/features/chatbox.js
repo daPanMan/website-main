@@ -15,6 +15,7 @@ const sendBtn = document.getElementById('chatbox-send');
 // Apply config to UI
 document.getElementById('chatbox-title').textContent = CONFIG.headerTitle;
 input.placeholder = CONFIG.ui.placeholder;
+input.maxLength = 300;
 sendBtn.textContent = CONFIG.ui.sendButton;
 
 // Set initial greeting from config
@@ -34,12 +35,16 @@ function addMessage(text, sender, isAI = false) {
 // Conversation history for AI context
 const conversationHistory = [];
 
+// Per-session message cap — limits free-tier API abuse
+const MAX_USER_MESSAGES = 25;
+let userMessageCount = 0;
+
 // Rate limiting
 let lastApiCall = 0;
 const MIN_API_INTERVAL = 1500; // 1.5s between calls (Groq allows 30/min)
 
 async function getAIResponse(userText) {
-    if (!CONFIG.api.enabled || !CONFIG.api.apiKey) {
+    if (!CONFIG.api.enabled || !CONFIG.api.endpoint) {
         return { text: "Hmm, something's off with my setup. Try again later! 😅", fromAI: false };
     }
 
@@ -69,7 +74,6 @@ async function getAIResponse(userText) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${CONFIG.api.apiKey}`
             },
             body: JSON.stringify({
                 model: CONFIG.api.model,
@@ -119,8 +123,15 @@ async function handleSend() {
     const text = input.value.trim();
     if (!text) return;
 
+    // Per-session message cap
+    if (userMessageCount >= MAX_USER_MESSAGES) {
+        addMessage("You've reached the message limit for this session — refresh the page to start a new chat! 😄", 'bot');
+        return;
+    }
+
     addMessage(text, 'user');
     input.value = '';
+    userMessageCount++;
 
     // Show typing indicator
     const typingDiv = document.createElement('div');
@@ -129,7 +140,15 @@ async function handleSend() {
     messages.appendChild(typingDiv);
     messages.scrollTop = messages.scrollHeight;
 
-    const result = await getAIResponse(text);
+    // Enforce min typing delay so fast responses still feel human
+    const minDelay = CONFIG.typing.minDelay ?? 600;
+    const maxDelay = CONFIG.typing.maxDelay ?? 1400;
+    const typingDelay = minDelay + Math.random() * (maxDelay - minDelay);
+
+    const [result] = await Promise.all([
+        getAIResponse(text),
+        new Promise(r => setTimeout(r, typingDelay))
+    ]);
 
     typingDiv.remove();
     addMessage(result.text, 'bot', result.fromAI);
