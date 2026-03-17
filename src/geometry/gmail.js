@@ -1,30 +1,9 @@
 // geometry/gmail.js — Gmail rounded rectangle icon with texture
-
-// Module-level texture cache — loaded once, reused across factory calls
-let _gmailTexture = null;
-function getGmailTexture() {
-    if (_gmailTexture) return _gmailTexture;
-    const T = window.THREE;
-    _gmailTexture = new T.Texture();
-    const img = new Image();
-    img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width; canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-        _gmailTexture.image = canvas;
-        _gmailTexture.needsUpdate = true;
-    };
-    img.crossOrigin = 'anonymous';
-    img.src = 'assets/textures/gmail.png';
-    return _gmailTexture;
-}
+import { loadLogoTexture } from '../core/texture-utils.js';
 
 export function gmailGeometry() {
     const T = window.THREE;
-    const gmailTexture = getGmailTexture();
+    const gmailTexture = loadLogoTexture('assets/textures/gmail.png');
 
     // Rounded rectangle — Gmail icon aspect ratio (~4:3)
     const w = 1.8, h = 1.3, d = 0.25, r = 0.2;

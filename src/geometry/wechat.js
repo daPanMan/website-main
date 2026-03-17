@@ -1,29 +1,9 @@
 // geometry/wechat.js — WeChat rounded square with texture
-
-let _wechatTexture = null;
-function getWechatTexture() {
-    if (_wechatTexture) return _wechatTexture;
-    const T = window.THREE;
-    _wechatTexture = new T.Texture();
-    const img = new Image();
-    img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width; canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#07C160'; // brand green — no white bezel if texture has transparency
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-        _wechatTexture.image = canvas;
-        _wechatTexture.needsUpdate = true;
-    };
-    img.crossOrigin = 'anonymous';
-    img.src = 'assets/textures/wechat.png';
-    return _wechatTexture;
-}
+import { loadLogoTexture } from '../core/texture-utils.js';
 
 export function wechatGeometry() {
     const T = window.THREE;
-    const wechatTexture = getWechatTexture();
+    const wechatTexture = loadLogoTexture('assets/textures/wechat.png', '#07C160');
 
     const w = 1.5, h = 1.5, d = 0.3, r = 0.5;
 

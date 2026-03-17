@@ -1,30 +1,9 @@
 // geometry/insta.js — Instagram flat rounded square with texture (like LinkedIn card)
-
-// Module-level texture cache — loaded once, reused across factory calls
-let _instaTexture = null;
-function getInstaTexture() {
-    if (_instaTexture) return _instaTexture;
-    const T = window.THREE;
-    _instaTexture = new T.Texture();
-    const img = new Image();
-    img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width; canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-        _instaTexture.image = canvas;
-        _instaTexture.needsUpdate = true;
-    };
-    img.crossOrigin = 'anonymous';
-    img.src = 'assets/textures/insta.png';
-    return _instaTexture;
-}
+import { loadLogoTexture } from '../core/texture-utils.js';
 
 export function instaGeometry() {
     const T = window.THREE;
-    const instaTexture = getInstaTexture();
+    const instaTexture = loadLogoTexture('assets/textures/insta.png');
 
     // Flat rounded square — same approach as LinkedIn geometry
     const w = 1.5, h = 1.5, d = 0.3, r = 0.5;

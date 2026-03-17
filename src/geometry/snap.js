@@ -1,30 +1,9 @@
 // geometry/snap.js — Snapchat rounded square icon with texture
-
-// Module-level texture cache — loaded once, reused across factory calls
-let _snapTexture = null;
-function getSnapTexture() {
-    if (_snapTexture) return _snapTexture;
-    const T = window.THREE;
-    _snapTexture = new T.Texture();
-    const img = new Image();
-    img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width; canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#FFFC00';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-        _snapTexture.image = canvas;
-        _snapTexture.needsUpdate = true;
-    };
-    img.crossOrigin = 'anonymous';
-    img.src = 'assets/textures/snap.png';
-    return _snapTexture;
-}
+import { loadLogoTexture } from '../core/texture-utils.js';
 
 export function snapGeometry() {
     const T = window.THREE;
-    const snapTexture = getSnapTexture();
+    const snapTexture = loadLogoTexture('assets/textures/snap.png', '#FFFC00');
 
     // Rounded square — matches Snapchat app icon shape
     const w = 1.5, h = 1.5, d = 0.25, r = 0.3;

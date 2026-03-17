@@ -2,6 +2,7 @@
 import { scene, camera, renderer, cssRenderer, controls } from '../core/scene-setup.js';
 import { cubes, clickTargets, titleObjects, subObjects, subTitles, subClickTargets } from '../geometry/cube-logic.js';
 import { starField, stars } from '../geometry/background-stars.js';
+import { DEFAULT_ROTATE_SPEED, HOVER_SPEED, HOVER_DAMPING, HOVER_VELOCITY_THRESHOLD } from '../core/constants.js';
 
 // --- Mobile vertical scroll (native-scroll driven) ---
 window.mobileScrollY = 0;        // current scroll offset (world units)
@@ -32,9 +33,34 @@ let hoveredIndex = -1;           // index into cubes[]
 const hoverVelX = new Map();     // per-cube residual velocity X
 const hoverVelY = new Map();     // per-cube residual velocity Y
 let prevMouseX = 0, prevMouseY = 0;
-const HOVER_SPEED   = 0.0015;    // how much cursor delta maps to rotation
-const DAMPING       = 0.96;      // how quickly hover momentum decays
-const DEFAULT_SPEED = 0.005;     // normal idle rotation speed
+
+// HOVER_SPEED, HOVER_DAMPING, DEFAULT_ROTATE_SPEED imported from constants.js
+// Local aliases for brevity
+const DAMPING       = HOVER_DAMPING;
+const DEFAULT_SPEED = DEFAULT_ROTATE_SPEED;
+
+/**
+ * Apply hover-driven or idle rotation to a single object.
+ * @param {Object3D} obj
+ * @param {string|number} key    — Map key for this object's velocity state
+ * @param {number} [idleX]      — Idle rotation speed on X axis (default DEFAULT_SPEED)
+ * @param {number} [idleY]      — Idle rotation speed on Y axis (default DEFAULT_SPEED)
+ */
+function applyHoverRotation(obj, key, idleX = DEFAULT_SPEED, idleY = DEFAULT_SPEED) {
+    const vx = hoverVelX.get(key) || 0;
+    const vy = hoverVelY.get(key) || 0;
+    if (Math.abs(vx) > HOVER_VELOCITY_THRESHOLD || Math.abs(vy) > HOVER_VELOCITY_THRESHOLD) {
+        obj.rotation.x += vx;
+        obj.rotation.y += vy;
+        hoverVelX.set(key, vx * DAMPING);
+        hoverVelY.set(key, vy * DAMPING);
+    } else {
+        obj.rotation.x += idleX;
+        obj.rotation.y += idleY;
+        hoverVelX.delete(key);
+        hoverVelY.delete(key);
+    }
+}
 
 function handlePointerMove(clientX, clientY) {
     const dx = clientX - prevMouseX;

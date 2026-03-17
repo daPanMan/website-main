@@ -1,5 +1,6 @@
 // Main entry point for the website
-import { scene, camera, renderer, controls, addBigTitle } from './core/scene-setup.js';
+import { scene, camera, renderer, controls } from './core/scene-setup.js';
+import { addBigTitle } from './features/big-title.js';
 import { playSound, bgm, zoomInSound, zoomOutSound } from './features/audio-controls.js';
 import { setupCubes, titleObjects, cubes, subObjects, subTitles, expandedParent, reloadSubItems } from './geometry/cube-logic.js';
 import { starField, createStars } from './geometry/background-stars.js';

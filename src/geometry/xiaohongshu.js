@@ -1,29 +1,9 @@
 // geometry/xiaohongshu.js — Xiaohongshu rounded square with texture
-
-let _xiaohongshuTexture = null;
-function getXiaohongshuTexture() {
-    if (_xiaohongshuTexture) return _xiaohongshuTexture;
-    const T = window.THREE;
-    _xiaohongshuTexture = new T.Texture();
-    const img = new Image();
-    img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width; canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#FF2442'; // brand red — no white bezel if texture has transparency
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-        _xiaohongshuTexture.image = canvas;
-        _xiaohongshuTexture.needsUpdate = true;
-    };
-    img.crossOrigin = 'anonymous';
-    img.src = 'assets/textures/xiaohongshu.png';
-    return _xiaohongshuTexture;
-}
+import { loadLogoTexture } from '../core/texture-utils.js';
 
 export function xiaohongshuGeometry() {
     const T = window.THREE;
-    const xiaohongshuTexture = getXiaohongshuTexture();
+    const xiaohongshuTexture = loadLogoTexture('assets/textures/xiaohongshu.png', '#FF2442');
 
     const w = 1.5, h = 1.5, d = 0.3, r = 0.5;
 

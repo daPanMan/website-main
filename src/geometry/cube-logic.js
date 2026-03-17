@@ -1,6 +1,6 @@
 // Geometry creation, positioning, floating titles, click/touch handlers, raycasting
 // Supports "sub-geometries" that expand when a parent object is clicked
-import { scene, camera, renderer, addBigTitle } from '../core/scene-setup.js';
+import { scene, camera, renderer } from '../core/scene-setup.js';
 import { playSound, zoomInSound, zoomOutSound, volumeDragging } from '../features/audio-controls.js';
 import { showIframe, hideIframe, isIframeVisible } from '../features/iframe-display.js';
 import { t, getLang } from '../i18n.js';
@@ -39,6 +39,161 @@ function restoreObject(obj, pos, rot, scl, duration, delay) {
     gsap.to(obj.position, { x: pos.x, y: pos.y, z: pos.z, duration, delay, ease: 'power2.out' });
     gsap.to(obj.rotation, { x: rot.x, y: rot.y, z: rot.z, duration, delay, ease: 'power2.out' });
     gsap.to(obj.scale,    { x: scl.x, y: scl.y, z: scl.z, duration: duration - 0.1, delay, ease: 'power2.out' });
+}
+
+// --- Shared animation helpers (extracted to eliminate duplication) ---
+
+/** Hide the big title: slide out on desktop, fade out on mobile */
+function hideBigTitle() {
+    if (!window.bigTitle) return;
+    if (window.innerWidth >= 768) {
+        gsap.to(window.bigTitle.position, { z: -20, duration: 0.6, ease: 'power2.in' });
+    }
+    gsap.to(window.bigTitle.element.style, { opacity: 0, duration: 0.4 });
+}
+
+/**
+ * Restore the big title: slide back in on desktop, fade in on mobile.
+ * @param {number} [delay=0.5]
+ */
+function restoreBigTitle(delay = 0.5) {
+    if (!window.bigTitle) return;
+    if (window.innerWidth >= 768) {
+        gsap.to(window.bigTitle.position, { z: -5, duration: 0.6, delay, ease: 'power2.out' });
+    }
+    gsap.to(window.bigTitle.element.style, { opacity: 1, duration: 0.5, delay });
+}
+
+/**
+ * Fly all cubes except one off-screen (deterministic directions).
+ * Also fades out their floating titles.
+ * @param {number} exceptIndex — index of the cube to leave in place
+ */
+function scatterOtherCubes(exceptIndex) {
+    cubes.forEach((obj, i) => {
+        if (i === exceptIndex) return;
+        killObjectTweens(obj);
+        const orig = originalPositions[i];
+        const dx = orig.x !== 0 ? orig.x * 4 : (i % 2 === 0 ? -15 : 15);
+        const dy = orig.y !== 0 ? orig.y * 4 : (i % 2 === 0 ? -10 : 10);
+        gsap.to(obj.position, { x: dx, y: dy, z: -15, duration: 0.8, ease: 'power2.in' });
+        gsap.to(obj.scale,    { x: 0.01, y: 0.01, z: 0.01, duration: 0.8, ease: 'power2.in' });
+    });
+    titleObjects.forEach(title => {
+        if (title.userData.cube === cubes[exceptIndex]) return;
+        gsap.to(title.element.style, { opacity: 0, duration: 0.4 });
+        gsap.to(title.position, { z: -15, duration: 0.8 });
+    });
+}
+
+/**
+ * Animate all cubes back to their original formation positions.
+ * @param {number}  activeIdx      — the "hero" cube index (slightly earlier delay)
+ * @param {object}  [opts]
+ * @param {number}  [opts.selfDelay=0.2]    — delay for the active cube
+ * @param {number}  [opts.othersDelay=0.3]  — delay for all other cubes
+ * @param {number}  [opts.titlesDelay=0.4]  — delay for title fade-in
+ * @param {boolean} [opts.restoreTitles=true]
+ */
+function restoreFormation(activeIdx, {
+    selfDelay   = 0.2,
+    othersDelay = 0.3,
+    titlesDelay = 0.4,
+    restoreTitles = true
+} = {}) {
+    restoreObject(cubes[activeIdx],
+        originalPositions[activeIdx], originalRotations[activeIdx], originalScales[activeIdx],
+        0.7, selfDelay);
+    cubes.forEach((obj, i) => {
+        if (i === activeIdx) return;
+        restoreObject(obj, originalPositions[i], originalRotations[i], originalScales[i], 0.7, othersDelay);
+    });
+    if (restoreTitles) {
+        titleObjects.forEach(title => {
+            gsap.to(title.element.style, { opacity: 1, duration: 0.5, delay: titlesDelay });
+        });
+    }
+}
+
+/**
+ * Unified floating-title factory used for both main-object titles and sub-item titles.
+ * Returns null on mobile (titles are hidden there).
+ * @param {Object3D} obj
+ * @param {string}   text
+ * @param {object}   [opts]
+ * @param {boolean}  [opts.fadeIn=false]   — start at opacity 0 and fade in
+ * @param {number}   [opts.yOffset=1.3]    — world-unit offset above obj.position
+ * @param {number}   [opts.fontSize=60]    — CSS font size in px
+ */
+function createFloatingTitle(obj, text, { fadeIn = false, yOffset = 1.3, fontSize = 60 } = {}) {
+    if (!text || window.innerWidth < 768) return null;
+    const el = document.createElement('div');
+    el.className = 'cube-title';
+    el.innerText = text;
+    Object.assign(el.style, {
+        position: 'absolute',
+        color: 'white',
+        fontSize: `${fontSize}px`,
+        fontWeight: 'bold',
+        textShadow: '0px 0px 5px rgba(255,255,255,0.8)',
+        pointerEvents: 'none',
+        whiteSpace: 'nowrap',
+        ...(fadeIn ? { opacity: '0' } : {})
+    });
+    const titleObj = new window.THREE.CSS3DObject(el);
+    titleObj.scale.set(0.005, 0.005, 0.005);
+    titleObj.position.copy(obj.position);
+    titleObj.position.y += yOffset;
+    titleObj.userData.cube = obj;
+    scene.add(titleObj);
+    if (fadeIn) gsap.to(el.style, { opacity: 1, duration: 0.5, delay: 0.3 });
+    return titleObj;
+}
+
+/**
+ * Spawn sub-geometry objects for a parent that has just been expanded.
+ * Adds objects to subObjects, subTitles, subClickTargets and animates them
+ * out to their fan/grid positions.
+ * @param {object[]} subItems — filtered subItems array (lang already applied)
+ */
+function spawnSubItems(subItems) {
+    const isMobile = window.innerWidth < 768;
+    const centerX = 0, centerY = isMobile ? 0 : -1.8, centerZ = -2;
+    const subPositions = getSubPositions(subItems.length);
+
+    subItems.forEach((sub, si) => {
+        const obj = sub.factory();
+        obj.userData = {
+            label:     sub.label,
+            url:       sub.url || '',
+            title:     sub.title || sub.label,
+            _titleKey: sub._titleKey || null,
+            isSubItem: true
+        };
+        obj.position.set(centerX, centerY, centerZ);
+        obj.scale.set(0.01, 0.01, 0.01);
+        obj.frustumCulled = false;
+        scene.add(obj);
+        subObjects.push(obj);
+
+        if (obj.isMesh) {
+            subClickTargets.push(obj);
+        } else {
+            obj.traverse(child => {
+                if (child.isMesh) {
+                    child.userData._subIndex = si;
+                    subClickTargets.push(child);
+                }
+            });
+        }
+
+        const target = subPositions[si % subPositions.length];
+        gsap.to(obj.position, { x: target.x, y: target.y, z: target.z, duration: 0.7, delay: si * 0.12, ease: 'back.out(1.4)' });
+        gsap.to(obj.scale,    { x: 1, y: 1, z: 1, duration: 0.6, delay: si * 0.12, ease: 'back.out(1.4)' });
+
+        const title = createFloatingTitle(obj, sub.title || sub.label, { fadeIn: true, fontSize: 50 });
+        if (title) subTitles.push(title);
+    });
 }
 
 export const cubes = [];          // top-level objects (Group or Mesh)
@@ -173,31 +328,9 @@ export function setupCubes(cubeSpecs) {
 }
 
 export function addFloatingTitle(obj, text) {
-    if (!text) return;
-    // Do not create per-geometry floating titles on narrow/mobile viewports
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) return null;
-
-    const titleElement = document.createElement('div');
-    titleElement.className = 'cube-title';
-    titleElement.innerText = text;
-    Object.assign(titleElement.style, {
-        position: 'absolute',
-        color: 'white',
-        fontSize: '60px',
-        fontWeight: 'bold',
-        textShadow: '0px 0px 5px rgba(255,255,255,0.8)',
-        pointerEvents: 'none',
-        whiteSpace: 'nowrap'
-    });
-    const titleObject = new window.THREE.CSS3DObject(titleElement);
-    titleObject.scale.set(0.005, 0.005, 0.005);
-    titleObject.position.copy(obj.position);
-    titleObject.position.y += 1.3;
-    titleObject.userData.cube = obj;
-    scene.add(titleObject);
-    titleObjects.push(titleObject);
-    return titleObject;
+    const title = createFloatingTitle(obj, text);
+    if (title) titleObjects.push(title);
+    return title;
 }
 
 // ==================== EXPAND / COLLAPSE ====================
@@ -258,37 +391,16 @@ function expandParent(parentObj) {
     const defaultZ = getDefaultCameraZ();
     gsap.to(camera.position, { z: defaultZ - 4, duration: 0.9, ease: 'power2.inOut' });
 
-    // 1. Hide the big title (desktop only — on mobile it stays pinned at top)
-    if (window.bigTitle && window.innerWidth >= 768) {
-        gsap.to(window.bigTitle.position, { z: -20, duration: 0.6, ease: 'power2.in' });
-        gsap.to(window.bigTitle.element.style, { opacity: 0, duration: 0.4 });
-    }
+    // 1. Hide the big title
+    hideBigTitle();
 
-    // 2. Animate other cubes + their titles out (deterministic directions from original positions)
-    cubes.forEach((obj, i) => {
-        if (i === parentIdx) return;
-        killObjectTweens(obj);
-        const orig = originalPositions[i];
-        // Fly out along a scaled version of their original offset from center
-        const dx = orig.x !== 0 ? orig.x * 4 : (i % 2 === 0 ? -15 : 15);
-        const dy = orig.y !== 0 ? orig.y * 4 : (i % 2 === 0 ? -10 : 10);
-        gsap.to(obj.position, { x: dx, y: dy, z: -15, duration: 0.8, ease: 'power2.in' });
-        gsap.to(obj.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 0.8, ease: 'power2.in' });
-    });
-    // Fade out titles of other cubes
-    titleObjects.forEach(title => {
-        if (title.userData.cube === parentObj) return;
-        gsap.to(title.element.style, { opacity: 0, duration: 0.4 });
-        gsap.to(title.position, { z: -15, duration: 0.8 });
-    });
+    // 2. Animate other cubes + their titles out
+    scatterOtherCubes(parentIdx);
 
     // 3. Move the clicked object to center of the fan (parent stays visible)
     if (window.innerWidth < 768) {
-        // Mobile: lift the parent higher so it clearly sits above the
-        // two-column children grid.
-        if (window.bigTitle) {
-            gsap.to(window.bigTitle.element.style, { opacity: 0, duration: 0.4 });
-        }
+        // Mobile: bigTitle already hidden by hideBigTitle() above;
+        // lift the parent so it sits clearly above the two-column children grid.
         gsap.to(parentObj.position, { x: 0, y: 5.5, z: -1, duration: 0.8, ease: 'power2.out' });
     } else {
         gsap.to(parentObj.position, { x: 0, y: -1.8, z: 0, duration: 0.8, ease: 'power2.out' });
@@ -307,49 +419,7 @@ function expandParent(parentObj) {
     if (subItems.length === 0) return;
 
     setTimeout(() => {
-        subItems.forEach((sub, si) => {
-            const obj = sub.factory();
-            obj.userData = {
-                label: sub.label,
-                url: sub.url || '',
-                title: sub.title || sub.label,
-                _titleKey: sub._titleKey || null,
-                isSubItem: true
-            };
-
-            // Start at the parent's center position (behind it)
-            if (window.innerWidth < 768) {
-                obj.position.set(0, 0, -2);
-            } else {
-                obj.position.set(0, -1.8, -2);
-            }
-            obj.scale.set(0.01, 0.01, 0.01);
-            obj.frustumCulled = false;
-            scene.add(obj);
-            subObjects.push(obj);
-
-            // Register click targets
-            if (obj.isMesh) {
-                subClickTargets.push(obj);
-            } else {
-                obj.traverse(child => {
-                    if (child.isMesh) {
-                        child.userData._subIndex = si;
-                        subClickTargets.push(child);
-                    }
-                });
-            }
-
-            // Animate to spread position (semi-circle fan)
-            const subPositions = getSubPositions(subItems.length);
-            const target = subPositions[si % subPositions.length];
-            gsap.to(obj.position, { x: target.x, y: target.y, z: target.z, duration: 0.7, delay: si * 0.12, ease: 'back.out(1.4)' });
-            gsap.to(obj.scale, { x: 1, y: 1, z: 1, duration: 0.6, delay: si * 0.12, ease: 'back.out(1.4)' });
-
-            // Add floating title for sub-item
-            const title = addSubTitle(obj, sub.title || sub.label);
-            if (title) subTitles.push(title);
-        });
+        spawnSubItems(subItems);
 
         // Show the close/back button
         const closeBtn = document.getElementById('reset-scale-button');
@@ -360,34 +430,6 @@ function expandParent(parentObj) {
             closeBtn.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); playSound(zoomOutSound); collapseToMain(); };
         }
     }, 700);
-}
-
-function addSubTitle(obj, text) {
-    if (!text) return null;
-    // Skip creating sub-item titles on mobile
-    if (window.innerWidth < 768) return null;
-    const el = document.createElement('div');
-    el.className = 'cube-title';
-    el.innerText = text;
-    Object.assign(el.style, {
-        position: 'absolute',
-        color: 'white',
-        fontSize: window.innerWidth < 768 ? '34px' : '50px',
-        fontWeight: 'bold',
-        textShadow: '0px 0px 5px rgba(255,255,255,0.8)',
-        pointerEvents: 'none',
-        whiteSpace: 'nowrap',
-        opacity: '0'
-    });
-    const titleObj = new window.THREE.CSS3DObject(el);
-    titleObj.scale.set(0.005, 0.005, 0.005);
-    titleObj.position.copy(obj.position);
-    titleObj.position.y += 1.3;
-    titleObj.userData.cube = obj;
-    scene.add(titleObj);
-    // Fade in
-    gsap.to(el.style, { opacity: 1, duration: 0.5, delay: 0.3 });
-    return titleObj;
 }
 
 export function collapseToMain(restoreTitles = true) {
@@ -430,34 +472,11 @@ export function collapseToMain(restoreTitles = true) {
         subClickTargets.length = 0;
     }, 600);
 
-    // 2. Move parent back to original position
-    restoreObject(expandedParent,
-        originalPositions[parentIdx], originalRotations[parentIdx], originalScales[parentIdx],
-        0.7, 0.3);
+    // 2. Restore all cubes to formation
+    restoreFormation(parentIdx, { selfDelay: 0.3, othersDelay: 0.4, titlesDelay: 0.5, restoreTitles });
 
-    // 3. Bring back other cubes at exact original positions, rotations, and scales
-    cubes.forEach((obj, i) => {
-        if (i === parentIdx) return;
-        restoreObject(obj, originalPositions[i], originalRotations[i], originalScales[i], 0.7, 0.4);
-    });
-
-    // Restore titles only if requested
-    if (restoreTitles) {
-        titleObjects.forEach(title => {
-            gsap.to(title.element.style, { opacity: 1, duration: 0.5, delay: 0.5 });
-            // Position will be updated by animation loop
-        });
-    }
-
-    // Bring back big title (desktop only — on mobile it never left)
-    if (window.bigTitle && window.innerWidth >= 768) {
-        gsap.to(window.bigTitle.position, { z: -5, duration: 0.6, delay: 0.5, ease: 'power2.out' });
-        gsap.to(window.bigTitle.element.style, { opacity: 1, duration: 0.5, delay: 0.6 });
-    }
-    // Mobile: restore big title visibility
-    if (window.bigTitle && window.innerWidth < 768) {
-        gsap.to(window.bigTitle.element.style, { opacity: 1, duration: 0.5, delay: 0.5 });
-    }
+    // 3. Bring back big title
+    restoreBigTitle(0.5);
 
     // Zoom camera back out
     gsap.to(camera.position, { z: getDefaultCameraZ(), duration: 0.8, delay: 0.4, ease: 'power2.out' });
@@ -516,31 +535,11 @@ function zoomCubeIn(obj) {
     gsap.killTweensOf(obj.rotation);
     gsap.killTweensOf(obj.scale);
 
-    // Hide big title (desktop only — on mobile it stays pinned at top)
-    if (window.bigTitle && window.innerWidth >= 768) {
-        gsap.to(window.bigTitle.position, { z: -20, duration: 0.6, ease: 'power2.in' });
-        gsap.to(window.bigTitle.element.style, { opacity: 0, duration: 0.4 });
-    }
-    // Mobile: hide big title and move geometry to top
-    if (window.bigTitle && window.innerWidth < 768) {
-        gsap.to(window.bigTitle.element.style, { opacity: 0, duration: 0.4 });
-    }
+    // Hide big title and scatter other cubes
+    hideBigTitle();
+    scatterOtherCubes(idx);
 
-    // Move other cubes out (same deterministic directions as expand)
     const isMobile = window.innerWidth < 768;
-    cubes.forEach((c, i) => {
-        if (i === idx) return;
-        const orig = originalPositions[i];
-        const dx = orig.x !== 0 ? orig.x * 4 : (i % 2 === 0 ? -15 : 15);
-        const dy = orig.y !== 0 ? orig.y * 4 : (i % 2 === 0 ? -10 : 10);
-        gsap.to(c.position, { x: dx, y: dy, z: -15, duration: 0.8, ease: 'power2.in' });
-        gsap.to(c.scale,    { x: 0.01, y: 0.01, z: 0.01, duration: 0.8, ease: 'power2.in' });
-    });
-    titleObjects.forEach(title => {
-        if (title.userData.cube === obj) return;
-        gsap.to(title.element.style, { opacity: 0, duration: 0.4 });
-        gsap.to(title.position, { z: -15, duration: 0.8 });
-    });
 
     // Center the clicked object (scale up proportionally from its original size)
     const os = originalScales[idx];
@@ -573,31 +572,9 @@ function returnZoomedCube() {
     const closeBtn = document.getElementById('reset-scale-button');
     if (closeBtn) closeBtn.style.display = 'none';
 
-    // Return zoomed cube to original
-    restoreObject(zoomedCube,
-        originalPositions[idx], originalRotations[idx], originalScales[idx],
-        0.7, 0.2);
-
-    // Bring back all other cubes
-    cubes.forEach((c, i) => {
-        if (i === idx) return;
-        restoreObject(c, originalPositions[i], originalRotations[i], originalScales[i], 0.7, 0.3);
-    });
-
-    // Restore titles
-    titleObjects.forEach(title => {
-        gsap.to(title.element.style, { opacity: 1, duration: 0.5, delay: 0.4 });
-    });
-
-    // Bring back big title (desktop only — on mobile it never left)
-    if (window.bigTitle && window.innerWidth >= 768) {
-        gsap.to(window.bigTitle.position, { z: -5, duration: 0.6, delay: 0.4, ease: 'power2.out' });
-        gsap.to(window.bigTitle.element.style, { opacity: 1, duration: 0.5, delay: 0.5 });
-    }
-    // Mobile: restore big title visibility
-    if (window.bigTitle && window.innerWidth < 768) {
-        gsap.to(window.bigTitle.element.style, { opacity: 1, duration: 0.5, delay: 0.4 });
-    }
+    // Restore formation
+    restoreFormation(idx, { selfDelay: 0.2, othersDelay: 0.3, titlesDelay: 0.4 });
+    restoreBigTitle(0.4);
 
     // Zoom camera back
     gsap.to(camera.position, { z: getDefaultCameraZ(), duration: 0.8, delay: 0.3, ease: 'power2.out' });
@@ -858,13 +835,18 @@ window.addEventListener('click', (event) => {
 // ── Hot language switch ──────────────────────────────────────────────────────
 // Retranslate sub-item floating titles and the Close Page / Back button.
 window.addEventListener('langchange', () => {
-    // Update visible sub-item floating titles (spawned when a parent expands)
-    subTitles.forEach(titleObj => {
-        const key = titleObj.userData.cube?.userData?._titleKey;
-        if (key) titleObj.element.innerText = t(key);
-    });
+    // When a parent is expanded, reloadSubItems() (called from main.js) handles
+    // sub-title translation by collapsing the current titles and respawning them
+    // with the new language text. Updating text here would cause it to flicker
+    // mid-animation while the titles are still fading out — so we skip it.
+    if (!expandedParent) {
+        subTitles.forEach(titleObj => {
+            const key = titleObj.userData.cube?.userData?._titleKey;
+            if (key) titleObj.element.innerText = t(key);
+        });
+    }
 
-    // Retranslate the close/back button if it is currently visible
+    // Close/back button is not animating — safe to retranslate immediately.
     const closeBtn = document.getElementById('reset-scale-button');
     if (!closeBtn || closeBtn.style.display === 'none') return;
     if (zoomedCube || zoomedSub) {
@@ -907,42 +889,7 @@ export function reloadSubItems() {
         );
         if (subItems.length === 0) return;
 
-        subItems.forEach((sub, si) => {
-            const obj = sub.factory();
-            obj.userData = {
-                label: sub.label,
-                url: sub.url || '',
-                title: sub.title || sub.label,
-                _titleKey: sub._titleKey || null,
-                isSubItem: true
-            };
-            const center = window.innerWidth < 768 ? { x: 0, y: 0, z: -2 } : { x: 0, y: -1.8, z: -2 };
-            obj.position.set(center.x, center.y, center.z);
-            obj.scale.set(0.01, 0.01, 0.01);
-            obj.frustumCulled = false;
-            scene.add(obj);
-            subObjects.push(obj);
-
-            if (obj.isMesh) {
-                subClickTargets.push(obj);
-            } else {
-                obj.traverse(child => {
-                    if (child.isMesh) {
-                        child.userData._subIndex = si;
-                        subClickTargets.push(child);
-                    }
-                });
-            }
-
-            // Animate out to spread positions
-            const subPositions = getSubPositions(subItems.length);
-            const target = subPositions[si % subPositions.length];
-            gsap.to(obj.position, { x: target.x, y: target.y, z: target.z, duration: 0.7, delay: si * 0.12, ease: 'back.out(1.4)' });
-            gsap.to(obj.scale, { x: 1, y: 1, z: 1, duration: 0.6, delay: si * 0.12, ease: 'back.out(1.4)' });
-
-            const title = addSubTitle(obj, sub.title || sub.label);
-            if (title) subTitles.push(title);
-        });
+        spawnSubItems(subItems);
     }, 500);
 }
 
