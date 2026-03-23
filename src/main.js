@@ -49,7 +49,7 @@ const cubeSpecs = [
             { _labelKey: 'linkedin',  _titleKey: 'linkedin',  factory: () => linkedInGeometry(), label: t('linkedin'),   title: t('linkedin'),   url: './pages/linkedin.html' },
             { _labelKey: 'email',     _titleKey: 'email',     factory: () => gmailGeometry(),    label: t('email'),      title: t('email'),      url: './pages/email.html' },
             { _labelKey: 'instagram',   _titleKey: 'instagram',   factory: () => instaGeometry(),        label: t('instagram'),    title: t('instagram'),    url: './pages/insta.html' },
-            { _labelKey: 'snapchat',    _titleKey: 'snapchat',    factory: () => snapGeometry(),         label: t('snapchat'),     title: t('snapchat'),     url: './pages/snap.html' },
+            { _labelKey: 'snapchat',    _titleKey: 'snapchat',    factory: () => snapGeometry(),         label: t('snapchat'),     title: t('snapchat'),     url: './pages/snap.html',     langOnly: 'en' },
             { _labelKey: 'wechat',      _titleKey: 'wechat',      factory: () => wechatGeometry(),       label: t('wechat'),       title: t('wechat'),       url: './pages/wechat.html',      langOnly: 'zh' },
             { _labelKey: 'xiaohongshu', _titleKey: 'xiaohongshu', factory: () => xiaohongshuGeometry(),  label: t('xiaohongshu'),  title: t('xiaohongshu'),  url: './pages/xiaohongshu.html', langOnly: 'zh' },
         ]
