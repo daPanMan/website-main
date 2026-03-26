@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>联系我</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        #contact-form {
+            padding: 5%;
+            background: white;
+            color: black;
+            text-align: center;
+            border-radius: 0;
+            box-shadow: none;
+            box-sizing: border-box;
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            max-height: none;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        textarea {
+            height: 120px;
+            resize: none;
+        }
+        button {
+            background: #d40000;
+            color: white;
+            padding: 12px;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 8px;
+        }
+        #close-contact {
+            cursor: pointer;
+            color: #d40000;
+            display: block;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+        .email-address {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="contact-form">
+        <h2>联系我</h2>
+        <p class="email-address">📧 pandong2001@163.com</p>
+        <div id="success-message" style="display: none; color: green; font-weight: bold; text-align: center; margin-bottom: 10px;"></div>
+
+        <form id="email-form">
+            <input type="text" id="name" placeholder="你的名字" required>
+            <input type="email" id="email" placeholder="你的邮箱" required>
+            <textarea id="message" placeholder="留言内容" required></textarea>
+            <button type="submit">发送</button>
+        </form>
+        <span id="close-contact">关闭</span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        emailjs.init("PeD_SpSOcKdDZPzHu");
+
+        document.getElementById("email-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let message = document.getElementById("message").value;
+
+            let templateParams = {
+                from_name: name,
+                from_email: email,
+                message: message
+            };
+
+            emailjs.send("service_1q5yozh", "template_jjjrk8l", templateParams)
+                .then((response) => {
+                    let successMessage = document.getElementById("success-message");
+                    successMessage.innerText = "✅ 发送成功！";
+                    successMessage.style.display = "block";
+                })
+                .catch((error) => {
+                    console.error("❌ Error:", error);
+                    alert("❌ 发送失败，请稍后再试。");
+                });
+        });
+    </script>
+</body>
+</html>

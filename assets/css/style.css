@@ -22,7 +22,10 @@ html {
     html {
         overflow: visible;
         overflow-x: hidden;
+        overflow-y: scroll;
         height: auto;
+        -webkit-overflow-scrolling: touch; /* momentum scroll on iOS */
+        scroll-behavior: smooth;
     }
 }
 
@@ -62,7 +65,14 @@ iframe {
         height: auto;
         overflow: visible;
         overflow-x: hidden;
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch; /* momentum scroll on iOS */
+        scroll-behavior: smooth;
         touch-action: pan-y; /* allow native vertical scroll, block horizontal/zoom */
+    }
+
+    #reset-scale-button {
+        display: none !important;
     }
 
     #chatbox {

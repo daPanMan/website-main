@@ -10,6 +10,7 @@ import { linkedInGeometry } from './geometry/linkedin.js';
 import { mainPageGeometry } from './geometry/mainpage.js';
 import { emailGeometry } from './geometry/email.js';
 import { gmailGeometry } from './geometry/gmail.js';
+import { mail163Geometry } from './geometry/mail163.js';
 import { instaGeometry } from './geometry/insta.js';
 import { snapGeometry } from './geometry/snap.js';
 import { wechatGeometry } from './geometry/wechat.js';
@@ -46,9 +47,9 @@ const cubeSpecs = [
         type: emailGeometry(), label: t('contactMe'), url: './pages/email.html',
         userData: { title: t('contactMe'), _titleKey: 'contactMe' },
         subItems: [
-            { _labelKey: 'linkedin',  _titleKey: 'linkedin',  factory: () => linkedInGeometry(), label: t('linkedin'),   title: t('linkedin'),   url: './pages/linkedin.html' },
-            { _labelKey: 'email',     _titleKey: 'email',     factory: () => gmailGeometry(),    label: t('email'),      title: t('email'),      url: './pages/email.html' },
-            { _labelKey: 'instagram',   _titleKey: 'instagram',   factory: () => instaGeometry(),        label: t('instagram'),    title: t('instagram'),    url: './pages/insta.html' },
+            { _labelKey: 'linkedin',  _titleKey: 'linkedin',  factory: () => linkedInGeometry(), label: t('linkedin'),   title: t('linkedin'),   url: './pages/linkedin.html', langOnly: 'en' },
+            { _labelKey: 'email',     _titleKey: 'email',     factory: () => gmailGeometry(),    label: t('email'),      title: t('email'),      url: './pages/email.html',    langOnly: 'en' },
+            { _labelKey: 'instagram',   _titleKey: 'instagram',   factory: () => instaGeometry(),        label: t('instagram'),    title: t('instagram'),    url: './pages/insta.html',   langOnly: 'en' },
             { _labelKey: 'snapchat',    _titleKey: 'snapchat',    factory: () => snapGeometry(),         label: t('snapchat'),     title: t('snapchat'),     url: './pages/snap.html',     langOnly: 'en' },
             { _labelKey: 'wechat',      _titleKey: 'wechat',      factory: () => wechatGeometry(),       label: t('wechat'),       title: t('wechat'),       url: './pages/wechat.html',      langOnly: 'zh' },
             { _labelKey: 'xiaohongshu', _titleKey: 'xiaohongshu', factory: () => xiaohongshuGeometry(),  label: t('xiaohongshu'),  title: t('xiaohongshu'),  url: './pages/xiaohongshu.html', langOnly: 'zh' },
@@ -90,8 +91,10 @@ animate();
 
 // ── Hot language switch ──────────────────────────────────────────────────────
 // Fires whenever setPageLang() dispatches 'langchange' (no page reload needed).
+let _langSwitchGen = 0; // incremented each switch — stale setTimeout callbacks bail out
 window.addEventListener('langchange', () => {
     const gsap = window.gsap;
+    const myGen = ++_langSwitchGen;
 
     // Big title: fade out → swap text → fade in (only if currently visible)
     const bigTitleEl = window.bigTitle?.element;
@@ -157,12 +160,15 @@ window.addEventListener('langchange', () => {
         }
 
         // Update label text while hidden, then fade back in
+        // Use myGen to discard stale callbacks if the user switches language again quickly
         setTimeout(() => {
+            if (_langSwitchGen !== myGen) return; // superseded — bail out
             titleObjects.forEach(titleObj => {
                 const key = titleObj.userData.cube?.userData?._titleKey;
                 if (key) titleObj.element.innerText = t(key);
             });
             setTimeout(() => {
+                if (_langSwitchGen !== myGen) return; // superseded — bail out
                 titleObjects.forEach(titleObj => {
                     if (titleObj.userData._wasVisible) gsap.to(titleObj.element, { opacity: 1, duration: 0.4 });
                 });

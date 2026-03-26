@@ -12,14 +12,14 @@ const messages = document.getElementById('chatbox-messages');
 const input = document.getElementById('chatbox-input');
 const sendBtn = document.getElementById('chatbox-send');
 
-// Apply config to UI
-document.getElementById('chatbox-title').textContent = CONFIG.headerTitle;
-input.placeholder = CONFIG.ui.placeholder;
+// Apply config to UI — use live t() calls so the correct language is set at load time
+document.getElementById('chatbox-title').textContent = t('chatTitle');
+input.placeholder = t('chatPlaceholder');
 input.maxLength = 300;
 sendBtn.textContent = CONFIG.ui.sendButton;
 
-// Set initial greeting from config
-messages.querySelector('.chat-msg.bot').textContent = CONFIG.greeting;
+// Set initial greeting from i18n (not from config which is evaluated once at import)
+messages.querySelector('.chat-msg.bot').textContent = t('chatGreeting');
 
 let collapsed = CONFIG.ui.collapsedByDefault;
 if (collapsed) chatbox.classList.add('chatbox-collapsed');
@@ -41,7 +41,8 @@ let userMessageCount = 0;
 
 // Rate limiting
 let lastApiCall = 0;
-const MIN_API_INTERVAL = 1500; // 1.5s between calls (Groq allows 30/min)
+const MIN_API_INTERVAL = 4000; // 4s between calls — 70B model has tight token limits
+let _retrying = false; // prevents infinite retry loops
 
 async function getAIResponse(userText) {
     if (!CONFIG.api.enabled || !CONFIG.api.endpoint) {
@@ -92,8 +93,17 @@ async function getAIResponse(userText) {
         if (!res.ok) {
             const errText = await res.text();
             console.error(`Groq API ${res.status}:`, errText);
+            // Auto-retry once after a short delay before giving up
+            if (!_retrying) {
+                _retrying = true;
+                await new Promise(r => setTimeout(r, 1500));
+                _retrying = false;
+                conversationHistory.pop(); // remove the user msg added above
+                return getAIResponse(userText); // retry
+            }
+            _retrying = false;
             conversationHistory.pop();
-            return { text: "Something went wrong on my end — try again? 😅", fromAI: false };
+            return { text: "Having a bit of trouble connecting — try again in a sec! 😅", fromAI: false };
         }
 
         const data = await res.json();
@@ -196,8 +206,32 @@ input.addEventListener('keydown', (e) => {
 chatbox.addEventListener('click', (e) => e.stopPropagation());
 chatbox.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: false });
 
+// Close chatbox when clicking/tapping outside of it
+document.addEventListener('click', (e) => {
+    if (!collapsed && !chatbox.contains(e.target)) {
+        toggleChatbox();
+    }
+});
+document.addEventListener('touchstart', (e) => {
+    if (!collapsed && !chatbox.contains(e.target)) {
+        toggleChatbox();
+    }
+}, { passive: true });
+
 // Hot language switch — update chatbox UI strings without a page reload
 window.addEventListener('langchange', () => {
     document.getElementById('chatbox-title').textContent = t('chatTitle');
     input.placeholder = t('chatPlaceholder');
+
+    // Swap the greeting bubble if it's still the only message (untouched conversation)
+    const allMsgs = messages.querySelectorAll('.chat-msg.bot');
+    if (allMsgs.length === 1 && allMsgs[0].textContent === allMsgs[0].textContent) {
+        // Only replace if it matches a known greeting (EN or ZH) — don't overwrite real replies
+        const enGreeting = "Hey! I'm John. Ask me anything about myself or this site!";
+        const zhGreeting = "嘿！我是潘栋。有什么想问我的？";
+        const current = allMsgs[0].textContent;
+        if (current === enGreeting || current === zhGreeting) {
+            allMsgs[0].textContent = t('chatGreeting');
+        }
+    }
 });

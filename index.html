@@ -162,10 +162,20 @@
         var isZh = lang === 'zh';
         document.getElementById('html-root').lang = lang;
         document.title = isZh ? '我是潘栋' : 'This is John Pan';
+
+        // Immediately swap all DOM strings so there's zero lag before the 3D scene catches up
+        var enterBtn = document.getElementById('enter-button');
+        if (enterBtn) enterBtn.textContent = isZh ? '点击，探索我的世界！！！' : "Click Me and You'll Find Out Who I Am!!!";
+        var closeBtn = document.getElementById('reset-scale-button');
+        if (closeBtn && closeBtn.style.display !== 'none') {
+            // Don't swap close button text here — cube-logic handles it via langchange
+        }
+
         var enBtn = document.getElementById('lang-en');
         var zhBtn = document.getElementById('lang-zh');
-        if (enBtn) enBtn.style.opacity = isZh ? '0.4' : '1';
-        if (zhBtn) zhBtn.style.opacity = isZh ? '1' : '0.4';
+        if (enBtn) { enBtn.style.opacity = isZh ? '0.4' : '1'; enBtn.style.fontWeight = isZh ? 'normal' : 'bold'; }
+        if (zhBtn) { zhBtn.style.opacity = isZh ? '1' : '0.4'; zhBtn.style.fontWeight = isZh ? 'bold' : 'normal'; }
+
         window.dispatchEvent(new CustomEvent('langchange', { detail: { lang: lang } }));
     }
 
