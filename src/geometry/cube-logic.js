@@ -59,7 +59,7 @@ function hideBigTitle() {
 function restoreBigTitle(delay = 0.5) {
     if (!window.bigTitle) return;
     if (window.innerWidth >= 768) {
-        gsap.to(window.bigTitle.position, { z: -5, duration: 0.6, delay, ease: 'power2.out' });
+        gsap.to(window.bigTitle.position, { x: 0, y: 0, z: -5, duration: 0.8, delay, ease: 'power2.out' });
     }
     gsap.to(window.bigTitle.element.style, { opacity: 1, duration: 0.5, delay });
 }
@@ -727,6 +727,9 @@ function onCubeClick(event) {
     const introPage = document.getElementById('intro-page');
     if (introPage && introPage.style.display !== 'none') return;
 
+    // Block all 3D interaction during space tour
+    if (window.spaceTourActive) return;
+
     // Ignore if volume slider was being dragged
     if (volumeDragging) return;
 
@@ -832,6 +835,51 @@ window.addEventListener('click', (event) => {
     origOnCubeClick(event);
 });
 
+// ── Double-click / double-tap: reset to default view ────────────────────────
+function resetToDefaultView() {
+    const introPage = document.getElementById('intro-page');
+    if (introPage && introPage.style.display !== 'none') return;
+    if (window.spaceTourActive) return;
+    if (volumeDragging) return;
+
+    const defaultZ = getDefaultCameraZ();
+    const isAtDefault = Math.abs(camera.position.z - defaultZ) < 0.5;
+    const hasActiveState = !!(zoomedSub || zoomedCube || expandedParent);
+
+    // Nothing to do if already in the default idle state
+    if (isAtDefault && !hasActiveState) return;
+
+    if (zoomedSub) {
+        playSound(zoomOutSound);
+        returnZoomedSub();
+    } else if (zoomedCube) {
+        playSound(zoomOutSound);
+        returnZoomedCube();
+    } else if (expandedParent) {
+        playSound(zoomOutSound);
+        collapseToMain();
+    } else {
+        // Camera was manually scrolled via mouse wheel — just snap it back
+        playSound(zoomOutSound);
+        gsap.to(camera.position, { z: defaultZ, duration: 0.7, ease: 'power2.out' });
+    }
+}
+
+// Desktop double-click
+window.addEventListener('dblclick', resetToDefaultView);
+
+// Mobile double-tap (two touches within 300 ms)
+let _lastTapTime = 0;
+window.addEventListener('touchend', () => {
+    const now = Date.now();
+    if (now - _lastTapTime < 300) {
+        resetToDefaultView();
+        _lastTapTime = 0;
+    } else {
+        _lastTapTime = now;
+    }
+}, { passive: true });
+
 // ── Hot language switch ──────────────────────────────────────────────────────
 // Retranslate sub-item floating titles and the Close Page / Back button.
 window.addEventListener('langchange', () => {
@@ -895,3 +943,77 @@ export function reloadSubItems() {
 
 // Export for animation loop to update sub-titles and hover detection
 export { subObjects, subTitles, subClickTargets, expandedParent };
+
+// ── Space tour helpers ────────────────────────────────────────────────────────
+/** Scatter ALL cubes + big title + hide all floating titles. Called when the space tour launches. */
+export function scatterAllForTour() {
+    // Build well-separated scatter positions for cubes + title (6 objects total).
+    // Use a minimum-distance rejection loop so nothing clusters.
+    const MIN_SEP   = 9;   // minimum world-unit gap between any two scattered objects
+    const placed    = [];
+
+    function pickPos(xRange, yRange, zMin, zMax) {
+        for (let attempt = 0; attempt < 60; attempt++) {
+            const x = (Math.random() - 0.5) * xRange;
+            const y = (Math.random() - 0.5) * yRange;
+            const z = zMin + Math.random() * (zMax - zMin);
+            if (placed.every(p => {
+                const dx=p[0]-x, dy=p[1]-y, dz=p[2]-z;
+                return Math.sqrt(dx*dx+dy*dy+dz*dz) >= MIN_SEP;
+            })) {
+                placed.push([x, y, z]);
+                return [x, y, z];
+            }
+        }
+        // Fallback — place at a deterministic offset so we never freeze
+        const off = placed.length * MIN_SEP;
+        const pos = [(off % 3 - 1) * MIN_SEP, ((off % 2) - 0.5) * MIN_SEP, zMin];
+        placed.push(pos);
+        return pos;
+    }
+
+    // Big title — blast it away and hide completely
+    if (window.bigTitle) {
+        const [tx, ty, tz] = pickPos(44, 28, -20, -10);
+        gsap.killTweensOf(window.bigTitle.position);
+        gsap.killTweensOf(window.bigTitle.element.style);
+        gsap.to(window.bigTitle.position, { x: tx, y: ty, z: tz, duration: 1.0, ease: 'power2.in' });
+        gsap.to(window.bigTitle.element.style, { opacity: 0, duration: 0.4 });
+    }
+
+    // Cubes — spread wide across x/y/z so none overlap
+    cubes.forEach((obj, i) => {
+        killObjectTweens(obj);
+        const [dx, dy, dz] = pickPos(46, 30, -20, -6);
+        const delay = i * 0.10;
+        gsap.to(obj.position, { x: dx, y: dy, z: dz, duration: 1.5, delay, ease: 'power1.inOut' });
+        const os = originalScales[i];
+        gsap.to(obj.scale, { x: os.x, y: os.y, z: os.z, duration: 0.9, delay, ease: 'power2.out' });
+    });
+
+    titleObjects.forEach((title, i) => {
+        gsap.to(title.element.style, { opacity: 0, duration: 0.6, delay: i * 0.05 });
+    });
+}
+
+/** Restore all cubes + big title to formation. Called mid-tour for a slow graceful reform. */
+export function restoreAllFromTour(duration = 0.7) {
+    // Manually animate back — we need a custom duration so can't use restoreFormation directly
+    cubes.forEach((obj, i) => {
+        // Don't kill tweens — just override with new target so the transition is seamless
+        const pos   = originalPositions[i];
+        const rot   = originalRotations[i];
+        const scl   = originalScales[i];
+        const delay = i * 0.10; // gentle stagger
+        gsap.to(obj.position, { x: pos.x, y: pos.y, z: pos.z, duration, delay, ease: 'power1.inOut', overwrite: 'auto' });
+        gsap.to(obj.rotation, { x: rot.x, y: rot.y, z: rot.z, duration, delay, ease: 'power1.inOut', overwrite: 'auto' });
+        gsap.to(obj.scale,    { x: scl.x, y: scl.y, z: scl.z, duration, delay, ease: 'power1.inOut', overwrite: 'auto' });
+    });
+    // Fade floating titles back in after cubes are mostly home
+    const titlesDelay = duration * 0.6;
+    titleObjects.forEach(title => {
+        gsap.killTweensOf(title.element.style);
+        gsap.to(title.element.style, { opacity: 1, duration: 0.6, delay: titlesDelay });
+    });
+    restoreBigTitle(0.3);
+}

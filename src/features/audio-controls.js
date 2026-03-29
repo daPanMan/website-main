@@ -45,6 +45,8 @@ export function toggleMute() {
     muteButton.innerHTML = bgm.muted ? '🔇' : '🔊';
     // Hide slider when muted, show when unmuted (panel stays open)
     volumeSliderContainer.style.display = !bgm.muted ? 'block' : 'none';
+    // Notify other modules (e.g. space tour audio) about the mute state change
+    window.dispatchEvent(new CustomEvent('mutetoggle', { detail: { muted: soundMuted } }));
 }
 
 export function updateVolume(event) {

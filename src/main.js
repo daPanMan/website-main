@@ -27,6 +27,7 @@ import { recordGeometry } from './geometry/record.js';
 import { projectsGeometry } from './geometry/projects.js';
 import { chefHatGeometry } from './geometry/chef-hat.js';
 import { t } from './i18n.js';
+import { initSpaceTour } from './features/space-tour.js';
 import './ui-intro.js';
 
 // Setup big title
@@ -88,6 +89,9 @@ setupCubes(cubeSpecs);
 
 // Start animation loop
 animate();
+
+// Init space tour (passes scene so nebula particles can be added/removed)
+initSpaceTour(scene);
 
 // ── Hot language switch ──────────────────────────────────────────────────────
 // Fires whenever setPageLang() dispatches 'langchange' (no page reload needed).

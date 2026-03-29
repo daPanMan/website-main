@@ -90,7 +90,8 @@ function onResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
     }
     camera.updateProjectionMatrix();
-    adjustCamera();
+    // Don't reset camera position/FOV mid space tour — the tour owns the camera
+    if (!window.spaceTourActive) adjustCamera();
 }
 window.addEventListener('resize', onResize);
 window.addEventListener('orientationchange', () => setTimeout(onResize, 200));

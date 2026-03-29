@@ -1,6 +1,7 @@
 // Intro overlay, enter button, transition to main 3D page
 import { bgm } from './features/audio-controls.js';
 import { showChatbox } from './features/chatbox.js';
+import { showSpaceTourBtn } from './features/space-tour.js';
 
 export function init3DWorld() {
     const introPage = document.getElementById('intro-page');
@@ -15,6 +16,7 @@ export function init3DWorld() {
         if (css3d) css3d.style.display = 'block';
         gsap.to(threeCanvas, { opacity: 1, duration: 10, ease: 'power2.out' });
         showChatbox();
+        showSpaceTourBtn();
     }, 500);
 }
 

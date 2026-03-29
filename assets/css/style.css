@@ -302,3 +302,95 @@ iframe {
     -webkit-tap-highlight-color: transparent;
 }
 
+/* ==================== SPACE TOUR ==================== */
+#space-tour-btn {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 250;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(10, 10, 30, 0.75);
+    backdrop-filter: blur(6px);
+    color: white;
+    font-size: 26px;
+    display: none;           /* hidden until intro is dismissed */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(100, 140, 255, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+#space-tour-btn:hover {
+    transform: scale(1.12);
+    box-shadow: 0 0 20px rgba(100, 180, 255, 0.7);
+}
+
+/* While tour is active the button shows the countdown */
+#space-tour-btn.tour-active {
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Silkscreen', monospace;
+    letter-spacing: 0.5px;
+    background: rgba(20, 20, 60, 0.85);
+    box-shadow: 0 0 18px rgba(80, 160, 255, 0.6);
+    animation: tour-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes tour-pulse {
+    from { box-shadow: 0 0 10px rgba(80, 160, 255, 0.4); }
+    to   { box-shadow: 0 0 28px rgba(120, 200, 255, 0.9); }
+}
+
+/* Exit button — top-right, same style as reset-scale-button */
+#space-tour-back {
+    position: fixed;
+    top: 65px;
+    right: 20px;
+    z-index: 300;
+    display: none;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+#space-tour-back:hover {
+    background: rgba(40, 40, 80, 0.9);
+}
+
+/* Warp flash overlay — injected by space-tour.js */
+#warp-flash {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+@media (max-width: 768px) {
+    #space-tour-btn {
+        width: 46px;
+        height: 46px;
+        font-size: 22px;
+        bottom: 16px;
+        left: 16px;
+    }
+    #space-tour-back {
+        font-size: 16px;
+        padding: 12px 18px;
+        top: 12px;
+        right: 12px;
+    }
+}
+
