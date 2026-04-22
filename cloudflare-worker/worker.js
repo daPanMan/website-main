@@ -12,13 +12,13 @@ const SEARCH_TOOL = {
     type: 'function',
     function: {
         name: 'search_web',
-        description: 'Search the web for up-to-date information about a topic, person, event, or fact. Use this whenever you are uncertain or your training data may be outdated.',
+        description: 'Search the web for detailed, up-to-date information. Call this for: any real person, company, or organization; any event, news, or topic from 2024 onward; anything you are not 100% certain about; any factual claim worth verifying. Do NOT call this for casual greetings, opinions, or questions about John Pan / this website (you already know that).',
         parameters: {
             type: 'object',
             properties: {
                 query: {
                     type: 'string',
-                    description: 'The search query — be specific for better results.'
+                    description: 'A specific, detailed search query. Include names, dates, and context for better results.'
                 }
             },
             required: ['query']
@@ -49,22 +49,11 @@ export default {
             return corsResponse('Invalid JSON', 400, origin);
         }
 
-        // Inject the search tool into every request
-        // Use 'auto' but the system prompt strongly instructs the model to search
-        // for any real person, recent event, or uncertain topic.
+        // Always give the model access to search — the tool description
+        // tells it when to use it (external topics) vs. skip it (greetings,
+        // site questions).  tool_choice='auto' lets the model decide.
         body.tools = [SEARCH_TOOL];
         body.tool_choice = 'auto';
-
-        // Append a reminder to the last user message to nudge the model to search
-        // when it's asking about people or topics it might not know well.
-        const msgs = body.messages;
-        if (msgs && msgs.length > 0) {
-            const last = msgs[msgs.length - 1];
-            if (last.role === 'user') {
-                last.content = last.content +
-                    '\n\n[System hint: If this message asks about a real person, recent event, or any topic you are not 100% certain about, you MUST call search_web before answering. Do not guess.]';
-            }
-        }
 
         // ── Round 1: ask Groq (may respond with a tool call) ──
         const round1 = await callGroq(body, env.GROQ_API_KEY);
@@ -150,8 +139,8 @@ async function runSearch(query, apiKey) {
         body: JSON.stringify({
             api_key:                apiKey,
             query:                  query,
-            search_depth:           'basic',
-            max_results:            4,
+            search_depth:           'advanced',
+            max_results:            6,
             include_answer:         true,
             include_raw_content:    false,
         }),
@@ -160,13 +149,14 @@ async function runSearch(query, apiKey) {
     if (!res.ok) throw new Error(`Tavily ${res.status}`);
     const data = await res.json();
 
-    // Build a compact summary for the model
+    // Build a rich summary for the model
     const lines = [];
     if (data.answer) {
         lines.push(`Summary: ${data.answer}`);
     }
-    (data.results || []).slice(0, 3).forEach((r, i) => {
-        lines.push(`[${i + 1}] ${r.title}: ${r.content?.slice(0, 300)}...`);
+    (data.results || []).slice(0, 5).forEach((r, i) => {
+        const snippet = r.content?.slice(0, 500) || '';
+        lines.push(`[${i + 1}] ${r.title} (${r.url})\n${snippet}`);
     });
     return lines.join('\n\n') || 'No results found.';
 }

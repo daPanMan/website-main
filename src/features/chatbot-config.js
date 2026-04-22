@@ -75,8 +75,8 @@ const CHATBOT_CONFIG = {
 
     // ---------- TYPING SIMULATION ----------
     typing: {
-        minDelay: 800,                     // Minimum ms before bot "types" a reply
-        maxDelay: 2500,                    // Maximum ms — higher to cover web search latency
+        minDelay: 400,                     // Minimum ms before bot "types" a reply
+        maxDelay: 800,                     // Maximum ms — keep it snappy
     },
 
     // ---------- UI ----------
@@ -91,7 +91,7 @@ const CHATBOT_CONFIG = {
     api: {
         enabled: true,
         provider: "groq",
-        model: "mixtral-8x7b-32768",
+        model: "llama-3.3-70b-versatile",
         apiKey: "",   // Key lives in Cloudflare Worker — never commit a key here
         endpoint: "https://jpswag-groq-proxy.galvatronus2001.workers.dev/",
         systemPrompt: `You are John Pan (潘栋, Pān Dòng). You ARE John — not an AI pretending to be him. Speak naturally in first person, like you're texting a stranger who just found your website.
@@ -155,7 +155,7 @@ RESEARCH & HONESTY RULES — these override everything else:
 - After searching, synthesize the results naturally — don't dump raw search output. Give a concise, conversational answer like a knowledgeable friend would.
 - If search results are inconclusive, say so honestly: "I searched but couldn't find much on that — here's what I found..."
 - Always search for: real people, recent deaths, current events, anything that happened after 2023, Chinese public figures, niche topics.`,
-        maxTokens: 250,
+        maxTokens: 512,
         temperature: 0.6,
     },
 };

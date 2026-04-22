@@ -41,7 +41,7 @@ let userMessageCount = 0;
 
 // Rate limiting
 let lastApiCall = 0;
-const MIN_API_INTERVAL = 4000; // 4s between calls — 70B model has tight token limits
+const MIN_API_INTERVAL = 1500; // 1.5s between calls — enough to avoid 429s without killing UX
 let _retrying = false; // prevents infinite retry loops
 
 async function getAIResponse(userText) {
@@ -96,7 +96,7 @@ async function getAIResponse(userText) {
             // Auto-retry once after a short delay before giving up
             if (!_retrying) {
                 _retrying = true;
-                await new Promise(r => setTimeout(r, 1500));
+                await new Promise(r => setTimeout(r, 800));
                 _retrying = false;
                 conversationHistory.pop(); // remove the user msg added above
                 return getAIResponse(userText); // retry
@@ -143,17 +143,20 @@ async function handleSend() {
     input.value = '';
     userMessageCount++;
 
-    // Show typing indicator
+    // Show typing indicator with animated dots
     const typingDiv = document.createElement('div');
     typingDiv.className = 'chat-msg bot typing';
-    typingDiv.textContent = '...';
+    for (let i = 0; i < 3; i++) {
+        const dot = document.createElement('span');
+        dot.textContent = '●';
+        dot.style.cssText = `animation: typing-dot 1.2s ease-in-out ${i * 0.2}s infinite; font-size: 10px; opacity: 0.3;`;
+        typingDiv.appendChild(dot);
+    }
     messages.appendChild(typingDiv);
     messages.scrollTop = messages.scrollHeight;
 
-    // Enforce min typing delay so fast responses still feel human
-    const minDelay = CONFIG.typing.minDelay ?? 600;
-    const maxDelay = CONFIG.typing.maxDelay ?? 1400;
-    const typingDelay = minDelay + Math.random() * (maxDelay - minDelay);
+    // Short typing indicator so the user sees feedback, but don't artificially delay
+    const typingDelay = 400 + Math.random() * 400; // 400-800ms — just enough to feel natural
 
     const [result] = await Promise.all([
         getAIResponse(text),
